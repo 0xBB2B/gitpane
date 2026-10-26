@@ -307,8 +307,11 @@ func trimSegs(segs []seg, w int) []seg {
 		sw := lipgloss.Width(s.s)
 		if used+sw > w {
 			if rest := w - used; rest > 0 {
-				out = append(out, seg{ansi.Truncate(s.s, rest, "…"), s.st})
-				used = w
+				// 截断处是两列宽的字（中文等）时，截出来可能比 rest 少一列，按实际宽度算，
+				// 后面会补空格，保证右侧内容（时间等）始终贴右对齐
+				t := ansi.Truncate(s.s, rest, "…")
+				out = append(out, seg{t, s.st})
+				used += lipgloss.Width(t)
 			}
 			break
 		}

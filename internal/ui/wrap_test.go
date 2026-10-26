@@ -145,3 +145,17 @@ func TestStatSummary(t *testing.T) {
 		}
 	}
 }
+
+func TestRightAlignCJKTruncate(t *testing.T) {
+	left := []seg{sg(" ● 4c63f65 ", fg(cYellow)), sg("状态面板第一行显示任务进度，决策包里提示轮数上限", fg(cText))}
+	right := []seg{sg(" 7 天前 ", fg(cFaint))}
+	for w := 20; w <= 60; w++ {
+		line := stripANSI(rightAlign(w, nil, left, right))
+		if got := lipgloss.Width(line); got != w {
+			t.Fatalf("w=%d：行宽 %d", w, got)
+		}
+		if !strings.HasSuffix(line, " 7 天前 ") {
+			t.Fatalf("w=%d：时间没有贴右：%q", w, line)
+		}
+	}
+}
