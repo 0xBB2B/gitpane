@@ -97,7 +97,8 @@ type Model struct {
 
 	detail    detailView
 	detailKey string
-	detailOff int
+	detailOff int  // 详情区滚动位置（按屏幕行算，开启换行时一行代码可能占多行）
+	wrap      bool // 详情区长行自动换行；关闭时截断显示
 
 	busy     string
 	spin     spinner.Model
@@ -131,7 +132,10 @@ func New(dir string, opts Options) Model {
 	sp.Style = fg(cAccent)
 
 	m := Model{dir: dir, opts: opts, collapsed: map[string]bool{}, fileFold: map[string]bool{},
-		graphLimit: graphPage, input: ti, spin: sp, lastClickRow: -1, split: loadSplits()}
+		graphLimit: graphPage, input: ti, spin: sp, lastClickRow: -1}
+	var dp detailPrefs
+	m.split, dp = loadLayout()
+	m.wrap = dp.Wrap
 	m.repo, _ = gitx.Open(dir)
 	if m.repo == nil && opts.Depth > 0 {
 		m.workspace, m.scanning = dir, true
@@ -396,8 +400,8 @@ func (m *Model) maybeLoadMore() tea.Cmd {
 	return m.refreshCmd()
 }
 
-// visibleDetail 返回详情区当前可见的行：折叠的文件只留标题行。
-func (m Model) visibleDetail() []dline {
+// foldedDetail 返回去掉折叠文件内容后的行：折叠的文件只留标题行。
+func (m Model) foldedDetail() []dline {
 	lines := m.detail.lines
 	if m.detail.files == 0 {
 		return lines
@@ -416,6 +420,58 @@ func (m Model) visibleDetail() []dline {
 		out = append(out, l)
 	}
 	return out
+}
+
+// visibleDetail 返回详情区按屏幕行排好的内容：在 foldedDetail 的基础上，
+// 开启换行时把超宽的行折成多行（后续行 cont = true，src 指回原行）。
+func (m Model) visibleDetail() []dline {
+	lines := m.foldedDetail()
+	if !m.wrap {
+		return lines
+	}
+	w := m.geom().detailW
+	out := make([]dline, 0, len(lines))
+	for i, l := range lines {
+		l.src = i
+		parts := wrapDLine(l, w, m.detail.digits)
+		if parts == nil {
+			out = append(out, l)
+			continue
+		}
+		for j, p := range parts {
+			c := l
+			c.text, c.cont = p, j > 0
+			out = append(out, c)
+		}
+	}
+	return out
+}
+
+// toggleWrap 切换自动换行，并尽量让详情区顶部还停在同一行代码上。
+func (m *Model) toggleWrap() {
+	top := m.detailOff
+	if m.wrap {
+		if vis := m.visibleDetail(); top < len(vis) {
+			top = vis[top].src
+		}
+	}
+	m.wrap = !m.wrap
+	m.detailOff = top
+	if m.wrap {
+		for i, l := range m.visibleDetail() {
+			if l.src >= top {
+				m.detailOff = i
+				break
+			}
+		}
+	}
+	m.clampOffset()
+	m.saveLayout()
+	if m.wrap {
+		m.setMsg(lvInfo, i18n.T("已开启自动换行，长行折到下一行完整显示"))
+	} else {
+		m.setMsg(lvInfo, i18n.T("已关闭自动换行，长行截断显示"))
+	}
 }
 
 // fileFolded：提交只改了一个文件时默认展开，多个文件默认折叠，先看清单。

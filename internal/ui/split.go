@@ -43,8 +43,14 @@ func layoutFile() string {
 	return filepath.Join(dir, "gitpane", "layout.json")
 }
 
-// loadSplits 读取保存的比例；文件不存在或损坏时返回全 0（默认）。
-func loadSplits() (out [numTabs]splitPref) {
+// detailPrefs 是详情区的显示偏好，和分隔比例存在同一个文件的 "detail" 键下。
+// 旧版本读到它会当成一个空的分隔比例忽略掉，不影响兼容。
+type detailPrefs struct {
+	Wrap bool `json:"wrap,omitempty"` // 长行自动换行
+}
+
+// loadLayout 读取保存的比例和详情偏好；文件不存在或损坏时返回默认值。
+func loadLayout() (out [numTabs]splitPref, dp detailPrefs) {
 	p := layoutFile()
 	if p == "" {
 		return
@@ -53,13 +59,18 @@ func loadSplits() (out [numTabs]splitPref) {
 	if err != nil {
 		return
 	}
-	var saved map[string]splitPref
+	var saved map[string]json.RawMessage
 	if json.Unmarshal(data, &saved) != nil {
 		return
 	}
 	for i, name := range tabNames {
-		s := saved[name]
-		out[i] = splitPref{Wide: validRatio(s.Wide), Stack: validRatio(s.Stack)}
+		var s splitPref
+		if raw, ok := saved[name]; ok && json.Unmarshal(raw, &s) == nil {
+			out[i] = splitPref{Wide: validRatio(s.Wide), Stack: validRatio(s.Stack)}
+		}
+	}
+	if raw, ok := saved["detail"]; ok {
+		_ = json.Unmarshal(raw, &dp)
 	}
 	return
 }
@@ -71,16 +82,17 @@ func validRatio(r float64) float64 {
 	return r
 }
 
-// saveSplits 写回配置文件；失败时静默忽略（比例只是偏好，不影响使用）。
-func (m Model) saveSplits() {
+// saveLayout 写回配置文件；失败时静默忽略（只是偏好，不影响使用）。
+func (m Model) saveLayout() {
 	p := layoutFile()
 	if p == "" {
 		return
 	}
-	saved := map[string]splitPref{}
+	saved := map[string]any{}
 	for i, name := range tabNames {
 		saved[name] = m.split[i]
 	}
+	saved["detail"] = detailPrefs{Wrap: m.wrap}
 	data, err := json.MarshalIndent(saved, "", "  ")
 	if err != nil {
 		return
@@ -115,13 +127,13 @@ func (m *Model) nudgeSplit(dir int) {
 	} else {
 		m.setListH(g.listH + 2*dir)
 	}
-	m.saveSplits()
+	m.saveLayout()
 }
 
 func (m *Model) resetSplit() {
 	m.split[m.tab] = splitPref{}
 	m.clampOffset()
-	m.saveSplits()
+	m.saveLayout()
 	m.setMsg(lvInfo, i18n.T("已恢复默认比例"))
 }
 
@@ -140,7 +152,7 @@ func (m *Model) handleDrag(ev tea.MouseMsg) bool {
 		}
 	case tea.MouseActionRelease:
 		m.drag = dragNone
-		m.saveSplits()
+		m.saveLayout()
 	}
 	return true
 }
@@ -151,8 +163,10 @@ func (m *Model) startDrag(g geom, x, y int) bool {
 	case g.wide && x == g.listW && y >= g.listY && y < g.listY+g.listH:
 		m.drag = dragWide
 	case !g.wide && m.repo != nil && y == g.detailHdrY:
-		if b, ok := m.detailFoldButton(g); ok && b.hit(x) {
-			return false // 标题栏右端的「全部展开」按钮照常可点
+		for _, b := range m.detailButtons(g) {
+			if b.hit(x) {
+				return false // 标题栏右端的按钮照常可点
+			}
 		}
 		m.drag = dragStack
 	default:

@@ -44,6 +44,8 @@ type dline struct {
 	g         gitx.GraphLine
 	file      int  // 所属文件标题行的下标；-1 表示不属于任何文件（提交信息等）
 	collapsed bool // 仅 dFile：该文件是否折叠（渲染时由 visibleDetail 填）
+	cont      bool // 自动换行折出来的后续行：不画行号、符号和图标
+	src       int  // 自动换行时，这一屏幕行属于 foldedDetail 里的第几行
 }
 
 // detailView 是详情区的内容：标题栏 + 若干行。
@@ -304,6 +306,54 @@ func num(n, digits int) string {
 
 func expandTabs(s string) string { return strings.ReplaceAll(s, "\t", "    ") }
 
+// dlinePrefix 返回各类行在正文前面占的列数（行号栏、图标、缩进）；
+// 不参与自动换行的行（文件标题、hunk 标题、图谱）返回 -1。
+func dlinePrefix(k dkind, w, digits int) int {
+	switch k {
+	case dCtx, dAdd, dDel:
+		if w >= 44 { // 和 renderDLine 的 twoCols 一致：旧行号 + 新行号
+			return 2*digits + 5
+		}
+		return digits + 3
+	case dBody, dInfo, dStatSum:
+		return 3
+	case dTitle:
+		return lipgloss.Width(icons.commit) + 2
+	case dMeta:
+		return 5
+	case dText:
+		return 1
+	case dErr:
+		return lipgloss.Width(icons.cross) + 2
+	}
+	return -1
+}
+
+// wrapDLine 把超出宽度的一行按屏幕宽度折成多段；不需要折时返回 nil。
+// 代码按字符硬折（保留缩进和空格），提交信息等文字优先在空格处折。
+func wrapDLine(l dline, w, digits int) []string {
+	pre := dlinePrefix(l.kind, w, digits)
+	avail := w - pre
+	if pre < 0 || avail < 8 {
+		return nil
+	}
+	text := clean(l.text)
+	if len(text) <= avail { // 字节数不小于显示宽度，放得下就不用再算
+		return nil
+	}
+	if lipgloss.Width(text) <= avail {
+		return nil
+	}
+	var wrapped string
+	switch l.kind {
+	case dCtx, dAdd, dDel:
+		wrapped = ansi.Hardwrap(text, avail, true)
+	default:
+		wrapped = ansi.Wrap(text, avail, "")
+	}
+	return strings.Split(wrapped, "\n")
+}
+
 // renderDLine 渲染详情区的一行。
 func renderDLine(l dline, w, digits int) string {
 	gut := fg(cFaint)
@@ -320,18 +370,27 @@ func renderDLine(l dline, w, digits int) string {
 		s = append(s, sg(num(n, digits)+" ", st), sg(sign, signSt), sg(" ", lipgloss.NewStyle()))
 		return s
 	}
+	if l.cont { // 换行折出来的后续行：行号栏留空，底色照旧
+		l.old, l.new = 0, 0
+	}
+	lead := func(s string) string { // 后续行把行首的图标 / 符号换成等宽空白
+		if l.cont {
+			return strings.Repeat(" ", lipgloss.Width(s))
+		}
+		return s
+	}
 	switch l.kind {
 	case dCtx:
 		return paint(w, nil, append(gutter(l.old, l.new, " ", gut, nil), sg(expandTabs(l.text), fg(cSub)))...)
 	case dAdd:
-		return paint(w, cAddBg, append(gutter(0, l.new, "+", fg(cGreen).Bold(true), cAddHi), sg(expandTabs(l.text), fg(cText)))...)
+		return paint(w, cAddBg, append(gutter(0, l.new, lead("+"), fg(cGreen).Bold(true), cAddHi), sg(expandTabs(l.text), fg(cText)))...)
 	case dDel:
-		return paint(w, cDelBg, append(gutter(l.old, 0, "-", fg(cRed).Bold(true), cDelHi), sg(expandTabs(l.text), fg(cText)))...)
+		return paint(w, cDelBg, append(gutter(l.old, 0, lead("-"), fg(cRed).Bold(true), cDelHi), sg(expandTabs(l.text), fg(cText)))...)
 	case dHunk:
 		where := " " + i18n.Tf("第 %d 行", l.new) + " "
 		return paint(w, cHunkBg, sg(" ⋯", fg(cCyan)), sg(where, fg(cMuted)), sg(l.text, fg(cSub).Italic(true)))
 	case dMeta:
-		return paint(w, nil, sg("   ", lipgloss.NewStyle()), sg("· "+l.text, fg(cMuted).Italic(true)))
+		return paint(w, nil, sg("   ", lipgloss.NewStyle()), sg(lead("· ")+l.text, fg(cMuted).Italic(true)))
 	case dFile:
 		dir, name := path.Split(l.path)
 		right := []seg{}
@@ -362,7 +421,7 @@ func renderDLine(l dline, w, digits int) string {
 	case dStatSum:
 		return paint(w, nil, sg("   "+l.text, fg(cMuted)))
 	case dTitle:
-		return paint(w, nil, sg(" "+icons.commit+" ", fg(cAccent)), sg(l.text, fg(cText).Bold(true)))
+		return paint(w, nil, sg(lead(" "+icons.commit+" "), fg(cAccent)), sg(l.text, fg(cText).Bold(true)))
 	case dInfo:
 		return paint(w, nil, sg("   "+l.text, fg(cMuted)))
 	case dBody:
@@ -370,7 +429,7 @@ func renderDLine(l dline, w, digits int) string {
 	case dGraph:
 		return renderGraphLine(l.g, w, false, "")
 	case dErr:
-		return paint(w, nil, sg(" "+icons.cross+" "+l.text, fg(cRed)))
+		return paint(w, nil, sg(lead(" "+icons.cross+" ")+l.text, fg(cRed)))
 	case dText:
 		return paint(w, nil, sg(" "+l.text, fg(cMuted)))
 	}
@@ -439,7 +498,7 @@ func renderGraphLine(g gitx.GraphLine, w int, sel bool, headBranch string) strin
 	}
 	left := append(segs, sg(g.Subject, subjSt))
 	right := []seg{sg(" "+g.When+" ", fg(cFaint))}
-	if lipgloss.Width(g.When) > w/4 {
+	if lipgloss.Width(g.When) > w/3 { // 列表太窄时宁可不显示时间，也要给标题留地方
 		right = nil
 	}
 	return rightAlign(w, bg, left, right)

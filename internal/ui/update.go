@@ -297,6 +297,9 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.moveCursor(cur + g.listH)
 	case "pgup":
 		return m, m.moveCursor(cur - g.listH)
+	case "w":
+		m.toggleWrap()
+		return m, nil
 	case "J", "ctrl+d":
 		m.detailOff += max(1, g.detailH/2)
 		m.clampOffset()
@@ -444,8 +447,15 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 
 	case inDetail:
 		if ev.Y == g.detailHdrY {
-			if b, ok := m.detailFoldButton(g); ok && b.hit(ev.X) {
-				m.toggleAllFiles()
+			for _, b := range m.detailButtons(g) {
+				if !b.hit(ev.X) {
+					continue
+				}
+				if b.id == "wrap" {
+					m.toggleWrap()
+				} else {
+					m.toggleAllFiles()
+				}
 			}
 			return m, nil
 		}

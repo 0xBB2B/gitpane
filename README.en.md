@@ -110,6 +110,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
   Click a file for its diff, click `+` / `-` on the right to stage or unstage, click a folder's `+` to stage the whole folder, and use the buttons on group headers for bulk actions.
   After staging, the cursor moves on to the next file.
 - **Diffs**: drawn by Gitpane itself with old and new line numbers, tinted added / removed lines and hunk positions; only the visible part is rendered, so large files stay smooth.
+  Long lines are truncated by default; click “↩ Wrap” on the right of the detail header or press `w` to wrap them instead (remembered).
 - **Graph**: a custom lane layout with one commit per row; forks and merges are joined on the same row with `╭ ╮ ╰ ╯ ├ ┤ ┴ ┼`, and each branch keeps its color.
   `◉` marks HEAD and `○` a merge commit (with a dimmed subject). HEAD, local branches, remote branches and tags are color-coded.
   Scrolling to the bottom loads more, so the entire history is reachable.
@@ -139,6 +140,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `x` | Discard changes to the current file (press twice) |
 | `p` / `P` / `f` | pull / push / fetch |
 | `J` `K` | Scroll the detail pane |
+| `w` | Wrap / truncate long lines in the detail pane (remembered) |
 | `<` `>` / `=` | Move the divider between list and detail / reset it |
 | `r` | Refresh now |
 | `?` | Help |

@@ -194,5 +194,11 @@ func init() {
 		"读取失败":                  "unreadable",
 		"返回":                    "Back",
 		"选择仓库":                  "Choose repository",
+		"换行":                    "Wrap",
+		"已开启自动换行，长行折到下一行完整显示":   "Line wrap on: long lines continue on the next row",
+		"已关闭自动换行，长行截断显示":        "Line wrap off: long lines are truncated",
+		"详情区长行自动换行 / 截断":        "Wrap / truncate long lines in the detail pane",
+		"点「↩ 换行」":               "Click “↩ Wrap”",
+		"详情标题栏右侧，开关长行自动换行（会记住）": "Right of the detail header; toggles line wrap (remembered)",
 	})
 }

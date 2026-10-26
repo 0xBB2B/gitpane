@@ -68,11 +68,7 @@ func (m Model) geom() geom {
 	body := max(2, m.h-4) // 去掉头部、标签、按钮、状态四行
 	if m.isWide() {
 		g.wide = true
-		g.listW = max(30, min(m.w*2/5, 64))
-		if m.tab == tabGraph {
-			// 图谱最该看清的是提交标题，列表给宽一点
-			g.listW = max(40, min(m.w*11/20, 100))
-		}
+		g.listW = max(30, min(m.w*2/5, 64)) // 变更和图谱默认用同一个比例
 		if r := m.split[m.tab].Wide; r > 0 {
 			g.listW = int(math.Round(float64(m.w) * r)) // 用户拖动 / 调整过的比例
 		}
@@ -630,27 +626,42 @@ func (m Model) viewDetailHeader(g geom) string {
 		pct := 100 * (m.detailOff + g.detailH) / n
 		right = append(right, sg(fmt.Sprintf("%d%% ", min(100, pct)), fg(cFaint)))
 	}
-	if b, ok := m.detailFoldButton(g); ok {
-		right = append(right, sg(" "+b.label+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cSub)), sg(" ", lipgloss.NewStyle()))
+	for _, b := range m.detailButtons(g) {
+		st := lipgloss.NewStyle().Background(cSurface).Foreground(cSub)
+		if b.id == "wrap" && m.wrap {
+			st = lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true) // 开启中高亮
+		}
+		right = append(right, sg(" "+b.label+" ", st), sg(" ", lipgloss.NewStyle()))
 	}
 	return rightAlign(g.detailW, bar, left, right)
 }
 
-// detailFoldButton 是提交详情标题栏右端的「全部展开 / 全部折叠」按钮（坐标为整屏绝对列）。
-func (m Model) detailFoldButton(g geom) (button, bool) {
-	if m.detail.files < 2 || m.detail.key != m.detailKey {
-		return button{}, false
+// detailButtons 是详情标题栏右端的按钮（坐标为整屏绝对列），从左到右：
+// 「↩ 换行」开关（内容加载好后总是显示），以及多文件提交的「全部展开 / 全部折叠」。
+func (m Model) detailButtons(g geom) []button {
+	if m.detailKey == "" || m.detail.key != m.detailKey {
+		return nil
 	}
-	label := icons.dirOpen + i18n.T(" 全部展开")
-	for _, l := range m.detail.lines {
-		if l.kind == dFile && !m.fileFolded(l.path) {
-			label = icons.dirClosed + i18n.T(" 全部折叠")
-			break
+	labels := []struct{ id, label string }{{"wrap", icons.wrap + i18n.T(" 换行")}}
+	if m.detail.files >= 2 {
+		label := icons.dirOpen + i18n.T(" 全部展开")
+		for _, l := range m.detail.lines {
+			if l.kind == dFile && !m.fileFolded(l.path) {
+				label = icons.dirClosed + i18n.T(" 全部折叠")
+				break
+			}
 		}
+		labels = append(labels, struct{ id, label string }{"filesFold", label})
 	}
-	w := lipgloss.Width(label) + 2
+	// 从右往左排：每个按钮是「 label 」，后面跟一格空白
+	out := make([]button, len(labels))
 	x1 := g.detailX + g.detailW - 1
-	return button{id: "filesFold", label: label, x0: x1 - w, x1: x1}, true
+	for i := len(labels) - 1; i >= 0; i-- {
+		w := lipgloss.Width(labels[i].label) + 2
+		out[i] = button{id: labels[i].id, label: labels[i].label, x0: x1 - w, x1: x1}
+		x1 -= w + 1
+	}
+	return out
 }
 
 func (m Model) viewDetail(g geom) []string {
@@ -719,6 +730,7 @@ func (m Model) viewHelp() string {
 			{"j k ↑ ↓", i18n.T("上下移动")},
 			{"g G", i18n.T("到顶 / 到底")},
 			{"J K", i18n.T("详情区翻页（也可以滚轮）")},
+			{"w", i18n.T("详情区长行自动换行 / 截断")},
 			{"r", i18n.T("立即刷新（平时每 2 秒自动刷新）")},
 			{"< >", i18n.T("调整列表和详情的分隔线")},
 			{"=", i18n.T("恢复默认比例")},
@@ -745,6 +757,7 @@ func (m Model) viewHelp() string {
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
 			{i18n.T("点顶部分支名"), i18n.T("打开分支选择面板")},
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
+			{i18n.T("点「↩ 换行」"), i18n.T("详情标题栏右侧，开关长行自动换行（会记住）")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
 			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式）")},
