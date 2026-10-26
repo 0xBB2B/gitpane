@@ -54,10 +54,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.refs != strings.Join(m.graphRefs, "\x00") || msg.limit != m.graphLimit {
 			return m, nil // 筛选或加载量已经变了，这是过期结果
 		}
+		// 自动刷新时图谱里可能多了提交（新提交、fetch、分支移动），行号会错位。
+		// 按哈希找回原来选中的提交，并把滚动位置平移同样的行数，让画面保持不动。
+		var keep string
+		if i := m.cursor[tabGraph]; i >= 0 && i < len(m.graph) {
+			keep = m.graph[i].Full
+		}
 		if msg.err == nil {
 			m.graph = msg.lines
 		} else {
 			m.graph = nil
+		}
+		if keep != "" {
+			for i, l := range m.graph {
+				if l.Full == keep {
+					m.offset[tabGraph] = max(0, m.offset[tabGraph]+i-m.cursor[tabGraph])
+					m.cursor[tabGraph] = i
+					break
+				}
+			}
 		}
 		if m.tab == tabGraph {
 			m.clampCursor()
