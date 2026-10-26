@@ -1,0 +1,25 @@
+{
+    "version": "0.1.0",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/0xBB2B/gitpane/releases/download/v0.1.0/gitpane_0.1.0_windows_amd64.zip",
+            "bin": [
+                "gitpane.exe"
+            ],
+            "hash": "eaabedc1131da713c7acaaebf2f3de1b56ef14f706401b8f42dafd9f26d2b57c"
+        },
+        "arm64": {
+            "url": "https://github.com/0xBB2B/gitpane/releases/download/v0.1.0/gitpane_0.1.0_windows_arm64.zip",
+            "bin": [
+                "gitpane.exe"
+            ],
+            "hash": "5814bef0dc2bae0d531d55330742873d6d16f3d3a68aae4fd6b3d9126cb566e0"
+        }
+    },
+    "homepage": "https://github.com/0xBB2B/gitpane",
+    "license": "MIT",
+    "description": "Mouse-driven Git TUI: change tree, diffs, lane-based commit graph",
+    "depends": [
+        "git"
+    ]
+}
