@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/0xBB2B/gitpane/internal/gitx"
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -223,13 +224,13 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 		m.quitArmedAt = time.Now()
-		m.setMsg(lvInfo, "再按一次 Ctrl+C 关闭面板")
+		m.setMsg(lvInfo, i18n.T("再按一次 Ctrl+C 关闭面板"))
 		return m, nil
 	case "q":
 		if !m.opts.Embed {
 			return m, tea.Quit
 		}
-		m.setMsg(lvInfo, "面板模式下 q 不退出；要关闭请按两次 Ctrl+C")
+		m.setMsg(lvInfo, i18n.T("面板模式下 q 不退出；要关闭请按两次 Ctrl+C"))
 		return m, nil
 	case "?":
 		m.showHelp = true
@@ -263,7 +264,7 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.clampOffset()
 		return m, nil
 	case "r":
-		m.setMsg(lvInfo, "已刷新")
+		m.setMsg(lvInfo, i18n.T("已刷新"))
 		return m, m.refreshCmd()
 	case "c":
 		return m, m.beginCommit()
@@ -526,19 +527,19 @@ func (m *Model) toggleAllFolders() {
 			dir := path.Dir(f.Path)
 			for dir != "." && dir != "/" {
 				for _, sec := range []section{secConflict, secStaged, secChanges} {
-					m.collapsed[sec.title()+"\x00"+dir] = true
+					m.collapsed[sec.id()+"\x00"+dir] = true
 				}
 				dir = path.Dir(dir)
 			}
 		}
-		m.setMsg(lvInfo, "已折叠全部文件夹（z 展开）")
+		m.setMsg(lvInfo, i18n.T("已折叠全部文件夹（z 展开）"))
 	} else {
 		for k := range m.collapsed {
 			if !strings.HasSuffix(k, "\x00") { // 分组标题的 key 以空路径结尾
 				delete(m.collapsed, k)
 			}
 		}
-		m.setMsg(lvInfo, "已展开全部文件夹")
+		m.setMsg(lvInfo, i18n.T("已展开全部文件夹"))
 	}
 	m.rows = buildRows(m.status, m.collapsed)
 	if hasAnchor && anchor.kind != rowSection {
@@ -566,15 +567,15 @@ func (m *Model) toggleStage(idx int) tea.Cmd {
 	files := r.files
 	label := r.name
 	if r.kind == rowSection {
-		label = fmt.Sprintf("%d 个文件", len(files))
+		label = fmt.Sprintf(i18n.T("%d 个文件"), len(files))
 	}
 	if r.sec == secStaged {
-		return m.startOp("取消暂存", func() (string, error) {
-			return "已取消暂存 " + label, repo.Unstage(files...)
+		return m.startOp(i18n.T("取消暂存"), func() (string, error) {
+			return i18n.Tf("已取消暂存 %s", label), repo.Unstage(files...)
 		})
 	}
-	return m.startOp("暂存", func() (string, error) {
-		return "已暂存 " + label, repo.Stage(files...)
+	return m.startOp(i18n.T("暂存"), func() (string, error) {
+		return i18n.Tf("已暂存 %s", label), repo.Stage(files...)
 	})
 }
 
@@ -586,9 +587,9 @@ func (m *Model) beginCommit() tea.Cmd {
 	}
 	if m.stagedCount() == 0 {
 		if m.changeCount() == 0 {
-			m.setMsg(lvInfo, "工作区是干净的，没有可提交的内容")
+			m.setMsg(lvInfo, i18n.T("工作区是干净的，没有可提交的内容"))
 		} else {
-			m.setMsg(lvErr, "还没有暂存文件：点 + 暂存，或按 a 全部暂存")
+			m.setMsg(lvErr, i18n.T("还没有暂存文件：点 + 暂存，或按 a 全部暂存"))
 		}
 		return nil
 	}
@@ -601,11 +602,11 @@ func (m *Model) beginCommit() tea.Cmd {
 func (m *Model) doAction(id string) tea.Cmd {
 	if id == "init" {
 		dir := m.dir
-		return m.startOp("初始化", func() (string, error) {
+		return m.startOp(i18n.T("初始化"), func() (string, error) {
 			if err := gitx.Init(dir); err != nil {
 				return "", err
 			}
-			return "已初始化仓库", nil
+			return i18n.T("已初始化仓库"), nil
 		})
 	}
 	if id == "repoRetry" || m.repo == nil {
@@ -615,42 +616,42 @@ func (m *Model) doAction(id string) tea.Cmd {
 	st := m.status
 	switch id {
 	case "refresh":
-		m.setMsg(lvInfo, "已刷新")
+		m.setMsg(lvInfo, i18n.T("已刷新"))
 		return m.refreshCmd()
 	case "commit":
 		return m.beginCommit()
 	case "commitConfirm":
 		text := strings.TrimSpace(m.input.Value())
 		if text == "" {
-			m.setMsg(lvErr, "提交信息不能为空")
+			m.setMsg(lvErr, i18n.T("提交信息不能为空"))
 			return nil
 		}
 		m.committing = false
 		m.input.Blur()
-		return m.startOp("提交中…", func() (string, error) {
+		return m.startOp(i18n.T("提交中…"), func() (string, error) {
 			s, err := repo.Commit(text)
-			return "已提交 " + s, err
+			return i18n.Tf("已提交 %s", s), err
 		})
 	case "commitCancel":
 		m.committing = false
 		m.input.Blur()
 		return nil
 	case "stageAll":
-		return m.startOp("暂存中…", func() (string, error) { return "已全部暂存", repo.StageAll() })
+		return m.startOp(i18n.T("暂存中…"), func() (string, error) { return i18n.T("已全部暂存"), repo.StageAll() })
 	case "unstageAll":
-		return m.startOp("取消暂存中…", func() (string, error) { return "已全部取消暂存", repo.UnstageAll() })
+		return m.startOp(i18n.T("取消暂存中…"), func() (string, error) { return i18n.T("已全部取消暂存"), repo.UnstageAll() })
 	case "pull":
-		return m.startOp("拉取中…", func() (string, error) {
+		return m.startOp(i18n.T("拉取中…"), func() (string, error) {
 			out, err := repo.Pull()
 			if out == "" {
-				out = "拉取完成"
+				out = i18n.T("拉取完成")
 			}
 			return out, err
 		})
 	case "push":
-		return m.startOp("推送中…", func() (string, error) { return "推送完成", repo.Push(st) })
+		return m.startOp(i18n.T("推送中…"), func() (string, error) { return i18n.T("推送完成"), repo.Push(st) })
 	case "fetch":
-		return m.startOp("抓取中…", func() (string, error) { return "抓取完成", repo.Fetch() })
+		return m.startOp(i18n.T("抓取中…"), func() (string, error) { return i18n.T("抓取完成"), repo.Fetch() })
 	case "foldAll":
 		m.toggleAllFolders()
 		return m.syncDetail()
@@ -661,22 +662,22 @@ func (m *Model) doAction(id string) tea.Cmd {
 	case "discard":
 		r, ok := m.currentRow()
 		if !ok || r.kind != rowFile || r.sec != secChanges {
-			m.setMsg(lvInfo, "选中「变更」下的文件后才能放弃改动")
+			m.setMsg(lvInfo, i18n.T("选中「变更」下的文件后才能放弃改动"))
 			return nil
 		}
 		key := r.key()
 		if m.confirmKey != key || time.Since(m.confirmAt) > 4*time.Second {
 			m.confirmKey, m.confirmAt = key, time.Now()
-			what := "改动"
+			what := i18n.T("改动")
 			if r.file.Untracked() {
-				what = "新文件（会被删除）"
+				what = i18n.T("新文件（会被删除）")
 			}
-			m.setMsg(lvErr, "再按一次 x / 点「放弃」确认丢弃 "+r.name+" 的"+what)
+			m.setMsg(lvErr, i18n.Tf("再按一次 x / 点「放弃」确认丢弃 %s 的%s", r.name, what))
 			return nil
 		}
 		m.confirmKey = ""
 		f := r.file
-		return m.startOp("放弃改动…", func() (string, error) { return "已放弃 " + f.Path, repo.Discard(f) })
+		return m.startOp(i18n.T("放弃改动…"), func() (string, error) { return i18n.Tf("已放弃 %s", f.Path), repo.Discard(f) })
 	}
 	return nil
 }

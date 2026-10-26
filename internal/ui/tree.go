@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/0xBB2B/gitpane/internal/gitx"
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 type section int
@@ -19,11 +20,11 @@ const (
 func (s section) title() string {
 	switch s {
 	case secConflict:
-		return "冲突"
+		return i18n.T("冲突")
 	case secStaged:
-		return "已暂存"
+		return i18n.T("已暂存")
 	default:
-		return "变更"
+		return i18n.T("变更")
 	}
 }
 
@@ -51,7 +52,10 @@ type row struct {
 	guide     string // 树形连线前缀，如 "│ ├ "
 }
 
-func (r row) key() string { return r.sec.title() + "\x00" + r.path }
+// key 用分组编号而不是显示名，切换界面语言不影响折叠状态。
+func (r row) key() string { return r.sec.id() + "\x00" + r.path }
+
+func (s section) id() string { return string(rune('0' + int(s))) }
 
 type node struct {
 	name  string

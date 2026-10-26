@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 // 配色基于 Tokyo Night（深色）/ Tokyo Night Day（浅色），根据终端背景自动切换。
@@ -57,21 +59,21 @@ func statusColor(c byte) ac {
 func statusWord(c byte) string {
 	switch c {
 	case 'M':
-		return "修改"
+		return i18n.T("修改")
 	case 'A':
-		return "新增"
+		return i18n.T("新增")
 	case 'D':
-		return "删除"
+		return i18n.T("删除")
 	case 'R':
-		return "重命名"
+		return i18n.T("重命名")
 	case 'C':
-		return "复制"
+		return i18n.T("复制")
 	case 'U':
-		return "未跟踪"
+		return i18n.T("未跟踪")
 	case 'T':
-		return "类型变更"
+		return i18n.T("类型变更")
 	case '!':
-		return "冲突"
+		return i18n.T("冲突")
 	}
 	return ""
 }

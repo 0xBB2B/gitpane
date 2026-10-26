@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/0xBB2B/gitpane/internal/gitx"
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 const refreshEvery = 2 * time.Second
@@ -101,7 +102,7 @@ type Model struct {
 func New(dir string, opts Options) Model {
 	ti := textinput.New()
 	ti.Prompt = ""
-	ti.Placeholder = "写点什么…  回车提交 · Esc 取消"
+	ti.Placeholder = i18n.T("写点什么…  回车提交 · Esc 取消")
 	ti.CharLimit = 0
 	ti.TextStyle = fg(cText)
 	ti.PlaceholderStyle = fg(cFaint)
@@ -217,14 +218,14 @@ func (m Model) detailTarget() (string, func() detailView) {
 		}
 		f, sec := r.file, r.sec
 		code := statusCode(f, sec)
-		where, col := "工作区", cYellow
+		where, col := i18n.T("工作区"), cYellow
 		switch {
 		case sec == secStaged:
-			where, col = "已暂存", cGreen
+			where, col = i18n.T("已暂存"), cGreen
 		case sec == secConflict:
-			where, col = "冲突", cRed
+			where, col = i18n.T("冲突"), cRed
 		case f.Untracked():
-			where, col = "新文件", cGreen
+			where, col = i18n.T("新文件"), cGreen
 		}
 		dir, name := path.Split(f.Path)
 		head := detailHead{icon: fileIcon(name), name: name, dir: strings.TrimSuffix(dir, "/"), badge: where + " · " + statusWord(code), badgeCol: col}
@@ -244,7 +245,7 @@ func (m Model) detailTarget() (string, func() detailView) {
 			}
 			v.lines, v.digits = parseDiff(raw, false)
 			if len(v.lines) == 0 {
-				v.lines = []dline{{kind: dText, text: "没有文本差异（可能只是权限或空文件）"}}
+				v.lines = []dline{{kind: dText, text: i18n.T("没有文本差异（可能只是权限或空文件）")}}
 			}
 			return v
 		}
@@ -366,7 +367,7 @@ func (m *Model) maybeLoadMore() tea.Cmd {
 		return nil
 	}
 	m.graphLimit += graphPage
-	m.setMsg(lvInfo, fmt.Sprintf("加载更多历史…（%d 条）", m.graphLimit))
+	m.setMsg(lvInfo, fmt.Sprintf(i18n.T("加载更多历史…（%d 条）"), m.graphLimit))
 	return m.refreshCmd()
 }
 
@@ -436,7 +437,7 @@ func (m *Model) syncDetail() tea.Cmd {
 
 func (m *Model) startOp(label string, fn func() (string, error)) tea.Cmd {
 	if m.busy != "" {
-		m.setMsg(lvErr, "上一个操作还在进行："+m.busy)
+		m.setMsg(lvErr, i18n.Tf("上一个操作还在进行：%s", m.busy))
 		return nil
 	}
 	m.busy = label

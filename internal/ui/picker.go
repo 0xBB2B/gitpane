@@ -8,6 +8,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 // 分支选择面板：图谱页里按 b、点标签栏右侧的「⎇ 全部分支 ▾」或点顶部分支名打开。
@@ -28,7 +30,7 @@ func (m Model) pickRows() []pickRow {
 			r = 1
 		}
 		if r != lastRemote {
-			rows = append(rows, pickRow{header: map[int]string{0: "本地分支", 1: "远程分支"}[r]})
+			rows = append(rows, pickRow{header: map[int]string{0: i18n.T("本地分支"), 1: i18n.T("远程分支")}[r]})
 			lastRemote = r
 		}
 		rows = append(rows, pickRow{bi: i})
@@ -138,11 +140,11 @@ func (m *Model) pickSwitch() tea.Cmd {
 	}
 	b := m.branches[rows[m.pickCursor].bi]
 	if b.Current {
-		m.setMsg(lvInfo, "已经在 "+b.Name+" 上")
+		m.setMsg(lvInfo, i18n.Tf("已经在 %s 上", b.Name))
 		return nil
 	}
 	repo := m.repo
-	return m.startOp("切换分支…", func() (string, error) { return "已切换到 " + b.Name, repo.Switch(b) })
+	return m.startOp(i18n.T("切换分支…"), func() (string, error) { return i18n.Tf("已切换到 %s", b.Name), repo.Switch(b) })
 }
 
 func (m Model) handlePickKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -225,9 +227,9 @@ func (m Model) handlePickMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 
 func (m Model) pickButtons() []button {
 	return place(1, m.w, []button{
-		{id: "pickDone", label: icons.check + " 完成", kind: btnPrimary},
-		{id: "pickAll", label: "显示全部"},
-		{id: "pickSwitch", label: "⇄ 切换到此分支"},
+		{id: "pickDone", label: icons.check + i18n.T(" 完成"), kind: btnPrimary},
+		{id: "pickAll", label: i18n.T("显示全部")},
+		{id: "pickSwitch", label: i18n.T("⇄ 切换到此分支")},
 	})
 }
 
@@ -235,7 +237,7 @@ func (m Model) pickButtons() []button {
 func (m Model) filterLabel() string {
 	switch len(m.graphRefs) {
 	case 0:
-		return icons.branch + " 全部分支 ▾"
+		return icons.branch + i18n.T(" 全部分支 ▾")
 	case 1:
 		return icons.branch + " " + m.graphRefs[0] + " ▾"
 	}
@@ -246,15 +248,15 @@ func (m Model) viewPicker() string {
 	rows := m.pickRows()
 	lines := make([]string, 0, m.h)
 
-	sel := "显示全部分支"
+	sel := i18n.T("显示全部分支")
 	if n := len(m.graphRefs); n > 0 {
-		sel = "已选 " + strconv.Itoa(n) + " 个分支"
+		sel = i18n.Tf("已选 %d 个分支", n)
 	}
 	lines = append(lines,
 		rightAlign(m.w, cBar,
-			[]seg{sg(" "+icons.branch+" 选择要显示的分支 ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
+			[]seg{sg(" "+icons.branch+i18n.T(" 选择要显示的分支 "), lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
 			[]seg{sg(sel+" ", fg(cYellow))}),
-		paint(m.w, nil, sg("  点击或空格勾选，可多选；都不勾 = 全部 · 双击或 s 切换到该分支", fg(cFaint))))
+		paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部 · 双击或 s 切换到该分支"), fg(cFaint))))
 
 	h := m.pickListH()
 	for i := m.pickOffset; i < m.pickOffset+h && i < len(rows); i++ {
@@ -268,9 +270,10 @@ func (m Model) viewPicker() string {
 		if i == m.pickCursor {
 			bg = cSel
 		}
-		box, boxSt := " ☐ ", fg(cFaint)
+		// ☐ ☑ 在不少字体里只有半个字大，用方括号更清楚
+		box, boxSt := " [ ] ", fg(cFaint)
 		if m.isPicked(b.Name) {
-			box, boxSt = " ☑ ", fg(cAccent).Bold(true)
+			box, boxSt = " ["+icons.check+"] ", fg(cAccent).Bold(true)
 		}
 		dot, nameSt := "  ", fg(cText)
 		if b.Current {
@@ -289,7 +292,7 @@ func (m Model) viewPicker() string {
 			}
 		}
 		if strings.Contains(b.Track, "gone") {
-			left = append(left, sg(" 上游已删除", fg(cRed)))
+			left = append(left, sg(i18n.T(" 上游已删除"), fg(cRed)))
 		}
 		if b.Upstream != "" {
 			left = append(left, sg("  → "+b.Upstream, fg(cFaint)))
@@ -297,7 +300,7 @@ func (m Model) viewPicker() string {
 		lines = append(lines, rightAlign(m.w, bg, left, []seg{sg(b.When+" ", fg(cFaint))}))
 	}
 	if len(rows) == 0 {
-		lines = append(lines, paint(m.w, nil, sg("  （没有分支）", fg(cMuted))))
+		lines = append(lines, paint(m.w, nil, sg(i18n.T("  （没有分支）"), fg(cMuted))))
 	}
 	for len(lines) < m.h-2 {
 		lines = append(lines, strings.Repeat(" ", m.w))
@@ -315,7 +318,7 @@ func (m Model) viewPicker() string {
 		}
 		lines = append(lines, paint(m.w, nil, sg(" "+m.msg, fg(col))))
 	} else {
-		lines = append(lines, paint(m.w, nil, sg("  Esc / 回车 返回图谱 · a 显示全部", fg(cFaint))))
+		lines = append(lines, paint(m.w, nil, sg(i18n.T("  Esc / 回车 返回图谱 · a 显示全部"), fg(cFaint))))
 	}
 	return strings.Join(lines, "\n")
 }

@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 // ---------------------------------------------------------------- 几何布局
@@ -66,6 +68,10 @@ func (m Model) geom() geom {
 	if m.isWide() {
 		g.wide = true
 		g.listW = max(30, min(m.w*2/5, 64))
+		if m.tab == tabGraph {
+			// 图谱最该看清的是提交标题，列表给宽一点
+			g.listW = max(40, min(m.w*11/20, 100))
+		}
 		g.listH = body
 		g.detailX = g.listW + 1 // 中间一列分隔线
 		g.detailW = m.w - g.detailX
@@ -140,24 +146,24 @@ func place(x, maxW int, bs []button) []button {
 }
 
 func (m Model) tabButtons() []button {
-	changes := "变更"
+	changes := i18n.T("变更")
 	if n := m.changeCount(); n > 0 {
-		changes = fmt.Sprintf("变更 %d", n)
+		changes = fmt.Sprintf(i18n.T("变更 %d"), n)
 	}
-	return place(1, m.w, []button{{id: "0", label: changes}, {id: "1", label: "图谱"}})
+	return place(1, m.w, []button{{id: "0", label: changes}, {id: "1", label: i18n.T("图谱")}})
 }
 
 func (m Model) bottomButtons() []button {
 	if m.committing {
 		return place(1, m.w, []button{
-			{id: "commitConfirm", label: fmt.Sprintf("%s 提交 %d 个文件", icons.check, m.stagedCount()), kind: btnPrimary},
-			{id: "commitCancel", label: "取消"},
+			{id: "commitConfirm", label: fmt.Sprintf(i18n.T("%s 提交 %d 个文件"), icons.check, m.stagedCount()), kind: btnPrimary},
+			{id: "commitCancel", label: i18n.T("取消")},
 		})
 	}
 	if m.repo == nil {
-		return place(1, m.w, []button{{id: "init", label: "git init", kind: btnPrimary}, {id: "repoRetry", label: "↻ 刷新"}})
+		return place(1, m.w, []button{{id: "init", label: "git init", kind: btnPrimary}, {id: "repoRetry", label: i18n.T("↻ 刷新")}})
 	}
-	pull, push := icons.down+" 拉取", icons.up+" 推送"
+	pull, push := icons.down+i18n.T(" 拉取"), icons.up+i18n.T(" 推送")
 	if st := m.status; st != nil {
 		if st.Behind > 0 {
 			pull += fmt.Sprintf(" %d", st.Behind)
@@ -169,13 +175,13 @@ func (m Model) bottomButtons() []button {
 	var bs []button
 	switch m.tab {
 	case tabChanges:
-		bs = []button{{id: "commit", label: icons.check + " 提交", kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: "+ 全部暂存"}}
+		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
 		if r, ok := m.currentRow(); ok && r.kind == rowFile && r.sec == secChanges {
-			bs = append(bs, button{id: "discard", label: "✕ 放弃", kind: btnDanger})
+			bs = append(bs, button{id: "discard", label: i18n.T("✕ 放弃"), kind: btnDanger})
 		}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	case tabGraph:
-		bs = []button{{id: "picker", label: icons.branch + " 分支", kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: "⇣ 抓取"}, {id: "refresh", label: "↻"}}
+		bs = []button{{id: "picker", label: icons.branch + i18n.T(" 分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "refresh", label: "↻"}}
 	}
 	return place(1, m.w, bs)
 }
@@ -220,11 +226,11 @@ func rowButtonX(r row, w int) int {
 func sectionAction(s section) string {
 	switch s {
 	case secStaged:
-		return "全部取消"
+		return i18n.T("全部取消")
 	case secConflict:
-		return "标记解决"
+		return i18n.T("标记解决")
 	}
-	return "全部暂存"
+	return i18n.T("全部暂存")
 }
 
 func sectionColor(s section) ac {
@@ -241,7 +247,7 @@ func sectionColor(s section) ac {
 
 func (m Model) View() string {
 	if m.w < 24 || m.h < 8 {
-		return "窗口太小"
+		return i18n.T("窗口太小")
 	}
 	if m.showHelp {
 		return m.viewHelp()
@@ -273,26 +279,26 @@ func (m Model) viewHeader() string {
 	left = append(left, sg(" ", lipgloss.NewStyle()))
 	switch {
 	case m.repo == nil:
-		left = append(left, sg("未检测到仓库", fg(cMuted)))
+		left = append(left, sg(i18n.T("未检测到仓库"), fg(cMuted)))
 	case m.status == nil:
-		left = append(left, sg("读取中…", fg(cMuted)))
+		left = append(left, sg(i18n.T("读取中…"), fg(cMuted)))
 	default:
 		st := m.status
 		if st.Detached {
-			left = append(left, sg(" "+icons.branch+" HEAD 游离 ", pill.Background(cYellow)))
+			left = append(left, sg(" "+icons.branch+i18n.T(" HEAD 游离 "), pill.Background(cYellow)))
 		} else {
 			left = append(left, sg(" "+icons.branch+" "+st.Branch+" ", pill))
 		}
 		switch {
 		case st.NoCommits:
-			left = append(left, sg("  尚无提交", fg(cMuted)))
+			left = append(left, sg(i18n.T("  尚无提交"), fg(cMuted)))
 		case st.Upstream != "":
 			left = append(left, sg(" → "+st.Upstream, fg(cMuted)))
 			if st.Gone {
-				left = append(left, sg(" 上游已删除", fg(cRed)))
+				left = append(left, sg(i18n.T(" 上游已删除"), fg(cRed)))
 			}
 		case !st.Detached:
-			left = append(left, sg("  未设置上游", fg(cFaint)))
+			left = append(left, sg(i18n.T("  未设置上游"), fg(cFaint)))
 		}
 		if st.Ahead > 0 {
 			left = append(left, sg(fmt.Sprintf(" %s%d", icons.up, st.Ahead), fg(cGreen).Bold(true)))
@@ -370,7 +376,7 @@ func (m Model) tabRightButtons() []button {
 			return nil
 		}
 		if len(m.graphRefs) > 0 {
-			bs = append(bs, button{id: "filterClear", label: "✕ 全部"})
+			bs = append(bs, button{id: "filterClear", label: i18n.T("✕ 全部")})
 		}
 		bs = append(bs, button{id: "filter", label: m.filterLabel(), kind: btnPrimary})
 	}
@@ -404,9 +410,9 @@ func (m Model) foldButton() (button, bool) {
 	if !hasDir {
 		return button{}, false
 	}
-	label := icons.dirClosed + " 全部折叠"
+	label := icons.dirClosed + i18n.T(" 全部折叠")
 	if !anyOpen {
-		label = icons.dirOpen + " 全部展开"
+		label = icons.dirOpen + i18n.T(" 全部展开")
 	}
 	w := lipgloss.Width(label) + 2
 	b := button{id: "foldAll", label: label, x0: m.w - w - 1, x1: m.w - 1}
@@ -421,8 +427,8 @@ func (m Model) viewList(g geom) []string {
 	out := make([]string, 0, g.listH)
 	if m.repo == nil {
 		out = append(out,
-			paint(w, nil, sg("  这里还不是 Git 仓库", fg(cText).Bold(true))),
-			paint(w, nil, sg("  初始化后就能在这里暂存、提交、推送", fg(cMuted))),
+			paint(w, nil, sg(i18n.T("  这里还不是 Git 仓库"), fg(cText).Bold(true))),
+			paint(w, nil, sg(i18n.T("  初始化后就能在这里暂存、提交、推送"), fg(cMuted))),
 			paint(w, nil, sg("  ", lipgloss.NewStyle()), sg(" git init ", btnStyle(btnPrimary))))
 	} else {
 		off := m.offset[m.tab]
@@ -436,11 +442,11 @@ func (m Model) viewList(g geom) []string {
 			}
 		}
 		if m.itemCount() == 0 {
-			msg := "（空）"
+			msg := i18n.T("（空）")
 			if m.tab == tabGraph {
-				msg = "还没有提交"
+				msg = i18n.T("还没有提交")
 				if len(m.graphRefs) > 0 && m.graph == nil {
-					msg = "加载中…"
+					msg = i18n.T("加载中…")
 				}
 			}
 			if m.statusErr != "" {
@@ -466,7 +472,7 @@ func (m Model) renderRow(r row, sel bool, w int) string {
 	}
 	switch r.kind {
 	case rowClean:
-		return paint(w, nil, sg("  "+icons.clean+" 工作区很干净", fg(cGreen).Bold(true)), sg("  没有未提交的改动", fg(cMuted)))
+		return paint(w, nil, sg("  "+icons.clean+i18n.T(" 工作区很干净"), fg(cGreen).Bold(true)), sg(i18n.T("  没有未提交的改动"), fg(cMuted)))
 
 	case rowSection:
 		col := sectionColor(r.sec)
@@ -502,7 +508,7 @@ func (m Model) renderRow(r row, sel bool, w int) string {
 		}
 		cnt := fmt.Sprintf("%d ", r.count)
 		if r.collapsed {
-			cnt = fmt.Sprintf("%d 个文件 ", r.count)
+			cnt = fmt.Sprintf(i18n.T("%d 个文件 "), r.count)
 		}
 		right = append(right, sg(" "+cnt, fg(cFaint)), m.marker(r), sg(" ", lipgloss.NewStyle()))
 		return rightAlign(w, bg, left, right)
@@ -540,7 +546,7 @@ func (m Model) renderRow(r row, sel bool, w int) string {
 		return rightAlign(w, bg, left, right)
 
 	case rowEmpty:
-		return paint(w, bg, sg(" └ ", fg(cGuide)), sg("无", fg(cFaint)))
+		return paint(w, bg, sg(" └ ", fg(cGuide)), sg(i18n.T("无"), fg(cFaint)))
 	}
 	return strings.Repeat(" ", w)
 }
@@ -557,14 +563,14 @@ var trackRe = regexp.MustCompile(`(ahead|behind) (\d+)`)
 func (m Model) viewDetailHeader(g geom) string {
 	d := m.detail.head
 	if m.detailKey == "" {
-		hint := "选中文件查看差异"
+		hint := i18n.T("选中文件查看差异")
 		if m.tab == tabGraph {
-			hint = "选中提交查看详情"
+			hint = i18n.T("选中提交查看详情")
 		}
 		return paint(g.detailW, cBar, sg(" ▌", fg(cGuide)), sg(" "+hint, fg(cMuted)))
 	}
 	if m.detail.key != m.detailKey {
-		return paint(g.detailW, cBar, sg(" ▌", fg(cAccent)), sg(" 加载中…", fg(cMuted)))
+		return paint(g.detailW, cBar, sg(" ▌", fg(cAccent)), sg(i18n.T(" 加载中…"), fg(cMuted)))
 	}
 	left := []seg{sg(" ▌", fg(cAccent)), sg(" "+d.icon+d.name, fg(cText).Bold(true))}
 	if d.dir != "" {
@@ -595,10 +601,10 @@ func (m Model) detailFoldButton(g geom) (button, bool) {
 	if m.detail.files < 2 || m.detail.key != m.detailKey {
 		return button{}, false
 	}
-	label := icons.dirOpen + " 全部展开"
+	label := icons.dirOpen + i18n.T(" 全部展开")
 	for _, l := range m.detail.lines {
 		if l.kind == dFile && !m.fileFolded(l.path) {
-			label = icons.dirClosed + " 全部折叠"
+			label = icons.dirClosed + i18n.T(" 全部折叠")
 			break
 		}
 	}
@@ -637,14 +643,14 @@ func (m Model) viewStatus() string {
 		}
 		return paint(m.w, nil, sg(" "+icon+" ", fg(col).Bold(true)), sg(m.msg, fg(col)))
 	}
-	keys := [][2]string{{"空格", "暂存"}, {"←→", "折叠"}, {"c", "提交"}, {"a", "全暂存"}, {"x", "放弃"}, {"Tab", "切换"}}
+	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"Tab", i18n.T("切换")}}
 	switch m.tab {
 	case tabGraph:
-		keys = [][2]string{{"↑↓", "选择"}, {"b", "选分支"}, {"z", "展开文件"}, {"J/K", "翻详情"}, {"Tab", "切换"}}
+		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
 	}
-	tail := [][2]string{{"?", "帮助"}}
+	tail := [][2]string{{"?", i18n.T("帮助")}}
 	if !m.opts.Embed {
-		tail = append(tail, [2]string{"q", "退出"})
+		tail = append(tail, [2]string{"q", i18n.T("退出")})
 	}
 	kbd := lipgloss.NewStyle().Background(cSurface).Foreground(cSub)
 	render := func(ks [][2]string) []seg {
@@ -665,46 +671,46 @@ func (m Model) viewHelp() string {
 		title string
 		items []item
 	}{
-		{"通用", []item{
-			{"Tab / 1 2", "切换 变更 / 图谱"},
-			{"j k ↑ ↓", "上下移动"},
-			{"g G", "到顶 / 到底"},
-			{"J K", "详情区翻页（也可以滚轮）"},
-			{"r", "立即刷新（平时每 2 秒自动刷新）"},
-			{"?", "打开 / 关闭帮助"},
+		{i18n.T("通用"), []item{
+			{"Tab / 1 2", i18n.T("切换 变更 / 图谱")},
+			{"j k ↑ ↓", i18n.T("上下移动")},
+			{"g G", i18n.T("到顶 / 到底")},
+			{"J K", i18n.T("详情区翻页（也可以滚轮）")},
+			{"r", i18n.T("立即刷新（平时每 2 秒自动刷新）")},
+			{"?", i18n.T("打开 / 关闭帮助")},
 		}},
-		{"变更", []item{
-			{"空格", "暂存 / 取消暂存当前文件、目录或分组"},
-			{"回车 / ← →", "折叠 / 展开目录；在文件上按 ← 回到所在目录"},
-			{"z", "全部折叠 / 全部展开"},
-			{"a  u", "全部暂存 / 全部取消暂存"},
-			{"c", "提交（回车确认，Esc 取消）"},
-			{"x", "放弃当前文件的改动（按两次确认）"},
+		{i18n.T("变更"), []item{
+			{i18n.T("空格"), i18n.T("暂存 / 取消暂存当前文件、目录或分组")},
+			{i18n.T("回车 / ← →"), i18n.T("折叠 / 展开目录；在文件上按 ← 回到所在目录")},
+			{"z", i18n.T("全部折叠 / 全部展开")},
+			{"a  u", i18n.T("全部暂存 / 全部取消暂存")},
+			{"c", i18n.T("提交（回车确认，Esc 取消）")},
+			{"x", i18n.T("放弃当前文件的改动（按两次确认）")},
 		}},
-		{"图谱与分支", []item{
-			{"b", "选择要显示的分支（可多选，都不选 = 全部）"},
-			{"z", "提交详情里全部展开 / 折叠文件"},
+		{i18n.T("图谱与分支"), []item{
+			{"b", i18n.T("选择要显示的分支（可多选，都不选 = 全部）")},
+			{"z", i18n.T("提交详情里全部展开 / 折叠文件")},
 			{"p  P  f", "pull / push / fetch"},
-			{"s / 双击", "在分支选择面板里切换到该分支"},
+			{i18n.T("s / 双击"), i18n.T("在分支选择面板里切换到该分支")},
 		}},
-		{"鼠标", []item{
-			{"点文件", "查看 diff；点右侧 + / - 暂存或取消"},
-			{"点目录 / 分组", "折叠；分组右侧按钮批量操作"},
-			{"点「全部折叠」", "标签栏右侧，一键折叠 / 展开所有目录"},
-			{"点顶部分支名", "打开分支选择面板"},
-			{"点提交详情里的文件名", "展开 / 折叠该文件的改动"},
-			{"滚轮", "列表上滚列表，详情上滚详情"},
+		{i18n.T("鼠标"), []item{
+			{i18n.T("点文件"), i18n.T("查看 diff；点右侧 + / - 暂存或取消")},
+			{i18n.T("点目录 / 分组"), i18n.T("折叠；分组右侧按钮批量操作")},
+			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
+			{i18n.T("点顶部分支名"), i18n.T("打开分支选择面板")},
+			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
+			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 		}},
 	}
-	quit := "Ctrl+C 两次"
+	quit := i18n.T("Ctrl+C 两次")
 	if !m.opts.Embed {
 		quit = "q / Ctrl+C"
 	}
-	sections[0].items = append(sections[0].items, item{quit, "退出"})
+	sections[0].items = append(sections[0].items, item{quit, i18n.T("退出")})
 
 	kbd := lipgloss.NewStyle().Background(cSurface).Foreground(cAccent).Bold(true)
 	var lines []string
-	lines = append(lines, paint(m.w, cBar, sg(" gitpane ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true)), sg("  快捷键与鼠标操作", fg(cMuted))), "")
+	lines = append(lines, paint(m.w, cBar, sg(" gitpane ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true)), sg(i18n.T("  快捷键与鼠标操作"), fg(cMuted))), "")
 	for _, s := range sections {
 		lines = append(lines, paint(m.w, nil, sg("  "+s.title, fg(cYellow).Bold(true))))
 		for _, it := range s.items {
@@ -723,6 +729,6 @@ func (m Model) viewHelp() string {
 			lines[i] = strings.Repeat(" ", m.w)
 		}
 	}
-	lines = append(lines, paint(m.w, nil, sg("  按任意键或点击返回", fg(cFaint))))
+	lines = append(lines, paint(m.w, nil, sg(i18n.T("  按任意键或点击返回"), fg(cFaint))))
 	return strings.Join(lines, "\n")
 }

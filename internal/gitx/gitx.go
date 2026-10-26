@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 // ErrNotRepo 表示当前目录不在 git 仓库中。
@@ -209,7 +211,7 @@ func (r *Repo) Diff(f File, staged bool) (string, error) {
 		out, err = r.git("diff", "--no-color", "--", f.Path)
 	}
 	if len(out) > maxDiffBytes {
-		out = out[:maxDiffBytes] + "\n…（diff 过大，已截断）"
+		out = out[:maxDiffBytes] + i18n.T("\n…（diff 过大，已截断）")
 	}
 	return out, err
 }
@@ -232,7 +234,7 @@ func (r *Repo) Show(rev string) (*CommitInfo, string, error) {
 	ci := &CommitInfo{Hash: f[0], Short: f[1], Author: f[2], Email: f[3], When: f[4], Date: f[5], Refs: f[6], Subject: f[7], Body: strings.TrimSpace(f[8])}
 	patch, err := r.git("show", "--no-color", "--format=", "--stat=1000", "-p", "-M", rev)
 	if len(patch) > maxDiffBytes {
-		patch = patch[:maxDiffBytes] + "\n…（输出过大，已截断）"
+		patch = patch[:maxDiffBytes] + i18n.T("\n…（输出过大，已截断）")
 	}
 	return ci, patch, err
 }
@@ -365,7 +367,7 @@ func (r *Repo) Push(st *Status) error {
 		remotes, _ := r.git("remote")
 		remote := firstLine(remotes)
 		if remote == "" {
-			return errors.New("没有配置远程仓库")
+			return errors.New(i18n.T("没有配置远程仓库"))
 		}
 		for _, rm := range strings.Fields(remotes) {
 			if rm == "origin" {

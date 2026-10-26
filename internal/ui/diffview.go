@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/x/ansi"
 
 	"github.com/0xBB2B/gitpane/internal/gitx"
+	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 // 详情区的一行。解析一次，按需渲染可见部分。
@@ -118,19 +119,19 @@ func parseDiff(raw string, fileHeaders bool) ([]dline, int) {
 			strings.HasPrefix(l, "similarity index"), strings.HasPrefix(l, "dissimilarity index"),
 			strings.HasPrefix(l, "rename to "), strings.HasPrefix(l, "copy to "):
 		case strings.HasPrefix(l, "new file mode"):
-			out = append(out, dline{kind: dMeta, text: "新文件"})
+			out = append(out, dline{kind: dMeta, text: i18n.T("新文件")})
 		case strings.HasPrefix(l, "deleted file mode"):
-			out = append(out, dline{kind: dMeta, text: "文件已删除"})
+			out = append(out, dline{kind: dMeta, text: i18n.T("文件已删除")})
 		case strings.HasPrefix(l, "rename from "):
-			out = append(out, dline{kind: dMeta, text: "重命名自 " + strings.TrimPrefix(l, "rename from ")})
+			out = append(out, dline{kind: dMeta, text: i18n.Tf("重命名自 %s", strings.TrimPrefix(l, "rename from "))})
 		case strings.HasPrefix(l, "copy from "):
-			out = append(out, dline{kind: dMeta, text: "复制自 " + strings.TrimPrefix(l, "copy from ")})
+			out = append(out, dline{kind: dMeta, text: i18n.Tf("复制自 %s", strings.TrimPrefix(l, "copy from "))})
 		case strings.HasPrefix(l, "old mode "):
 			oldMode = strings.TrimPrefix(l, "old mode ")
 		case strings.HasPrefix(l, "new mode "):
-			out = append(out, dline{kind: dMeta, text: "权限 " + oldMode + " → " + strings.TrimPrefix(l, "new mode ")})
+			out = append(out, dline{kind: dMeta, text: i18n.Tf("权限 %s → %s", oldMode, strings.TrimPrefix(l, "new mode "))})
 		case strings.HasPrefix(l, "Binary files"):
-			out = append(out, dline{kind: dMeta, text: "二进制文件，不显示差异"})
+			out = append(out, dline{kind: dMeta, text: i18n.T("二进制文件，不显示差异")})
 		case strings.HasPrefix(l, "@@"):
 			m := hunkRe.FindStringSubmatch(l)
 			if m == nil {
@@ -161,7 +162,7 @@ func parseDiff(raw string, fileHeaders bool) ([]dline, int) {
 				out[fileIdx].del++
 			}
 		case strings.HasPrefix(l, "\\"):
-			out = append(out, dline{kind: dMeta, text: "文件末尾没有换行"})
+			out = append(out, dline{kind: dMeta, text: i18n.T("文件末尾没有换行")})
 		default:
 			text := l
 			if strings.HasPrefix(l, " ") {
@@ -327,7 +328,7 @@ func renderDLine(l dline, w, digits int) string {
 	case dDel:
 		return paint(w, cDelBg, append(gutter(l.old, 0, "-", fg(cRed).Bold(true), cDelHi), sg(expandTabs(l.text), fg(cText)))...)
 	case dHunk:
-		where := fmt.Sprintf(" 第 %d 行 ", l.new)
+		where := " " + i18n.Tf("第 %d 行", l.new) + " "
 		return paint(w, cHunkBg, sg(" ⋯", fg(cCyan)), sg(where, fg(cMuted)), sg(l.text, fg(cSub).Italic(true)))
 	case dMeta:
 		return paint(w, nil, sg("   ", lipgloss.NewStyle()), sg("· "+l.text, fg(cMuted).Italic(true)))
@@ -381,7 +382,7 @@ func commitLines(ci *gitx.CommitInfo) []dline {
 	out := []dline{
 		{kind: dBlank},
 		{kind: dTitle, text: ci.Subject},
-		{kind: dInfo, text: ci.Short + " · " + ci.Author + " · " + ci.Date + "（" + ci.When + "）"},
+		{kind: dInfo, text: i18n.Tf("%s · %s · %s（%s）", ci.Short, ci.Author, ci.Date, ci.When)},
 	}
 	if ci.Refs != "" {
 		out = append(out, dline{kind: dInfo, text: ci.Refs})

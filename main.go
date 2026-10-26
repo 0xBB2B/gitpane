@@ -13,7 +13,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 
+	"github.com/0xBB2B/gitpane/internal/i18n"
 	"github.com/0xBB2B/gitpane/internal/ui"
 )
 
@@ -43,30 +45,59 @@ func versionString() string {
 	return s
 }
 
-func main() {
-	flag.Usage = func() {
-		fmt.Fprint(os.Stderr, `gitpane —— 鼠标可点的 Git TUI
+// usageText 是 --help 的内容（简体中文原文，按当前语言翻译）。
+const usageText = `gitpane —— 鼠标可点的 Git TUI
 
 用法：
   gitpane [选项] [目录]
 
 选项：
-  --layout auto|wide|stack   排布方式（默认 auto：宽度 ≥ 100 列时左右并排）
-  --embed                    面板模式：q 不退出，Ctrl+C 需按两次（嵌入其他分屏工具时用）
-  --version                  显示版本
+  --lang zh-CN|zh-TW|en|ja|ko  界面语言（默认按系统语言自动选择）
+  --layout auto|wide|stack     排布方式（默认 auto：宽度 ≥ 100 列时左右并排）
+  --embed                      面板模式：q 不退出，Ctrl+C 需按两次（嵌入其他分屏工具时用）
+  --version                    显示版本
 
 环境变量：
-  GITPANE_THEME=light|dark   指定配色（默认自动检测终端背景）
-  GITPANE_NERD_FONT=1        使用 Nerd Font 图标
+  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  界面语言（--lang 优先）
+  GITPANE_THEME=light|dark           指定配色（默认自动检测终端背景）
+  GITPANE_NERD_FONT=1                使用 Nerd Font 图标
 
-进入后按 ? 查看全部快捷键。
-`)
+进入后按 ? 查看全部快捷键。`
+
+// langFromArgs 在解析参数之前先找出 --lang，这样连 --help 都能用指定的语言显示。
+func langFromArgs(args []string) string {
+	for i, a := range args {
+		for _, p := range []string{"--lang=", "-lang="} {
+			if strings.HasPrefix(a, p) {
+				return strings.TrimPrefix(a, p)
+			}
+		}
+		if (a == "--lang" || a == "-lang") && i+1 < len(args) {
+			return args[i+1]
+		}
 	}
-	layout := flag.String("layout", "auto", "auto | wide | stack")
-	embed := flag.Bool("embed", false, "作为面板嵌入运行")
-	showVersion := flag.Bool("version", false, "显示版本")
-	flag.Parse()
+	return ""
+}
 
+func main() {
+	i18n.Set(i18n.Detect())
+	if v := langFromArgs(os.Args[1:]); v != "" {
+		l, ok := i18n.Parse(v)
+		if !ok {
+			fmt.Fprintf(os.Stderr, "gitpane: unsupported language %q (zh-CN, zh-TW, en, ja, ko)\n", v)
+			os.Exit(2)
+		}
+		i18n.Set(l)
+	}
+
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, i18n.T(usageText))
+	}
+	flag.String("lang", "", "zh-CN | zh-TW | en | ja | ko")
+	layout := flag.String("layout", "auto", "auto | wide | stack")
+	embed := flag.Bool("embed", false, i18n.T("作为面板嵌入运行"))
+	showVersion := flag.Bool("version", false, i18n.T("显示版本"))
+	flag.Parse()
 	if *showVersion {
 		fmt.Println(versionString())
 		return
@@ -81,7 +112,7 @@ func main() {
 	case "stack":
 		opts.Layout = ui.LayoutStack
 	default:
-		fmt.Fprintf(os.Stderr, "gitpane: --layout 只能是 auto / wide / stack，收到 %q\n", *layout)
+		fmt.Fprintln(os.Stderr, "gitpane: "+i18n.Tf("--layout 只能是 auto / wide / stack，收到 %q", *layout))
 		os.Exit(2)
 	}
 
@@ -94,7 +125,7 @@ func main() {
 		dir = abs
 	}
 	if fi, err := os.Stat(dir); err != nil || !fi.IsDir() {
-		fmt.Fprintf(os.Stderr, "gitpane: %s 不是目录\n", dir)
+		fmt.Fprintln(os.Stderr, "gitpane: "+i18n.Tf("%s 不是目录", dir))
 		os.Exit(1)
 	}
 
