@@ -121,3 +121,22 @@ func TestLayoutFileCompat(t *testing.T) {
 		t.Fatalf("旧版本读到的比例不对：%s", data)
 	}
 }
+
+func TestStatSummary(t *testing.T) {
+	cases := []struct {
+		in       string
+		text     string
+		add, del int
+	}{
+		{"2 files changed, 74 insertions(+), 7 deletions(-)", "改动了 2 个文件", 74, 7},
+		{"1 file changed, 1 insertion(+)", "改动了 1 个文件", 1, 0},
+		{"1 file changed, 3 deletions(-)", "改动了 1 个文件", 0, 3},
+		{"something else", "something else", 0, 0},
+	}
+	for _, c := range cases {
+		l := statSummary(c.in)
+		if l.text != c.text || l.add != c.add || l.del != c.del {
+			t.Errorf("%q → %+v", c.in, l)
+		}
+	}
+}

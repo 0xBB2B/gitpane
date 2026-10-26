@@ -200,5 +200,6 @@ func init() {
 		"详情区长行自动换行 / 截断":        "Wrap / truncate long lines in the detail pane",
 		"点「↩ 换行」":               "Click “↩ Wrap”",
 		"详情标题栏右侧，开关长行自动换行（会记住）": "Right of the detail header; toggles line wrap (remembered)",
+		"改动了 %d 个文件":            "Files changed: %d",
 	})
 }

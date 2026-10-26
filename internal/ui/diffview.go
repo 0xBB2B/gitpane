@@ -81,6 +81,30 @@ type detailHead struct {
 	hint     string // 没有内容时的提示
 }
 
+var (
+	statFilesRe = regexp.MustCompile(`(\d+) files? changed`)
+	statAddRe   = regexp.MustCompile(`(\d+) insertions?\(\+\)`)
+	statDelRe   = regexp.MustCompile(`(\d+) deletions?\(-\)`)
+)
+
+// statSummary 把 git --stat 的英文汇总（"2 files changed, 74 insertions(+), 7 deletions(-)"）
+// 换成当前语言的「改动了 2 个文件」，增删行数单独存下来用颜色显示。认不出来时原样保留。
+func statSummary(s string) dline {
+	m := statFilesRe.FindStringSubmatch(s)
+	if m == nil {
+		return dline{kind: dStatSum, text: s}
+	}
+	n, _ := strconv.Atoi(m[1])
+	l := dline{kind: dStatSum, text: i18n.Tf("改动了 %d 个文件", n)}
+	if a := statAddRe.FindStringSubmatch(s); a != nil {
+		l.add, _ = strconv.Atoi(a[1])
+	}
+	if d := statDelRe.FindStringSubmatch(s); d != nil {
+		l.del, _ = strconv.Atoi(d[1])
+	}
+	return l
+}
+
 var hunkRe = regexp.MustCompile(`^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@ ?(.*)$`)
 
 // parseDiff 解析 git diff / git show 的输出（无颜色）。
@@ -115,7 +139,7 @@ func parseDiff(raw string, fileHeaders bool) ([]dline, int) {
 			if strings.Contains(l, " | ") {
 				continue
 			} else if strings.Contains(l, "changed") {
-				out = append(out, dline{kind: dStatSum, text: strings.TrimSpace(l)})
+				out = append(out, statSummary(strings.TrimSpace(l)))
 			}
 		case strings.HasPrefix(l, "index "), strings.HasPrefix(l, "--- "), strings.HasPrefix(l, "+++ "),
 			strings.HasPrefix(l, "similarity index"), strings.HasPrefix(l, "dissimilarity index"),
@@ -315,7 +339,7 @@ func dlinePrefix(k dkind, w, digits int) int {
 			return 2*digits + 5
 		}
 		return digits + 3
-	case dBody, dInfo, dStatSum:
+	case dBody, dInfo:
 		return 3
 	case dTitle:
 		return lipgloss.Width(icons.commit) + 2
@@ -419,7 +443,14 @@ func renderDLine(l dline, w, digits int) string {
 		}
 		return paint(w, nil, segs...)
 	case dStatSum:
-		return paint(w, nil, sg("   "+l.text, fg(cMuted)))
+		segs := []seg{sg("   "+l.text, fg(cMuted))}
+		if l.add > 0 {
+			segs = append(segs, sg(fmt.Sprintf("  +%d", l.add), fg(cGreen)))
+		}
+		if l.del > 0 {
+			segs = append(segs, sg(fmt.Sprintf("  -%d", l.del), fg(cRed)))
+		}
+		return paint(w, nil, segs...)
 	case dTitle:
 		return paint(w, nil, sg(lead(" "+icons.commit+" "), fg(cAccent)), sg(l.text, fg(cText).Bold(true)))
 	case dInfo:

@@ -42,7 +42,7 @@ type rawCommit struct {
 func (r *Repo) log(args ...string) ([]GraphLine, error) {
 	// --date-order：子提交一定在父提交之前，其余按时间交错，和 VS Code 等图谱一致
 	out, err := r.git(append([]string{"log", "--date-order", "--no-color",
-		"--format=%H%x1f%h%x1f%P%x1f%D%x1f%s%x1f%ar%x1f%an"}, args...)...)
+		"--format=%H%x1f%h%x1f%P%x1f%D%x1f%s%x1f%at%x1f%an"}, args...)...)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +227,7 @@ func layout(cs []rawCommit) []GraphLine {
 
 		out = append(out, GraphLine{
 			Cells: cells, Hash: c.short, Full: c.full, Refs: c.refs, Subject: c.subject,
-			When: c.when, Author: c.author, Merge: len(c.parents) > 1, Head: head,
+			When: ago(c.when), Author: c.author, Merge: len(c.parents) > 1, Head: head,
 		})
 
 		// 收起末尾的空泳道

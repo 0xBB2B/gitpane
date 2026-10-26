@@ -223,7 +223,7 @@ type CommitInfo struct {
 
 // Show 返回提交元信息，以及（无颜色的）统计 + 补丁文本。
 func (r *Repo) Show(rev string) (*CommitInfo, string, error) {
-	head, err := r.git("show", "-s", "--format=%H%x1f%h%x1f%an%x1f%ae%x1f%ar%x1f%ad%x1f%D%x1f%s%x1f%b", "--date=format:%Y-%m-%d %H:%M", rev)
+	head, err := r.git("show", "-s", "--format=%H%x1f%h%x1f%an%x1f%ae%x1f%at%x1f%ad%x1f%D%x1f%s%x1f%b", "--date=format:%Y-%m-%d %H:%M", rev)
 	if err != nil {
 		return nil, "", err
 	}
@@ -231,7 +231,7 @@ func (r *Repo) Show(rev string) (*CommitInfo, string, error) {
 	for len(f) < 9 {
 		f = append(f, "")
 	}
-	ci := &CommitInfo{Hash: f[0], Short: f[1], Author: f[2], Email: f[3], When: f[4], Date: f[5], Refs: f[6], Subject: f[7], Body: strings.TrimSpace(f[8])}
+	ci := &CommitInfo{Hash: f[0], Short: f[1], Author: f[2], Email: f[3], When: ago(f[4]), Date: f[5], Refs: f[6], Subject: f[7], Body: strings.TrimSpace(f[8])}
 	patch, err := r.git("show", "--no-color", "--format=", "--stat=1000", "-p", "-M", rev)
 	if len(patch) > maxDiffBytes {
 		patch = patch[:maxDiffBytes] + i18n.T("\n…（输出过大，已截断）")
@@ -395,7 +395,7 @@ type Branch struct {
 // Branches 返回本地分支（按最近提交排序），后面跟远程分支。
 func (r *Repo) Branches() ([]Branch, error) {
 	out, err := r.git("for-each-ref", "--sort=-committerdate",
-		"--format=%(HEAD)%00%(refname)%00%(refname:short)%00%(upstream:short)%00%(upstream:track)%00%(committerdate:relative)",
+		"--format=%(HEAD)%00%(refname)%00%(refname:short)%00%(upstream:short)%00%(upstream:track)%00%(committerdate:unix)",
 		"refs/heads", "refs/remotes")
 	if err != nil {
 		return nil, err
@@ -406,7 +406,7 @@ func (r *Repo) Branches() ([]Branch, error) {
 		if len(f) < 6 {
 			continue
 		}
-		b := Branch{Current: f[0] == "*", Name: f[2], Upstream: f[3], Track: f[4], When: f[5]}
+		b := Branch{Current: f[0] == "*", Name: f[2], Upstream: f[3], Track: f[4], When: ago(f[5])}
 		if strings.HasPrefix(f[1], "refs/remotes/") {
 			if strings.HasSuffix(f[1], "/HEAD") {
 				continue
@@ -452,6 +452,15 @@ func lastLine(s string) string {
 		return s[i+1:]
 	}
 	return s
+}
+
+// ago 把 git 给的 Unix 时间戳转成当前语言的相对时间（git 自己的 %ar 只有英文）。
+func ago(unix string) string {
+	sec, err := strconv.ParseInt(strings.TrimSpace(unix), 10, 64)
+	if err != nil {
+		return unix
+	}
+	return i18n.Ago(time.Unix(sec, 0))
 }
 
 // Describe 用于错误提示中截短 git 的多行输出。
