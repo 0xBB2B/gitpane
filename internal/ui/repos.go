@@ -313,17 +313,6 @@ func (m Model) repoButtons() []button {
 	return place(1, m.w, bs)
 }
 
-// headerRepoButton 是头部右侧的仓库名；在子仓库模式下可以点它切换仓库。
-func (m Model) headerRepoButton() (button, bool) {
-	if m.workspace == "" || m.repo == nil {
-		return button{}, false
-	}
-	label := "⌂ " + gitx.Rel(m.workspace, m.repo.Root) + " ▾"
-	w := lipgloss.Width(label) + 2
-	b := button{id: "repos", label: label, x0: m.w - w - 1, x1: m.w - 1}
-	return b, b.x0 > m.w/2 // 太窄时不显示，用 o 键
-}
-
 func homeShort(p string) string {
 	if home, err := os.UserHomeDir(); err == nil && home != "" {
 		if rel, err := filepath.Rel(home, p); err == nil && !strings.HasPrefix(rel, "..") {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/0xBB2B/gitpane/internal/gitx"
 	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
@@ -180,15 +181,23 @@ func (m Model) bottomButtons() []button {
 		}
 	}
 	var bs []button
+	// 子仓库模式：底部多一个切换仓库的按钮，放在刷新按钮前面
+	repos := func() []button {
+		if m.workspace == "" {
+			return nil
+		}
+		return []button{{id: "repos", label: "⌂ " + i18n.T("选择仓库")}}
+	}
 	switch m.tab {
 	case tabChanges:
 		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
 		if r, ok := m.currentRow(); ok && r.kind == rowFile && r.sec == secChanges {
 			bs = append(bs, button{id: "discard", label: i18n.T("✕ 放弃"), kind: btnDanger})
 		}
-		bs = append(bs, button{id: "refresh", label: "↻"})
+		bs = append(append(bs, repos()...), button{id: "refresh", label: "↻"})
 	case tabGraph:
-		bs = []button{{id: "picker", label: icons.branch + i18n.T(" 分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "refresh", label: "↻"}}
+		bs = []button{{id: "picker", label: icons.branch + i18n.T(" 分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}}
+		bs = append(append(bs, repos()...), button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
 }
@@ -321,9 +330,9 @@ func (m Model) viewHeader() string {
 			left = append(left, sg(fmt.Sprintf(" %s%d", icons.down, st.Behind), fg(cYellow).Bold(true)))
 		}
 	}
-	if b, ok := m.headerRepoButton(); ok {
-		// 子仓库模式：仓库名是可点的按钮，点开切换
-		right = append(right, sg(" "+b.label+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cAccent).Bold(true)), sg(" ", lipgloss.NewStyle()))
+	if m.workspace != "" && m.repo != nil {
+		// 子仓库模式：显示相对启动目录的路径（只是信息，切换用底部的「⌂ 仓库」或 o 键）
+		right = append(right, sg("⌂ "+gitx.Rel(m.workspace, m.repo.Root)+" ", fg(cSub)))
 	} else if m.repo != nil {
 		name := filepath.Base(m.repo.Root)
 		if icons.repo != "" {
@@ -755,12 +764,12 @@ func (m Model) viewHelp() string {
 			{i18n.T("点文件"), i18n.T("查看 diff；点右侧 + / - 暂存或取消")},
 			{i18n.T("点目录 / 分组"), i18n.T("折叠；分组右侧按钮批量操作")},
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
-			{i18n.T("点顶部分支名"), i18n.T("打开分支选择面板")},
+			{i18n.T("点「分支」按钮"), i18n.T("打开分支选择面板（图谱页底部，或标签栏右侧）")},
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("点「↩ 换行」"), i18n.T("详情标题栏右侧，开关长行自动换行（会记住）")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
-			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式）")},
+			{i18n.T("点「选择仓库」"), i18n.T("切换仓库（子仓库模式，在底部按钮栏）")},
 		}},
 	}
 	quit := i18n.T("Ctrl+C 两次")
