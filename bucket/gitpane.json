@@ -1,19 +1,19 @@
 {
-    "version": "0.3.0",
+    "version": "0.4.0",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/0xBB2B/gitpane/releases/download/v0.3.0/gitpane_0.3.0_windows_amd64.zip",
+            "url": "https://github.com/0xBB2B/gitpane/releases/download/v0.4.0/gitpane_0.4.0_windows_amd64.zip",
             "bin": [
                 "gitpane.exe"
             ],
-            "hash": "a71b7e030f4f239e3ff395b205db944564e812ae887db37754eed146789f4fd3"
+            "hash": "a882d22a8aeab758cea661096f675883a78ed5578601442a872610ef3240a9d9"
         },
         "arm64": {
-            "url": "https://github.com/0xBB2B/gitpane/releases/download/v0.3.0/gitpane_0.3.0_windows_arm64.zip",
+            "url": "https://github.com/0xBB2B/gitpane/releases/download/v0.4.0/gitpane_0.4.0_windows_arm64.zip",
             "bin": [
                 "gitpane.exe"
             ],
-            "hash": "dbe616290ca621a47624c1443aa4a4196a1c1ec523b0994fa598fea0378e08a1"
+            "hash": "ac161ba1faad2491c298866358dbe13d93a89e0dfefdd9f2e5c0eb5af2890c91"
         }
     },
     "homepage": "https://github.com/0xBB2B/gitpane",
