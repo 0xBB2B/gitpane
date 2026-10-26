@@ -201,5 +201,6 @@ func init() {
 		"打开分支选择面板（图谱页底部，或标签栏右侧）": "Open the branch picker (bottom of the Graph tab, or right of the tab bar)",
 		"点「选择仓库」":                "Click “Choose repository”",
 		"切换仓库（子仓库模式，在底部按钮栏）":     "Switch repository (subrepo mode, in the bottom button bar)",
+		"自动换行": "wrap",
 	})
 }

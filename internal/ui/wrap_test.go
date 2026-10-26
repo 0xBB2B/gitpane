@@ -73,6 +73,10 @@ func TestToggleWrapKeepsTopLine(t *testing.T) {
 	for i := 0; i < 60; i++ {
 		m.detail.lines = append(m.detail.lines, dline{kind: dAdd, new: i + 1, text: long})
 	}
+	if !m.wrap {
+		t.Fatal("没有保存过偏好时应默认开启换行")
+	}
+	m.wrap = false
 	m.detailOff = 10
 	m.toggleWrap()
 	vis := m.visibleDetail()
@@ -89,8 +93,9 @@ func TestToggleWrapKeepsTopLine(t *testing.T) {
 	}
 	// 偏好写进了配置文件，重新读取能拿到
 	m.toggleWrap()
-	if _, dp := loadLayout(); !dp.Wrap {
-		t.Fatal("换行偏好没有保存")
+	m.toggleWrap() // 再关掉：关闭也要能保存下来，下次启动不会回到默认的开启
+	if _, dp := loadLayout(); dp.wrapOn() {
+		t.Fatal("关闭换行的偏好没有保存")
 	}
 }
 
@@ -106,7 +111,7 @@ func TestLayoutFileCompat(t *testing.T) {
 		t.Fatal(err)
 	}
 	sp, dp := loadLayout()
-	if sp[tabChanges].Wide != 0.3 || sp[tabGraph].Stack != 0.5 || dp.Wrap {
+	if sp[tabChanges].Wide != 0.3 || sp[tabGraph].Stack != 0.5 || !dp.wrapOn() {
 		t.Fatalf("读旧文件出错：%+v %+v", sp, dp)
 	}
 	// 新文件里的 detail 键，按旧版本的结构解析也不会出错（旧版本会忽略它）

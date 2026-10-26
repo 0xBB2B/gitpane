@@ -46,8 +46,11 @@ func layoutFile() string {
 // detailPrefs 是详情区的显示偏好，和分隔比例存在同一个文件的 "detail" 键下。
 // 旧版本读到它会当成一个空的分隔比例忽略掉，不影响兼容。
 type detailPrefs struct {
-	Wrap bool `json:"wrap,omitempty"` // 长行自动换行
+	Wrap *bool `json:"wrap,omitempty"` // 长行自动换行；没保存过（nil）时默认开启
 }
+
+// wrapOn 返回是否自动换行：没保存过偏好时默认开启。
+func (d detailPrefs) wrapOn() bool { return d.Wrap == nil || *d.Wrap }
 
 // loadLayout 读取保存的比例和详情偏好；文件不存在或损坏时返回默认值。
 func loadLayout() (out [numTabs]splitPref, dp detailPrefs) {
@@ -92,7 +95,8 @@ func (m Model) saveLayout() {
 	for i, name := range tabNames {
 		saved[name] = m.split[i]
 	}
-	saved["detail"] = detailPrefs{Wrap: m.wrap}
+	wrap := m.wrap
+	saved["detail"] = detailPrefs{Wrap: &wrap}
 	data, err := json.MarshalIndent(saved, "", "  ")
 	if err != nil {
 		return

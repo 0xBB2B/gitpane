@@ -98,7 +98,7 @@ type Model struct {
 	detail    detailView
 	detailKey string
 	detailOff int  // 详情区滚动位置（按屏幕行算，开启换行时一行代码可能占多行）
-	wrap      bool // 详情区长行自动换行；关闭时截断显示
+	wrap      bool // 详情区长行自动换行（默认开启）；关闭时截断显示
 
 	busy     string
 	spin     spinner.Model
@@ -135,7 +135,7 @@ func New(dir string, opts Options) Model {
 		graphLimit: graphPage, input: ti, spin: sp, lastClickRow: -1}
 	var dp detailPrefs
 	m.split, dp = loadLayout()
-	m.wrap = dp.Wrap
+	m.wrap = dp.wrapOn()
 	m.repo, _ = gitx.Open(dir)
 	if m.repo == nil && opts.Depth > 0 {
 		m.workspace, m.scanning = dir, true
