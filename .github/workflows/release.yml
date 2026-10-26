@@ -1,0 +1,35 @@
+# 推送 v* 标签（如 v0.1.0）时：跑测试 → GoReleaser 编译 6 个平台、建 GitHub Release、
+# 把 Homebrew cask（Casks/）和 Scoop 清单（bucket/）提交回本仓库的 main 分支。
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # 创建 Release、上传产物、提交 cask 和 Scoop 清单
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # changelog 需要完整历史
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Test
+        run: go test ./...
+
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          # 只写本仓库，自带的 token 就够，不需要额外的 PAT
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

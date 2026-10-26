@@ -1,0 +1,11 @@
+# 构建产物
+/gitpane
+/gitpane.exe
+/gitpane-ci
+/gitpane-ci.exe
+/dist/
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/

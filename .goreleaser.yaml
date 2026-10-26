@@ -1,0 +1,108 @@
+# GoReleaser 配置：推送 v* 标签后由 .github/workflows/release.yml 调用。
+# 本地检查：goreleaser check；本地试打包（不发布）：goreleaser release --snapshot --clean
+version: 2
+
+project_name: gitpane
+
+builds:
+  - id: gitpane
+    main: .
+    binary: gitpane
+    env:
+      - CGO_ENABLED=0
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }} -X main.commit={{ .ShortCommit }} -X main.date={{ .CommitDate }}
+    # 用提交时间做文件时间戳，同一个标签反复构建产物一致
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    format_overrides:
+      # Scoop 只能用 zip
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - "Merge pull request"
+      - "Merge branch"
+
+release:
+  github:
+    owner: 0xBB2B
+    name: gitpane
+  # 带 -rc / -beta 等后缀的标签自动标成预发布，并且不推送到 brew / scoop
+  prerelease: auto
+
+# Homebrew cask 和 Scoop 清单都写回本仓库（Casks/、bucket/ 目录），不需要单独的 tap / bucket 仓库。
+# 往本仓库提交用 workflow 自带的 GITHUB_TOKEN 即可，不需要额外的 PAT。
+
+# macOS：
+#   brew tap 0xBB2B/gitpane https://github.com/0xBB2B/gitpane
+#   brew install 0xBB2B/gitpane/gitpane
+homebrew_casks:
+  - name: gitpane
+    binaries: [gitpane]
+    homepage: https://github.com/0xBB2B/gitpane
+    description: "Mouse-driven Git TUI: change tree, diffs, lane-based commit graph"
+    directory: Casks
+    repository:
+      owner: 0xBB2B
+      name: gitpane
+      branch: main
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    commit_msg_template: "chore: gitpane {{ .Tag }} 的 Homebrew cask"
+    skip_upload: auto
+    # 二进制没有 Apple 签名，安装后去掉隔离标记，否则 Gatekeeper 会拦住。
+    # GoReleaser ≥ 2.19 会生成 Homebrew 7 的 postflight_steps 写法。
+    hooks:
+      post:
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/gitpane"]
+          end
+
+# Windows：
+#   scoop bucket add gitpane https://github.com/0xBB2B/gitpane
+#   scoop install gitpane
+scoops:
+  - name: gitpane
+    homepage: https://github.com/0xBB2B/gitpane
+    description: "Mouse-driven Git TUI: change tree, diffs, lane-based commit graph"
+    license: MIT
+    depends: ["git"]
+    # Scoop 发现仓库里有 bucket/ 目录时，只从这里读清单
+    directory: bucket
+    repository:
+      owner: 0xBB2B
+      name: gitpane
+      branch: main
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    commit_msg_template: "chore: gitpane {{ .Tag }} 的 Scoop 清单"
+    skip_upload: auto
