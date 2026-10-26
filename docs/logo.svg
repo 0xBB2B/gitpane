@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <title>gitpane</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#24283b"/>
+      <stop offset="1" stop-color="#16161e"/>
+    </linearGradient>
+  </defs>
+  <!-- 窗口：深色圆角方块 + 中间的分栏线，暗示“分屏里的一个窗格” -->
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <rect x="4.75" y="4.75" width="118.5" height="118.5" rx="27.25" stroke="#3b4261" stroke-width="1.5"/>
+  <line x1="84" y1="24" x2="84" y2="104" stroke="#3b4261" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- 泳道式提交图谱：主干 + 一条分出又合回的分支 -->
+  <path d="M40 22 V106" stroke="#7aa2f7" stroke-width="7" stroke-linecap="round"/>
+  <path d="M40 84 C40 72 62 72 62 60 V48 C62 38 40 38 40 30" stroke="#bb9af7" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 提交点 -->
+  <circle cx="40" cy="30" r="9" fill="#16161e" stroke="#7aa2f7" stroke-width="5"/>
+  <circle cx="62" cy="54" r="8" fill="#bb9af7"/>
+  <circle cx="40" cy="62" r="8" fill="#7aa2f7"/>
+  <circle cx="40" cy="96" r="8" fill="#9ece6a"/>
+
+  <!-- 右侧窗格里的 diff 行 -->
+  <rect x="94" y="38" width="16" height="6" rx="3" fill="#9ece6a"/>
+  <rect x="94" y="52" width="12" height="6" rx="3" fill="#f7768e"/>
+  <rect x="94" y="66" width="16" height="6" rx="3" fill="#9ece6a"/>
+  <rect x="94" y="80" width="10" height="6" rx="3" fill="#565f89"/>
+</svg>
