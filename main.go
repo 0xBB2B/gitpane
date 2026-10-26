@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strconv"
 	"strings"
 
 	"github.com/0xBB2B/gitpane/internal/i18n"
@@ -54,11 +55,13 @@ const usageText = `gitpane —— 鼠标可点的 Git TUI
 选项：
   --lang zh-CN|zh-TW|en|ja|ko  界面语言（默认按系统语言自动选择）
   --layout auto|wide|stack     排布方式（默认 auto：宽度 ≥ 100 列时左右并排）
+  --depth N                    当前目录不是仓库时，向下探测几层子目录找仓库（默认 2，0 = 不探测）
   --embed                      面板模式：q 不退出，Ctrl+C 需按两次（嵌入其他分屏工具时用）
   --version                    显示版本
 
 环境变量：
   GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  界面语言（--lang 优先）
+  GITPANE_DEPTH=N                    子仓库探测深度（--depth 优先）
   GITPANE_THEME=light|dark           指定配色（默认自动检测终端背景）
   GITPANE_NERD_FONT=1                使用 Nerd Font 图标
 
@@ -79,6 +82,14 @@ func langFromArgs(args []string) string {
 	return ""
 }
 
+// defaultDepth 是 --depth 的默认值：GITPANE_DEPTH，否则 2。
+func defaultDepth() int {
+	if v, err := strconv.Atoi(strings.TrimSpace(os.Getenv("GITPANE_DEPTH"))); err == nil && v >= 0 {
+		return v
+	}
+	return 2
+}
+
 func main() {
 	i18n.Set(i18n.Detect())
 	if v := langFromArgs(os.Args[1:]); v != "" {
@@ -95,6 +106,7 @@ func main() {
 	}
 	flag.String("lang", "", "zh-CN | zh-TW | en | ja | ko")
 	layout := flag.String("layout", "auto", "auto | wide | stack")
+	depth := flag.Int("depth", defaultDepth(), "0..")
 	embed := flag.Bool("embed", false, i18n.T("作为面板嵌入运行"))
 	showVersion := flag.Bool("version", false, i18n.T("显示版本"))
 	flag.Parse()
@@ -103,7 +115,10 @@ func main() {
 		return
 	}
 
-	opts := ui.Options{Embed: *embed}
+	if *depth < 0 {
+		*depth = 0
+	}
+	opts := ui.Options{Embed: *embed, Depth: *depth}
 	switch *layout {
 	case "auto", "":
 		opts.Layout = ui.LayoutAuto

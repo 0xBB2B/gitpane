@@ -169,6 +169,9 @@ func (m Model) bottomButtons() []button {
 		})
 	}
 	if m.repo == nil {
+		if m.workspace != "" && len(m.repos) > 0 {
+			return place(1, m.w, []button{{id: "repos", label: "⌂ " + i18n.T("选择仓库"), kind: btnPrimary}, {id: "rescan", label: i18n.T("↻ 重新扫描")}})
+		}
 		return place(1, m.w, []button{{id: "init", label: "git init", kind: btnPrimary}, {id: "repoRetry", label: i18n.T("↻ 刷新")}})
 	}
 	pull, push := icons.down+i18n.T(" 拉取"), icons.up+i18n.T(" 推送")
@@ -260,6 +263,9 @@ func (m Model) View() string {
 	if m.showHelp {
 		return m.viewHelp()
 	}
+	if m.repoPicking {
+		return m.viewRepoPicker()
+	}
 	if m.picking {
 		return m.viewPicker()
 	}
@@ -319,7 +325,10 @@ func (m Model) viewHeader() string {
 			left = append(left, sg(fmt.Sprintf(" %s%d", icons.down, st.Behind), fg(cYellow).Bold(true)))
 		}
 	}
-	if m.repo != nil {
+	if b, ok := m.headerRepoButton(); ok {
+		// 子仓库模式：仓库名是可点的按钮，点开切换
+		right = append(right, sg(" "+b.label+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cAccent).Bold(true)), sg(" ", lipgloss.NewStyle()))
+	} else if m.repo != nil {
 		name := filepath.Base(m.repo.Root)
 		if icons.repo != "" {
 			name = icons.repo + " " + name
@@ -437,12 +446,26 @@ func (m Model) foldButton() (button, bool) {
 func (m Model) viewList(g geom) []string {
 	w := g.listW
 	out := make([]string, 0, g.listH)
-	if m.repo == nil {
+	switch {
+	case m.repo == nil && m.scanning:
 		out = append(out,
 			paint(w, nil, sg(i18n.T("  这里还不是 Git 仓库"), fg(cText).Bold(true))),
-			paint(w, nil, sg(i18n.T("  初始化后就能在这里暂存、提交、推送"), fg(cMuted))),
+			paint(w, nil, sg("  "+i18n.Tf("正在 %d 层子目录里查找 Git 仓库…", m.opts.Depth), fg(cMuted))))
+	case m.repo == nil && m.workspace != "" && len(m.repos) > 0:
+		out = append(out,
+			paint(w, nil, sg(i18n.T("  这里还不是 Git 仓库"), fg(cText).Bold(true))),
+			paint(w, nil, sg("  "+i18n.Tf("子目录里找到 %d 个仓库，按 o 或点下面的按钮选择", len(m.repos)), fg(cMuted))),
+			paint(w, nil, sg("  ", lipgloss.NewStyle()), sg(" ⌂ "+i18n.T("选择仓库")+" ", btnStyle(btnPrimary))))
+	case m.repo == nil:
+		hint := i18n.T("  初始化后就能在这里暂存、提交、推送")
+		if m.workspace != "" {
+			hint = "  " + i18n.Tf("在 %d 层子目录内也没有找到 Git 仓库（可用 --depth 调整）", m.opts.Depth)
+		}
+		out = append(out,
+			paint(w, nil, sg(i18n.T("  这里还不是 Git 仓库"), fg(cText).Bold(true))),
+			paint(w, nil, sg(hint, fg(cMuted))),
 			paint(w, nil, sg("  ", lipgloss.NewStyle()), sg(" git init ", btnStyle(btnPrimary))))
-	} else {
+	default:
 		off := m.offset[m.tab]
 		for i := off; i < off+g.listH && i < m.itemCount(); i++ {
 			sel := i == m.cursor[m.tab]
@@ -666,6 +689,9 @@ func (m Model) viewStatus() string {
 		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
 	}
 	tail := [][2]string{{"?", i18n.T("帮助")}}
+	if m.workspace != "" {
+		tail = append([][2]string{{"o", i18n.T("仓库")}}, tail...)
+	}
 	if !m.opts.Embed {
 		tail = append(tail, [2]string{"q", i18n.T("退出")})
 	}
@@ -708,6 +734,7 @@ func (m Model) viewHelp() string {
 		}},
 		{i18n.T("图谱与分支"), []item{
 			{"b", i18n.T("选择要显示的分支（可多选，都不选 = 全部）")},
+			{"o", i18n.T("切换子目录里的仓库（启动目录不是仓库时）")},
 			{"z", i18n.T("提交详情里全部展开 / 折叠文件")},
 			{"p  P  f", "pull / push / fetch"},
 			{i18n.T("s / 双击"), i18n.T("在分支选择面板里切换到该分支")},
@@ -720,6 +747,7 @@ func (m Model) viewHelp() string {
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
+			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式）")},
 		}},
 	}
 	quit := i18n.T("Ctrl+C 两次")

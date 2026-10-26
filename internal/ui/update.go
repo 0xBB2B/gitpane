@@ -27,6 +27,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, tea.Batch(m.refreshCmd(), tick())
 
+	case scanMsg:
+		return m, m.applyScan(msg)
+
+	case summaryMsg:
+		return m, m.applySummary(msg)
+
 	case repoMsg:
 		if msg.repo != nil {
 			m.repo = msg.repo
@@ -114,6 +120,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
+		if m.repoPicking {
+			return m.handleRepoMouse(msg)
+		}
 		if m.picking {
 			return m.handlePickMouse(msg)
 		}
@@ -129,6 +138,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if m.committing {
 			return m.handleCommitKey(msg)
+		}
+		if m.repoPicking {
+			return m.handleRepoKey(msg)
 		}
 		if m.picking {
 			return m.handlePickKey(msg)
@@ -252,6 +264,12 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.switchTab(tabGraph)
 	case "b":
 		return m, m.openPicker()
+	case "o":
+		if m.workspace == "" {
+			m.setMsg(lvInfo, i18n.T("启动目录本身就是仓库，没有可切换的子仓库"))
+			return m, nil
+		}
+		return m, m.openRepoPicker()
 	case "j", "down":
 		return m, m.moveCursor(cur + 1)
 	case "k", "up":
@@ -365,14 +383,30 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 	}
 
 	switch {
+	case ev.Y == g.headerY:
+		if b, ok := m.headerRepoButton(); ok && b.hit(ev.X) {
+			return m, m.openRepoPicker()
+		}
+		if m.repo == nil {
+			return m, nil
+		}
+		return m, m.openPicker()
+
 	case m.repo == nil:
 		if ev.Y == g.listY+2 {
+			if m.workspace != "" && len(m.repos) > 0 {
+				return m, m.openRepoPicker()
+			}
 			return m, m.doAction("init")
 		}
+		if ev.Y == g.buttonsY {
+			for _, b := range m.bottomButtons() {
+				if b.hit(ev.X) {
+					return m, m.doAction(b.id)
+				}
+			}
+		}
 		return m, nil
-
-	case ev.Y == g.headerY:
-		return m, m.openPicker()
 
 	case ev.Y == g.tabsY:
 		for _, b := range m.tabRightButtons() {
@@ -623,6 +657,12 @@ func (m *Model) doAction(id string) tea.Cmd {
 			}
 			return i18n.T("已初始化仓库"), nil
 		})
+	}
+	switch id {
+	case "repos":
+		return m.openRepoPicker()
+	case "rescan":
+		return m.rescan()
 	}
 	if id == "repoRetry" || m.repo == nil {
 		return m.refreshCmd()

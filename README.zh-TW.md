@@ -95,6 +95,7 @@ gitpane
 gitpane                  # 目前目錄
 gitpane ~/code/foo       # 指定目錄（儲存庫內任一子目錄都可以）
 gitpane --lang zh-TW     # 指定介面語言：zh-CN / zh-TW / en / ja / ko
+gitpane --depth 3        # 目前目錄不是儲存庫時，向下尋找 3 層子目錄裡的儲存庫（預設 2，0 關閉）
 gitpane --layout stack   # 強制上下排列；wide 強制左右排列
 gitpane --embed          # 面板模式：q 不會離開，Ctrl+C 要按兩次（嵌入其他分割畫面工具時使用）
 gitpane --version
@@ -118,6 +119,8 @@ gitpane --version
   只改一個檔案時預設展開，多個檔案預設摺疊，`z` 或標題列右側按鈕可全部展開 / 摺疊。
 - **操作**：提交、pull、push（沒有上游時自動 `-u origin HEAD`）、fetch、捨棄變更（需確認兩次）、git init。
 - **多語言**：介面支援简体中文、繁體中文、English、日本語、한국어。
+- **子儲存庫**：在不是 Git 儲存庫的目錄（例如放了一堆專案的工作區）啟動時，自動在數層子目錄裡尋找儲存庫；
+  只有一個就直接開啟，有多個就跳出選擇面板（顯示每個儲存庫的分支和變更數，可按 `/` 篩選）。之後按 `o` 或點右上角的儲存庫名稱隨時切換。
 - 每 2 秒自動重新整理，外部改了檔案（例如 AI 助手正在寫程式）馬上看得到。
 
 ## 快捷鍵
@@ -130,6 +133,7 @@ gitpane --version
 | `Enter` `←` `→` | 摺疊 / 展開目錄（在檔案上按 `←` 回到所在目錄） |
 | `z` | 變更頁：全部摺疊 / 展開目錄；圖譜頁：提交詳情裡全部展開 / 摺疊檔案 |
 | `b` | 開啟分支篩選面板（空白鍵勾選、`a` 顯示全部、`s` 切換分支、Esc 返回） |
+| `o` | 切換子目錄裡的儲存庫（在非儲存庫目錄啟動時；`/` 篩選，Enter 開啟） |
 | `c` | 提交（底部輸入框，Enter 確認，Esc 取消） |
 | `a` / `u` | 全部暫存 / 全部取消暫存 |
 | `x` | 捨棄目前檔案的變更（按兩次確認） |
@@ -145,6 +149,7 @@ gitpane --version
 | 變數 | 說明 |
 |---|---|
 | `GITPANE_LANG` | 介面語言：`zh-CN` / `zh-TW` / `en` / `ja` / `ko`（`--lang` 優先） |
+| `GITPANE_DEPTH` | 子儲存庫探測深度，預設 `2`，`0` 關閉（`--depth` 優先） |
 | `GITPANE_THEME` | `dark` / `light`，自動偵測不準時手動指定 |
 | `GITPANE_NERD_FONT` | 設為 `1` 顯示 Nerd Font 檔案 / 目錄 / 分支圖示 |
 
@@ -184,11 +189,14 @@ docs/                    Logo 和各語言的截圖
 internal/i18n/           多語言：語言偵測 + 各語言翻譯表（測試確保沒有漏譯）
 internal/gitx/           git 指令封裝（status、numstat、diff、提交、遠端、分支）
   graph.go               提交圖譜的泳道佈局（含單元測試）
+  discover.go            子儲存庫掃描（含單元測試）
 internal/ui/
   model.go / update.go   狀態、非同步載入、鍵盤滑鼠操作
   view.go                版面（上下 / 左右）與繪製；同一個版面函式也用於點擊判定
   diffview.go            diff / 提交詳情 / 圖譜行的解析與繪製
   picker.go              分支篩選面板
+  repos.go               子儲存庫選擇面板與切換
+  split.go               清單 / 詳情分隔線的拖曳與儲存
   tree.go                變更檔案 → 帶連線的目錄樹
   theme.go               Tokyo Night 深淺兩套配色、圖示
 ```

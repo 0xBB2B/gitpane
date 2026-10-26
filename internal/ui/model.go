@@ -43,6 +43,8 @@ type Options struct {
 	// Embed 表示嵌入在别的分屏工具里当面板运行：q 不退出，Ctrl+C 要按两次。
 	Embed  bool
 	Layout Layout
+	// Depth 是启动目录不是 Git 仓库时向下探测子仓库的层数；0 表示不探测。
+	Depth int
 }
 
 // Model 是面板的全部状态。
@@ -57,6 +59,18 @@ type Model struct {
 	// 列表 / 详情分隔线：每个标签页的比例，以及是否正在拖动
 	split [numTabs]splitPref
 	drag  dragKind
+
+	// 子仓库探测（启动目录不是仓库时）：workspace 是扫描根目录，为空表示没有启用
+	workspace     string
+	repos         []repoEntry
+	scanning      bool
+	scanTrunc     bool
+	scanGen       int
+	repoPicking   bool
+	repoCursor    int
+	repoOffset    int
+	repoFilter    string
+	repoFiltering bool
 
 	status    *gitx.Status
 	statusErr string
@@ -119,11 +133,18 @@ func New(dir string, opts Options) Model {
 	m := Model{dir: dir, opts: opts, collapsed: map[string]bool{}, fileFold: map[string]bool{},
 		graphLimit: graphPage, input: ti, spin: sp, lastClickRow: -1, split: loadSplits()}
 	m.repo, _ = gitx.Open(dir)
+	if m.repo == nil && opts.Depth > 0 {
+		m.workspace, m.scanning = dir, true
+	}
 	return m
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(m.refreshCmd(), tick())
+	cmds := []tea.Cmd{m.refreshCmd(), tick()}
+	if m.scanning {
+		cmds = append(cmds, scanCmd(m.workspace, m.opts.Depth))
+	}
+	return tea.Batch(cmds...)
 }
 
 // ---------------------------------------------------------------- 消息

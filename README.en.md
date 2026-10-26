@@ -95,6 +95,7 @@ Press `?` for every key binding, `q` to quit.
 gitpane                  # current directory
 gitpane ~/code/foo       # a specific directory (any subdirectory of a repo works)
 gitpane --lang en        # UI language: zh-CN / zh-TW / en / ja / ko
+gitpane --depth 3        # outside a repo, look for repos up to 3 folder levels down (default 2, 0 = off)
 gitpane --layout stack   # force the stacked layout; wide forces side by side
 gitpane --embed          # panel mode: q doesn't quit, Ctrl+C twice closes (for split-pane setups)
 gitpane --version
@@ -118,6 +119,8 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
   Single-file commits open expanded and multi-file commits start collapsed; `z` or the button in the header toggles them all.
 - **Actions**: commit, pull, push (sets `-u origin HEAD` when there's no upstream), fetch, discard changes (confirmed twice), git init.
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
+- **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
+  One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.
 - Refreshes every 2 seconds, so changes made by other tools (an AI assistant writing code, say) show up right away.
 
 ## Key bindings
@@ -130,6 +133,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `Enter` `←` `→` | Collapse / expand folders (`←` on a file jumps to its folder) |
 | `z` | Changes: collapse / expand all folders; Graph: expand / collapse all files in commit details |
 | `b` | Open the branch picker (Space to toggle, `a` show all, `s` check out, Esc to go back) |
+| `o` | Switch between repos found in subfolders (when started outside a repo; `/` to filter, Enter to open) |
 | `c` | Commit (input at the bottom, Enter to confirm, Esc to cancel) |
 | `a` / `u` | Stage all / unstage all |
 | `x` | Discard changes to the current file (press twice) |
@@ -145,6 +149,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | Variable | Description |
 |---|---|
 | `GITPANE_LANG` | UI language: `zh-CN` / `zh-TW` / `en` / `ja` / `ko` (`--lang` takes precedence) |
+| `GITPANE_DEPTH` | Subrepo search depth, default `2`, `0` turns it off (`--depth` takes precedence) |
 | `GITPANE_THEME` | `dark` / `light`, for when background detection gets it wrong |
 | `GITPANE_NERD_FONT` | Set to `1` to show Nerd Font icons for files, folders and branches |
 
@@ -184,11 +189,14 @@ docs/                    logo and localized screenshots
 internal/i18n/           i18n: language detection + translation tables (tests catch missing strings)
 internal/gitx/           git plumbing (status, numstat, diff, commit, remotes, branches)
   graph.go               lane layout for the commit graph (unit tested)
+  discover.go            subrepo discovery (unit tested)
 internal/ui/
   model.go / update.go   state, async loading, keyboard and mouse handling
   view.go                layout (stacked / side by side) and rendering; the same layout drives hit-testing
   diffview.go            parsing and drawing of diffs, commit details and graph rows
   picker.go              branch picker
+  repos.go               repository picker and switching
+  split.go               dragging and saving the list / detail divider
   tree.go                changed files → folder tree with guide lines
   theme.go               Tokyo Night dark / light palettes, icons
 ```

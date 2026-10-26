@@ -95,6 +95,7 @@ gitpane
 gitpane                  # 当前目录
 gitpane ~/code/foo       # 指定目录（仓库里任意子目录都行）
 gitpane --lang en        # 指定界面语言：zh-CN / zh-TW / en / ja / ko
+gitpane --depth 3        # 当前目录不是仓库时，向下找 3 层子目录里的仓库（默认 2，0 关闭）
 gitpane --layout stack   # 强制上下布局；wide 强制左右
 gitpane --embed          # 面板模式：q 不退出，Ctrl+C 要按两次（嵌入其他分屏工具时用）
 gitpane --version
@@ -118,6 +119,8 @@ gitpane --version
   只改一个文件时默认展开，多个文件默认折叠，`z` 或标题栏右侧按钮全部展开 / 折叠。
 - **操作**：提交、pull、push（没有上游时自动 `-u origin HEAD`）、fetch、放弃改动（两次确认）、git init。
 - **多语言**：界面支持简体中文、繁體中文、English、日本語、한국어。
+- **子仓库**：在不是 Git 仓库的目录（比如放了一堆项目的工作区）里启动时，自动在若干层子目录里找仓库；
+  只有一个就直接打开，有多个就弹出选择面板（显示每个仓库的分支和改动数，可按 `/` 筛选）。之后按 `o` 或点右上角的仓库名随时切换。
 - 每 2 秒自动刷新，外部改了文件（比如 AI 助手在写代码）马上能看到。
 
 ## 快捷键
@@ -130,6 +133,7 @@ gitpane --version
 | `回车` `←` `→` | 折叠 / 展开目录（在文件上按 `←` 回到所在目录） |
 | `z` | 变更页：全部折叠 / 展开目录；图谱页：提交详情里全部展开 / 折叠文件 |
 | `b` | 打开分支筛选面板（空格勾选、`a` 显示全部、`s` 切换分支、Esc 返回） |
+| `o` | 切换子目录里的仓库（在非仓库目录启动时；`/` 筛选，回车打开） |
 | `c` | 提交（底部输入框，回车确认，Esc 取消） |
 | `a` / `u` | 全部暂存 / 全部取消暂存 |
 | `x` | 放弃当前文件改动（按两次确认） |
@@ -145,6 +149,7 @@ gitpane --version
 | 变量 | 说明 |
 |---|---|
 | `GITPANE_LANG` | 界面语言：`zh-CN` / `zh-TW` / `en` / `ja` / `ko`（`--lang` 优先） |
+| `GITPANE_DEPTH` | 子仓库探测深度，默认 `2`，`0` 关闭（`--depth` 优先） |
 | `GITPANE_THEME` | `dark` / `light`，自动检测不准时手动指定 |
 | `GITPANE_NERD_FONT` | 设为 `1` 显示 Nerd Font 文件 / 目录 / 分支图标 |
 
@@ -184,11 +189,14 @@ docs/                    Logo 和各语言的截图
 internal/i18n/           多语言：语言检测 + 各语言翻译表（测试保证没有漏翻）
 internal/gitx/           git 命令封装（status、numstat、diff、提交、远程、分支）
   graph.go               提交图谱的泳道布局（带单元测试）
+  discover.go            子仓库扫描（带单元测试）
 internal/ui/
   model.go / update.go   状态、异步加载、键盘鼠标操作
   view.go                布局（上下 / 左右）与渲染；同一个布局函数用于点击命中判断
   diffview.go            diff / 提交详情 / 图谱行的解析与绘制
   picker.go              分支筛选面板
+  repos.go               子仓库选择面板与切换
+  split.go               列表 / 详情分隔线的拖动与保存
   tree.go                变更文件 → 带连线的目录树
   theme.go               Tokyo Night 深浅两套配色、图标
 ```
