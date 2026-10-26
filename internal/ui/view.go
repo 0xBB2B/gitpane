@@ -636,22 +636,18 @@ func (m Model) viewDetailHeader(g geom) string {
 		right = append(right, sg(fmt.Sprintf("%d%% ", min(100, pct)), fg(cFaint)))
 	}
 	for _, b := range m.detailButtons(g) {
-		st := lipgloss.NewStyle().Background(cSurface).Foreground(cSub)
-		if b.id == "wrap" && m.wrap {
-			st = lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true) // 开启中高亮
-		}
-		right = append(right, sg(" "+b.label+" ", st), sg(" ", lipgloss.NewStyle()))
+		right = append(right, sg(" "+b.label+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cSub)), sg(" ", lipgloss.NewStyle()))
 	}
 	return rightAlign(g.detailW, bar, left, right)
 }
 
-// detailButtons 是详情标题栏右端的按钮（坐标为整屏绝对列），从左到右：
-// 「↩ 换行」开关（内容加载好后总是显示），以及多文件提交的「全部展开 / 全部折叠」。
+// detailButtons 是详情标题栏右端的按钮（坐标为整屏绝对列）：
+// 目前只有多文件提交的「全部展开 / 全部折叠」。自动换行用 w 键切换。
 func (m Model) detailButtons(g geom) []button {
 	if m.detailKey == "" || m.detail.key != m.detailKey {
 		return nil
 	}
-	labels := []struct{ id, label string }{{"wrap", icons.wrap + i18n.T(" 换行")}}
+	var labels []struct{ id, label string }
 	if m.detail.files >= 2 {
 		label := icons.dirOpen + i18n.T(" 全部展开")
 		for _, l := range m.detail.lines {
@@ -739,7 +735,7 @@ func (m Model) viewHelp() string {
 			{"j k ↑ ↓", i18n.T("上下移动")},
 			{"g G", i18n.T("到顶 / 到底")},
 			{"J K", i18n.T("详情区翻页（也可以滚轮）")},
-			{"w", i18n.T("详情区长行自动换行 / 截断")},
+			{"w", i18n.T("详情区长行自动换行 / 截断（会记住）")},
 			{"r", i18n.T("立即刷新（平时每 2 秒自动刷新）")},
 			{"< >", i18n.T("调整列表和详情的分隔线")},
 			{"=", i18n.T("恢复默认比例")},
@@ -766,7 +762,6 @@ func (m Model) viewHelp() string {
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
 			{i18n.T("点「分支」按钮"), i18n.T("打开分支选择面板（图谱页底部，或标签栏右侧）")},
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
-			{i18n.T("点「↩ 换行」"), i18n.T("详情标题栏右侧，开关长行自动换行（会记住）")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
 			{i18n.T("点「选择仓库」"), i18n.T("切换仓库（子仓库模式，在底部按钮栏）")},

@@ -87,7 +87,7 @@ var nerd = func() bool {
 }()
 
 type iconSet struct {
-	branch, dirOpen, dirClosed, commit, check, cross, busy, up, down, clean, repo, wrap string
+	branch, dirOpen, dirClosed, commit, check, cross, busy, up, down, clean, repo string
 }
 
 var icons = func() iconSet {
@@ -95,13 +95,13 @@ var icons = func() iconSet {
 		return iconSet{
 			branch: "", dirOpen: "", dirClosed: "", commit: "",
 			check: "", cross: "", busy: "", up: "", down: "",
-			clean: "", repo: "", wrap: "󰖶",
+			clean: "", repo: "",
 		}
 	}
 	return iconSet{
 		branch: "⎇", dirOpen: "▾", dirClosed: "▸", commit: "●",
 		check: "✓", cross: "✗", busy: "", up: "↑", down: "↓",
-		clean: "✓", repo: "", wrap: "↩",
+		clean: "✓", repo: "",
 	}
 }()
 

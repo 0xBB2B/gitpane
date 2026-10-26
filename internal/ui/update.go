@@ -445,11 +445,7 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 				if !b.hit(ev.X) {
 					continue
 				}
-				if b.id == "wrap" {
-					m.toggleWrap()
-				} else {
-					m.toggleAllFiles()
-				}
+				m.toggleAllFiles()
 			}
 			return m, nil
 		}
