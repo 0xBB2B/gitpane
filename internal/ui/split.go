@@ -121,7 +121,8 @@ func (m *Model) setListH(h int) {
 }
 
 // stackAvail 是上下布局里列表 + 详情可用的总行数（和 geom 保持一致）。
-func (m Model) stackAvail() int { return max(2, max(2, m.h-4)-1) }
+// 去掉头部、标签、按钮、状态四行，再去掉分隔线和详情标题栏两行。
+func (m Model) stackAvail() int { return max(2, max(2, m.h-4)-2) }
 
 // nudgeSplit 用键盘微调：左右布局每次 4 列，上下布局每次 2 行。
 func (m *Model) nudgeSplit(dir int) {
@@ -152,7 +153,7 @@ func (m *Model) handleDrag(ev tea.MouseMsg) bool {
 		if m.drag == dragWide {
 			m.setListW(ev.X)
 		} else {
-			m.setListH(ev.Y - g.listY)
+			m.setListH(ev.Y - g.listY - m.dragGrab) // 按住的那一行跟着鼠标走
 		}
 	case tea.MouseActionRelease:
 		m.drag = dragNone
@@ -166,13 +167,15 @@ func (m *Model) startDrag(g geom, x, y int) bool {
 	switch {
 	case g.wide && x == g.listW && y >= g.listY && y < g.listY+g.listH:
 		m.drag = dragWide
+	case !g.wide && m.repo != nil && y == g.sepY:
+		m.drag, m.dragGrab = dragStack, 0
 	case !g.wide && m.repo != nil && y == g.detailHdrY:
 		for _, b := range m.detailButtons(g) {
 			if b.hit(x) {
 				return false // 标题栏右端的按钮照常可点
 			}
 		}
-		m.drag = dragStack
+		m.drag, m.dragGrab = dragStack, 1 // 拖标题栏也行，它比分隔线低一行
 	default:
 		return false
 	}

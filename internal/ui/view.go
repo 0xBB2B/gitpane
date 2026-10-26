@@ -29,7 +29,7 @@ import (
 //
 //	0  头部
 //	1  标签页
-//	2… 列表区 │ 详情标题栏 + 详情区
+//	2… 列表区 │ 详情标题栏 + 详情区（上下布局时两者之间有一行分隔线）
 //	   按钮栏
 //	   状态栏
 //
@@ -40,6 +40,7 @@ type geom struct {
 	listX, listY, listW, listH            int
 	detailX, detailHdrY, detailY, detailW int
 	detailH                               int
+	sepY                                  int // 上下布局时列表和详情之间的分隔线；左右布局为 -1
 	buttonsY, statusY                     int
 }
 
@@ -65,7 +66,7 @@ func (m Model) isWide() bool {
 }
 
 func (m Model) geom() geom {
-	g := geom{headerY: 0, tabsY: 1, listY: 2}
+	g := geom{headerY: 0, tabsY: 1, listY: 2, sepY: -1}
 	body := max(2, m.h-4) // 去掉头部、标签、按钮、状态四行
 	if m.isWide() {
 		g.wide = true
@@ -85,7 +86,7 @@ func (m Model) geom() geom {
 		return g
 	}
 
-	avail := max(2, body-1) // 上下布局还要一行详情标题栏
+	avail := m.stackAvail() // 上下布局还要一行分隔线和一行详情标题栏
 	var listH int
 	switch {
 	case m.repo == nil:
@@ -101,7 +102,8 @@ func (m Model) geom() geom {
 	listH = max(1, min(listH, avail-1))
 	g.listW, g.detailW = m.w, m.w
 	g.listH = listH
-	g.detailHdrY = g.listY + listH
+	g.sepY = g.listY + listH
+	g.detailHdrY = g.sepY + 1
 	g.detailY = g.detailHdrY + 1
 	g.detailH = avail - listH
 	g.buttonsY = g.detailY + g.detailH
@@ -289,7 +291,13 @@ func (m Model) View() string {
 			lines = append(lines, list[i]+sep+right[i])
 		}
 	} else {
+		// 上下布局：中间一整行分隔线，免得列表和详情贴在一起；它也是拖动把手
+		sep := fg(cGuide).Render(strings.Repeat("─", m.w))
+		if m.drag == dragStack {
+			sep = fg(cAccent).Bold(true).Render(strings.Repeat("━", m.w))
+		}
 		lines = append(lines, list...)
+		lines = append(lines, sep)
 		lines = append(lines, right...)
 	}
 	lines = append(lines, renderButtons(m.w, m.bottomButtons()), m.viewStatus())
@@ -719,7 +727,16 @@ func (m Model) viewStatus() string {
 		}
 		return s
 	}
-	// 帮助/退出贴右边；放不下时 rightAlign 会先截左边的提示
+	// 帮助/退出贴右边；放不下时从左边的提示末尾整条去掉，不截成半截
+	width := func(ss []seg) (n int) {
+		for _, x := range ss {
+			n += lipgloss.Width(x.s)
+		}
+		return
+	}
+	for len(keys) > 0 && 1+width(render(keys))+width(render(tail))+1 > m.w {
+		keys = keys[:len(keys)-1]
+	}
 	return rightAlign(m.w, nil, append([]seg{sg(" ", lipgloss.NewStyle())}, render(keys)...), render(tail))
 }
 

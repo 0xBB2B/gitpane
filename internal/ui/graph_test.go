@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/0xBB2B/gitpane/internal/gitx"
@@ -43,5 +44,23 @@ func TestGraphRefreshKeepsSelection(t *testing.T) {
 	m = nm.(Model)
 	if m.cursor[tabGraph] != 4 {
 		t.Fatalf("找不到原提交时应保持行号，实际 %d", m.cursor[tabGraph])
+	}
+}
+
+func TestStackGeomFillsScreen(t *testing.T) {
+	m := newTestModel(t)
+	m.opts.Layout = LayoutStack
+	for _, h := range []int{8, 12, 24, 50} {
+		m.h = h
+		g := m.geom()
+		if g.sepY != g.listY+g.listH || g.detailHdrY != g.sepY+1 {
+			t.Fatalf("h=%d：分隔线位置不对 %+v", h, g)
+		}
+		if g.statusY != h-1 {
+			t.Fatalf("h=%d：各区域加起来应正好占满屏幕，状态栏在 %d", h, g.statusY)
+		}
+		if m.View() == "" || strings.Count(m.View(), "\n") != h-1 {
+			t.Fatalf("h=%d：渲染出的行数不对", h)
+		}
 	}
 }

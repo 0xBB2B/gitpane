@@ -59,6 +59,8 @@ type Model struct {
 	// 列表 / 详情分隔线：每个标签页的比例，以及是否正在拖动
 	split [numTabs]splitPref
 	drag  dragKind
+	// 上下拖动时按住的是分隔线（0）还是它下面的详情标题栏（1）
+	dragGrab int
 
 	// 子仓库探测（启动目录不是仓库时）：workspace 是扫描根目录，为空表示没有启用
 	workspace     string
