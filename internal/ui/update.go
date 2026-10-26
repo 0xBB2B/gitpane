@@ -235,6 +235,15 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "?":
 		m.showHelp = true
 		return m, nil
+	case "<", ",":
+		m.nudgeSplit(-1)
+		return m, nil
+	case ">", ".":
+		m.nudgeSplit(1)
+		return m, nil
+	case "=":
+		m.resetSplit()
+		return m, nil
 	case "tab", "shift+tab":
 		return m, m.switchTab((m.tab + 1) % numTabs)
 	case "1":
@@ -326,6 +335,9 @@ func (m Model) handleCommitKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 // ---------------------------------------------------------------- 鼠标
 
 func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
+	if m.handleDrag(ev) {
+		return m, nil
+	}
 	g := m.geom()
 	inList := g.inList(ev.X, ev.Y)
 	inDetail := g.inDetail(ev.X, ev.Y)
@@ -346,6 +358,9 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	if ev.Action != tea.MouseActionPress || ev.Button != tea.MouseButtonLeft {
+		return m, nil
+	}
+	if m.startDrag(g, ev.X, ev.Y) {
 		return m, nil
 	}
 

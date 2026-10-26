@@ -166,5 +166,10 @@ func init() {
 		"作为面板嵌入运行": "run as an embedded panel",
 		"显示版本":     "print version",
 		"gitpane —— 鼠标可点的 Git TUI\n\n用法：\n  gitpane [选项] [目录]\n\n选项：\n  --lang zh-CN|zh-TW|en|ja|ko  界面语言（默认按系统语言自动选择）\n  --layout auto|wide|stack     排布方式（默认 auto：宽度 ≥ 100 列时左右并排）\n  --embed                      面板模式：q 不退出，Ctrl+C 需按两次（嵌入其他分屏工具时用）\n  --version                    显示版本\n\n环境变量：\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  界面语言（--lang 优先）\n  GITPANE_THEME=light|dark           指定配色（默认自动检测终端背景）\n  GITPANE_NERD_FONT=1                使用 Nerd Font 图标\n\n进入后按 ? 查看全部快捷键。": "gitpane — a mouse-friendly Git TUI\n\nUsage:\n  gitpane [options] [dir]\n\nOptions:\n  --lang zh-CN|zh-TW|en|ja|ko  UI language (default: detected from the system)\n  --layout auto|wide|stack     layout (default auto: side by side when ≥ 100 columns)\n  --embed                      panel mode: q doesn't quit, Ctrl+C twice to close (for split-pane setups)\n  --version                    print version\n\nEnvironment:\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  UI language (--lang wins)\n  GITPANE_THEME=light|dark           color theme (default: detect terminal background)\n  GITPANE_NERD_FONT=1                use Nerd Font icons\n\nPress ? inside for all key bindings.",
+		"已恢复默认比例":     "Split reset to default",
+		"调整列表和详情的分隔线": "Move the divider between list and detail",
+		"恢复默认比例":      "Reset the divider",
+		"拖动分隔线":       "Drag the divider",
+		"调整左右 / 上下比例（每个标签页单独记住）": "Resize list / detail (remembered per tab)",
 	})
 }

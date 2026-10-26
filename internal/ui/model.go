@@ -54,6 +54,10 @@ type Model struct {
 	tab      tab
 	showHelp bool
 
+	// 列表 / 详情分隔线：每个标签页的比例，以及是否正在拖动
+	split [numTabs]splitPref
+	drag  dragKind
+
 	status    *gitx.Status
 	statusErr string
 	stats     [3]map[string]gitx.Stat // 按分组的每文件增删行数
@@ -113,7 +117,7 @@ func New(dir string, opts Options) Model {
 	sp.Style = fg(cAccent)
 
 	m := Model{dir: dir, opts: opts, collapsed: map[string]bool{}, fileFold: map[string]bool{},
-		graphLimit: graphPage, input: ti, spin: sp, lastClickRow: -1}
+		graphLimit: graphPage, input: ti, spin: sp, lastClickRow: -1, split: loadSplits()}
 	m.repo, _ = gitx.Open(dir)
 	return m
 }

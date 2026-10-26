@@ -166,5 +166,10 @@ func init() {
 		"作为面板嵌入运行": "パネルとして埋め込んで実行",
 		"显示版本":     "バージョンを表示",
 		"gitpane —— 鼠标可点的 Git TUI\n\n用法：\n  gitpane [选项] [目录]\n\n选项：\n  --lang zh-CN|zh-TW|en|ja|ko  界面语言（默认按系统语言自动选择）\n  --layout auto|wide|stack     排布方式（默认 auto：宽度 ≥ 100 列时左右并排）\n  --embed                      面板模式：q 不退出，Ctrl+C 需按两次（嵌入其他分屏工具时用）\n  --version                    显示版本\n\n环境变量：\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  界面语言（--lang 优先）\n  GITPANE_THEME=light|dark           指定配色（默认自动检测终端背景）\n  GITPANE_NERD_FONT=1                使用 Nerd Font 图标\n\n进入后按 ? 查看全部快捷键。": "gitpane —— マウスで操作できる Git TUI\n\n使い方：\n  gitpane [オプション] [ディレクトリ]\n\nオプション：\n  --lang zh-CN|zh-TW|en|ja|ko  表示言語（既定：システムの言語から自動判定）\n  --layout auto|wide|stack     レイアウト（既定 auto：幅 100 桁以上で左右に並べる）\n  --embed                      パネルモード：q で終了せず、Ctrl+C を2回で閉じる（画面分割ツールへの埋め込み用）\n  --version                    バージョンを表示\n\n環境変数：\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  表示言語（--lang が優先）\n  GITPANE_THEME=light|dark           配色（既定：端末の背景色から自動判定）\n  GITPANE_NERD_FONT=1                Nerd Font のアイコンを使う\n\n起動後に ? を押すとすべてのキー操作を確認できます。",
+		"已恢复默认比例":     "分割比率を既定に戻しました",
+		"调整列表和详情的分隔线": "リストと詳細の境界線を移動",
+		"恢复默认比例":      "分割比率を既定に戻す",
+		"拖动分隔线":       "境界線をドラッグ",
+		"调整左右 / 上下比例（每个标签页单独记住）": "左右 / 上下の比率を調整（タブごとに保存）",
 	})
 }

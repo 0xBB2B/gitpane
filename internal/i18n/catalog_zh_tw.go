@@ -166,5 +166,10 @@ func init() {
 		"作为面板嵌入运行": "作為面板嵌入執行",
 		"显示版本":     "顯示版本",
 		"gitpane —— 鼠标可点的 Git TUI\n\n用法：\n  gitpane [选项] [目录]\n\n选项：\n  --lang zh-CN|zh-TW|en|ja|ko  界面语言（默认按系统语言自动选择）\n  --layout auto|wide|stack     排布方式（默认 auto：宽度 ≥ 100 列时左右并排）\n  --embed                      面板模式：q 不退出，Ctrl+C 需按两次（嵌入其他分屏工具时用）\n  --version                    显示版本\n\n环境变量：\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  界面语言（--lang 优先）\n  GITPANE_THEME=light|dark           指定配色（默认自动检测终端背景）\n  GITPANE_NERD_FONT=1                使用 Nerd Font 图标\n\n进入后按 ? 查看全部快捷键。": "gitpane —— 滑鼠可點的 Git TUI\n\n用法：\n  gitpane [選項] [目錄]\n\n選項：\n  --lang zh-CN|zh-TW|en|ja|ko  介面語言（預設依系統語言自動選擇）\n  --layout auto|wide|stack     排版方式（預設 auto：寬度 ≥ 100 欄時左右並排）\n  --embed                      面板模式：q 不會退出，Ctrl+C 需按兩次（嵌入其他分割畫面工具時使用）\n  --version                    顯示版本\n\n環境變數：\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  介面語言（--lang 優先）\n  GITPANE_THEME=light|dark           指定配色（預設自動偵測終端機背景）\n  GITPANE_NERD_FONT=1                使用 Nerd Font 圖示\n\n進入後按 ? 查看全部快捷鍵。",
+		"已恢复默认比例":     "已恢復預設比例",
+		"调整列表和详情的分隔线": "調整清單和詳情的分隔線",
+		"恢复默认比例":      "恢復預設比例",
+		"拖动分隔线":       "拖曳分隔線",
+		"调整左右 / 上下比例（每个标签页单独记住）": "調整左右 / 上下比例（每個標籤頁各自記住）",
 	})
 }

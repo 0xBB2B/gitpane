@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"math"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -72,6 +73,10 @@ func (m Model) geom() geom {
 			// 图谱最该看清的是提交标题，列表给宽一点
 			g.listW = max(40, min(m.w*11/20, 100))
 		}
+		if r := m.split[m.tab].Wide; r > 0 {
+			g.listW = int(math.Round(float64(m.w) * r)) // 用户拖动 / 调整过的比例
+		}
+		g.listW = max(minListW, min(g.listW, m.w-minDetailW-1))
 		g.listH = body
 		g.detailX = g.listW + 1 // 中间一列分隔线
 		g.detailW = m.w - g.detailX
@@ -92,6 +97,9 @@ func (m Model) geom() geom {
 		listH = min(max(m.itemCount(), 4), avail*3/5)
 	default:
 		listH = min(max(m.itemCount(), 4), avail/2)
+	}
+	if r := m.split[m.tab].Stack; r > 0 && m.repo != nil {
+		listH = int(math.Round(float64(avail) * r)) // 用户拖动 / 调整过的比例
 	}
 	listH = max(1, min(listH, avail-1))
 	g.listW, g.detailW = m.w, m.w
@@ -261,7 +269,11 @@ func (m Model) View() string {
 	list := m.viewList(g)
 	right := append([]string{m.viewDetailHeader(g)}, m.viewDetail(g)...)
 	if g.wide {
+		// 分隔线可以拖动；拖动时加粗高亮
 		sep := fg(cGuide).Render("│")
+		if m.drag == dragWide {
+			sep = fg(cAccent).Bold(true).Render("┃")
+		}
 		for i := 0; i < g.listH; i++ {
 			lines = append(lines, list[i]+sep+right[i])
 		}
@@ -561,16 +573,21 @@ func (m Model) marker(r row) seg {
 var trackRe = regexp.MustCompile(`(ahead|behind) (\d+)`)
 
 func (m Model) viewDetailHeader(g geom) string {
+	// 上下布局时标题栏就是分隔线，拖动中用选中色提示
+	bar := lipgloss.TerminalColor(cBar)
+	if m.drag == dragStack {
+		bar = cSel
+	}
 	d := m.detail.head
 	if m.detailKey == "" {
 		hint := i18n.T("选中文件查看差异")
 		if m.tab == tabGraph {
 			hint = i18n.T("选中提交查看详情")
 		}
-		return paint(g.detailW, cBar, sg(" ▌", fg(cGuide)), sg(" "+hint, fg(cMuted)))
+		return paint(g.detailW, bar, sg(" ▌", fg(cGuide)), sg(" "+hint, fg(cMuted)))
 	}
 	if m.detail.key != m.detailKey {
-		return paint(g.detailW, cBar, sg(" ▌", fg(cAccent)), sg(i18n.T(" 加载中…"), fg(cMuted)))
+		return paint(g.detailW, bar, sg(" ▌", fg(cAccent)), sg(i18n.T(" 加载中…"), fg(cMuted)))
 	}
 	left := []seg{sg(" ▌", fg(cAccent)), sg(" "+d.icon+d.name, fg(cText).Bold(true))}
 	if d.dir != "" {
@@ -593,7 +610,7 @@ func (m Model) viewDetailHeader(g geom) string {
 	if b, ok := m.detailFoldButton(g); ok {
 		right = append(right, sg(" "+b.label+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cSub)), sg(" ", lipgloss.NewStyle()))
 	}
-	return rightAlign(g.detailW, cBar, left, right)
+	return rightAlign(g.detailW, bar, left, right)
 }
 
 // detailFoldButton 是提交详情标题栏右端的「全部展开 / 全部折叠」按钮（坐标为整屏绝对列）。
@@ -677,6 +694,8 @@ func (m Model) viewHelp() string {
 			{"g G", i18n.T("到顶 / 到底")},
 			{"J K", i18n.T("详情区翻页（也可以滚轮）")},
 			{"r", i18n.T("立即刷新（平时每 2 秒自动刷新）")},
+			{"< >", i18n.T("调整列表和详情的分隔线")},
+			{"=", i18n.T("恢复默认比例")},
 			{"?", i18n.T("打开 / 关闭帮助")},
 		}},
 		{i18n.T("变更"), []item{
@@ -700,6 +719,7 @@ func (m Model) viewHelp() string {
 			{i18n.T("点顶部分支名"), i18n.T("打开分支选择面板")},
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
+			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
 		}},
 	}
 	quit := i18n.T("Ctrl+C 两次")

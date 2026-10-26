@@ -166,5 +166,10 @@ func init() {
 		"作为面板嵌入运行": "패널로 내장 실행",
 		"显示版本":     "버전 표시",
 		"gitpane —— 鼠标可点的 Git TUI\n\n用法：\n  gitpane [选项] [目录]\n\n选项：\n  --lang zh-CN|zh-TW|en|ja|ko  界面语言（默认按系统语言自动选择）\n  --layout auto|wide|stack     排布方式（默认 auto：宽度 ≥ 100 列时左右并排）\n  --embed                      面板模式：q 不退出，Ctrl+C 需按两次（嵌入其他分屏工具时用）\n  --version                    显示版本\n\n环境变量：\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  界面语言（--lang 优先）\n  GITPANE_THEME=light|dark           指定配色（默认自动检测终端背景）\n  GITPANE_NERD_FONT=1                使用 Nerd Font 图标\n\n进入后按 ? 查看全部快捷键。": "gitpane — 마우스로 조작하는 Git TUI\n\n사용법:\n  gitpane [옵션] [디렉터리]\n\n옵션:\n  --lang zh-CN|zh-TW|en|ja|ko  표시 언어 (기본값: 시스템 언어로 자동 선택)\n  --layout auto|wide|stack     레이아웃 (기본값 auto: 너비 100열 이상이면 좌우 배치)\n  --embed                      패널 모드: q로 종료되지 않고 Ctrl+C 두 번으로 닫힘 (화면 분할 도구에 내장할 때)\n  --version                    버전 표시\n\n환경 변수:\n  GITPANE_LANG=zh-CN|zh-TW|en|ja|ko  표시 언어 (--lang 우선)\n  GITPANE_THEME=light|dark           색상 테마 (기본값: 터미널 배경 자동 감지)\n  GITPANE_NERD_FONT=1                Nerd Font 아이콘 사용\n\n실행 후 ?를 누르면 모든 단축키를 볼 수 있습니다.",
+		"已恢复默认比例":     "분할 비율을 기본값으로 되돌렸습니다",
+		"调整列表和详情的分隔线": "목록과 상세 사이 구분선 이동",
+		"恢复默认比例":      "분할 비율을 기본값으로",
+		"拖动分隔线":       "구분선 드래그",
+		"调整左右 / 上下比例（每个标签页单独记住）": "좌우 / 위아래 비율 조정 (탭마다 기억)",
 	})
 }

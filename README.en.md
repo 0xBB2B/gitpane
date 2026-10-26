@@ -101,6 +101,7 @@ gitpane --version
 ```
 
 At 100 columns or wider the list and the detail pane sit side by side; narrower terminals get a stacked layout.
+Drag the divider between them (in the stacked layout, drag the detail pane's title bar) to resize, or nudge it with `<` `>` and reset with `=`; each tab remembers its own split across restarts.
 
 ## Features
 
@@ -134,6 +135,7 @@ At 100 columns or wider the list and the detail pane sit side by side; narrower 
 | `x` | Discard changes to the current file (press twice) |
 | `p` / `P` / `f` | pull / push / fetch |
 | `J` `K` | Scroll the detail pane |
+| `<` `>` / `=` | Move the divider between list and detail / reset it |
 | `r` | Refresh now |
 | `?` | Help |
 | `q` / `Ctrl+C` | Quit (Ctrl+C twice with `--embed`) |
