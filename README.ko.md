@@ -200,7 +200,7 @@ internal/ui/
   repos.go               저장소 선택 화면과 전환
   split.go               목록 / 상세 구분선 드래그와 저장
   tree.go                변경 파일 → 연결선이 있는 폴더 트리
-  theme.go               Tokyo Night 다크 / 라이트 색상, 아이콘
+  theme.go               One Monokai / One Light 다크 / 라이트 색상, 아이콘
 ```
 
 ## 기여하기
@@ -252,7 +252,7 @@ goreleaser release --snapshot --clean --skip=publish   # dist/에 결과물만 �
 ## 감사의 말
 
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) / [Lip Gloss](https://github.com/charmbracelet/lipgloss) / [Bubbles](https://github.com/charmbracelet/bubbles): TUI 프레임워크
-- [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme): 색상 영감
+- [One Monokai](https://github.com/azemoh/vscode-one-monokai), [One Light](https://github.com/atom/atom/tree/master/packages/one-light-syntax): 색상
 - [GoReleaser](https://goreleaser.com): 크로스 플랫폼 릴리스
 
 ## 라이선스

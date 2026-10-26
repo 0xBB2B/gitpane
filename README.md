@@ -200,7 +200,7 @@ internal/ui/
   repos.go               子仓库选择面板与切换
   split.go               列表 / 详情分隔线的拖动与保存
   tree.go                变更文件 → 带连线的目录树
-  theme.go               Tokyo Night 深浅两套配色、图标
+  theme.go               One Monokai / One Light 深浅两套配色、图标
 ```
 
 ## 参与贡献
@@ -252,7 +252,7 @@ goreleaser release --snapshot --clean --skip=publish   # 只在 dist/ 里生成�
 ## 致谢
 
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) / [Lip Gloss](https://github.com/charmbracelet/lipgloss) / [Bubbles](https://github.com/charmbracelet/bubbles)：终端界面框架
-- [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme)：配色灵感
+- [One Monokai](https://github.com/azemoh/vscode-one-monokai)、[One Light](https://github.com/atom/atom/tree/master/packages/one-light-syntax)：配色
 - [GoReleaser](https://goreleaser.com)：跨平台发布
 
 ## 许可

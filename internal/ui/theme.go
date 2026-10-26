@@ -10,31 +10,33 @@ import (
 	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
-// 配色基于 Tokyo Night（深色）/ Tokyo Night Day（浅色），根据终端背景自动切换。
+// 配色：深色是 One Monokai（VS Code 主题 azemoh.one-monokai：One Dark 底色 +
+// Monokai 风格的语法色），浅色是同一体系的 One Light。根据终端背景自动切换，
+// 也可以用 GITPANE_THEME=dark|light 指定。
 type ac = lipgloss.AdaptiveColor
 
 var (
-	cText    = ac{Dark: "#c0caf5", Light: "#3760bf"}
-	cSub     = ac{Dark: "#a9b1d6", Light: "#4c5a8f"}
-	cMuted   = ac{Dark: "#737aa2", Light: "#7c84a8"}
-	cFaint   = ac{Dark: "#545c7e", Light: "#a1a6c5"}
-	cGuide   = ac{Dark: "#3b4261", Light: "#c4c8da"}
-	cAccent  = ac{Dark: "#7aa2f7", Light: "#2e7de9"}
-	cGreen   = ac{Dark: "#9ece6a", Light: "#587539"}
-	cYellow  = ac{Dark: "#e0af68", Light: "#8c6c3e"}
-	cOrange  = ac{Dark: "#ff9e64", Light: "#b15c00"}
-	cRed     = ac{Dark: "#f7768e", Light: "#f52a65"}
-	cPurple  = ac{Dark: "#bb9af7", Light: "#9854f1"}
-	cCyan    = ac{Dark: "#7dcfff", Light: "#007197"}
-	cOnPill  = ac{Dark: "#1a1b26", Light: "#ffffff"}
-	cBar     = ac{Dark: "#1f2335", Light: "#d6d9e6"}
-	cSurface = ac{Dark: "#292e42", Light: "#c8ccdd"}
-	cSel     = ac{Dark: "#2d3f76", Light: "#b6c3ea"}
-	cAddBg   = ac{Dark: "#1d3330", Light: "#d6e8cf"}
-	cDelBg   = ac{Dark: "#3a2232", Light: "#f3d6dc"}
-	cAddHi   = ac{Dark: "#2b5248", Light: "#bcdcae"}
-	cDelHi   = ac{Dark: "#5c2c42", Light: "#ebb6c1"}
-	cHunkBg  = ac{Dark: "#1f2335", Light: "#dfe2ee"}
+	cText    = ac{Dark: "#d7dae0", Light: "#383a42"}
+	cSub     = ac{Dark: "#abb2bf", Light: "#4f525e"}
+	cMuted   = ac{Dark: "#7f848e", Light: "#696c77"}
+	cFaint   = ac{Dark: "#5c6370", Light: "#a0a1a7"}
+	cGuide   = ac{Dark: "#3b4048", Light: "#d4d4d6"}
+	cAccent  = ac{Dark: "#61afef", Light: "#4078f2"}
+	cGreen   = ac{Dark: "#98c379", Light: "#50a14f"}
+	cYellow  = ac{Dark: "#e5c07b", Light: "#c18401"}
+	cOrange  = ac{Dark: "#d19a66", Light: "#986801"}
+	cRed     = ac{Dark: "#e06c75", Light: "#e45649"}
+	cPurple  = ac{Dark: "#c678dd", Light: "#a626a4"}
+	cCyan    = ac{Dark: "#56b6c2", Light: "#0184bc"}
+	cOnPill  = ac{Dark: "#282c34", Light: "#ffffff"}
+	cBar     = ac{Dark: "#21252b", Light: "#eaeaeb"}
+	cSurface = ac{Dark: "#2f333d", Light: "#e0e0e2"}
+	cSel     = ac{Dark: "#3e4451", Light: "#d7dae0"}
+	cAddBg   = ac{Dark: "#2b3830", Light: "#e2f0e0"}
+	cDelBg   = ac{Dark: "#3d2b31", Light: "#fbe1dd"}
+	cAddHi   = ac{Dark: "#3a5040", Light: "#c6e2c3"}
+	cDelHi   = ac{Dark: "#5a343b", Light: "#f5c3bb"}
+	cHunkBg  = ac{Dark: "#21252b", Light: "#f0f0f1"}
 )
 
 // 提交图谱每一列轮流使用的颜色。

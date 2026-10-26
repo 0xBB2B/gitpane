@@ -200,7 +200,7 @@ internal/ui/
   repos.go               リポジトリ選択画面と切り替え
   split.go               リスト / 詳細の境界線のドラッグと保存
   tree.go                変更ファイル → 罫線付きのフォルダツリー
-  theme.go               Tokyo Night のダーク / ライト配色、アイコン
+  theme.go               One Monokai / One Light のダーク / ライト配色、アイコン
 ```
 
 ## コントリビュート
@@ -252,7 +252,7 @@ goreleaser release --snapshot --clean --skip=publish   # dist/ に成果物を�
 ## 謝辞
 
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) / [Lip Gloss](https://github.com/charmbracelet/lipgloss) / [Bubbles](https://github.com/charmbracelet/bubbles)：TUI フレームワーク
-- [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme)：配色のインスピレーション
+- [One Monokai](https://github.com/azemoh/vscode-one-monokai)・[One Light](https://github.com/atom/atom/tree/master/packages/one-light-syntax)：配色
 - [GoReleaser](https://goreleaser.com)：クロスプラットフォームのリリース
 
 ## ライセンス

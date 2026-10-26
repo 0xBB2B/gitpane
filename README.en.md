@@ -200,7 +200,7 @@ internal/ui/
   repos.go               repository picker and switching
   split.go               dragging and saving the list / detail divider
   tree.go                changed files → folder tree with guide lines
-  theme.go               Tokyo Night dark / light palettes, icons
+  theme.go               One Monokai / One Light palettes, icons
 ```
 
 ## Contributing
@@ -252,7 +252,7 @@ goreleaser release --snapshot --clean --skip=publish   # build everything into d
 ## Acknowledgements
 
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) / [Lip Gloss](https://github.com/charmbracelet/lipgloss) / [Bubbles](https://github.com/charmbracelet/bubbles): the TUI framework
-- [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme): color inspiration
+- [One Monokai](https://github.com/azemoh/vscode-one-monokai) and [One Light](https://github.com/atom/atom/tree/master/packages/one-light-syntax): color palettes
 - [GoReleaser](https://goreleaser.com): cross-platform releases
 
 ## License
