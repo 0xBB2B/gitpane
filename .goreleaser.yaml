@@ -65,7 +65,7 @@ release:
 homebrew_casks:
   - name: gitpane
     binaries: [gitpane]
-    homepage: https://github.com/0xBB2B/gitpane
+    homepage: https://gitpane.0xbb.me/
     description: "Mouse-driven Git TUI: change tree, diffs, lane-based commit graph"
     directory: Casks
     repository:
@@ -91,7 +91,7 @@ homebrew_casks:
 #   scoop install gitpane
 scoops:
   - name: gitpane
-    homepage: https://github.com/0xBB2B/gitpane
+    homepage: https://gitpane.0xbb.me/
     description: "Mouse-driven Git TUI: change tree, diffs, lane-based commit graph"
     license: MIT
     depends: ["git"]

@@ -23,6 +23,7 @@
 </p>
 
 <p>
+  <a href="https://gitpane.0xbb.me/?lang=en">Website</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#features">Features</a> ·
   <a href="#key-bindings">Key bindings</a> ·

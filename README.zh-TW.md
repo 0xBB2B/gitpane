@@ -23,6 +23,7 @@
 </p>
 
 <p>
+  <a href="https://gitpane.0xbb.me/?lang=zh-TW">官網</a> ·
   <a href="#快速開始">快速開始</a> ·
   <a href="#功能">功能</a> ·
   <a href="#快捷鍵">快捷鍵</a> ·

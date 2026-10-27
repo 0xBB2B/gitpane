@@ -23,6 +23,7 @@
 </p>
 
 <p>
+  <a href="https://gitpane.0xbb.me/?lang=ja">公式サイト</a> ·
   <a href="#クイックスタート">クイックスタート</a> ·
   <a href="#機能">機能</a> ·
   <a href="#キー操作">キー操作</a> ·

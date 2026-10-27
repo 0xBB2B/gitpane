@@ -23,6 +23,7 @@
 </p>
 
 <p>
+  <a href="https://gitpane.0xbb.me/?lang=ko">공식 사이트</a> ·
   <a href="#빠른-시작">빠른 시작</a> ·
   <a href="#기능">기능</a> ·
   <a href="#단축키">단축키</a> ·
