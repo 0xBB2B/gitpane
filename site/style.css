@@ -368,6 +368,7 @@ h1 {
 
 /* 可点击区域：盖在按钮上的透明按钮 */
 .hot button {
+  font: inherit; /* 按钮默认不继承字号，位置用 em / ch 计算，必须和终端同一个字号 */
   position: absolute;
   left: calc(var(--c) * 1ch);
   top: calc(var(--r) * var(--lh));
