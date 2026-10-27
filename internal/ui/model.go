@@ -90,6 +90,14 @@ type Model struct {
 	pickCursor int
 	pickOffset int
 
+	// 工作树（git worktree）：随状态一起刷新，多于一个时变更页可以切换
+	worktrees []gitx.Worktree
+	wtPicking bool
+	wtCursor  int
+	wtOffset  int
+	wtSums    map[string]gitx.Summary
+	wtGen     int
+
 	// 提交详情里各文件的折叠状态（key: 详情 key + 路径）；没记录时按默认
 	fileFold map[string]bool
 
@@ -158,6 +166,7 @@ func (m Model) Init() tea.Cmd {
 type tickMsg struct{}
 
 type statusMsg struct {
+	wts   []gitx.Worktree
 	st    *gitx.Status
 	stats [3]map[string]gitx.Stat
 	err   error
@@ -201,9 +210,10 @@ func (m Model) refreshCmd() tea.Cmd {
 	}
 	repo := m.repo
 	cmds := []tea.Cmd{func() tea.Msg {
+		wts, _ := repo.Worktrees()
 		st, err := repo.Status()
 		if err != nil {
-			return statusMsg{err: err}
+			return statusMsg{wts: wts, err: err}
 		}
 		var stats [3]map[string]gitx.Stat
 		stats[secChanges], stats[secStaged] = repo.NumStat()
@@ -217,7 +227,7 @@ func (m Model) refreshCmd() tea.Cmd {
 				}
 			}
 		}
-		return statusMsg{st: st, stats: stats}
+		return statusMsg{wts: wts, st: st, stats: stats}
 	}}
 	if m.tab == tabGraph {
 		limit, refs := m.graphLimit, append([]string(nil), m.graphRefs...)

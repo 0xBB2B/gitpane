@@ -41,6 +41,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case statusMsg:
+		m.worktrees = msg.wts
+		if m.wtPicking {
+			if len(m.worktrees) < 2 {
+				m.wtPicking = false
+			}
+			m.wtClamp()
+		}
 		if msg.err != nil {
 			m.statusErr = gitx.Describe(msg.err)
 			return m, nil
@@ -49,6 +56,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.stats = msg.stats
 		m.applyStatus(msg.st)
 		return m, m.syncDetail()
+
+	case wtSumMsg:
+		if msg.gen == m.wtGen {
+			m.wtSums = msg.sums
+		}
+		return m, nil
 
 	case graphMsg:
 		if msg.refs != strings.Join(m.graphRefs, "\x00") || msg.limit != m.graphLimit {
@@ -138,6 +151,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.repoPicking {
 			return m.handleRepoMouse(msg)
 		}
+		if m.wtPicking {
+			return m.handleWorktreeMouse(msg)
+		}
 		if m.picking {
 			return m.handlePickMouse(msg)
 		}
@@ -156,6 +172,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if m.repoPicking {
 			return m.handleRepoKey(msg)
+		}
+		if m.wtPicking {
+			return m.handleWorktreeKey(msg)
 		}
 		if m.picking {
 			return m.handlePickKey(msg)
@@ -300,6 +319,8 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "w":
 		m.toggleWrap()
 		return m, nil
+	case "t":
+		return m, m.openWorktreePicker()
 	case "J", "ctrl+d":
 		m.detailOff += max(1, g.detailH/2)
 		m.clampOffset()
@@ -676,6 +697,8 @@ func (m *Model) doAction(id string) tea.Cmd {
 	switch id {
 	case "repos":
 		return m.openRepoPicker()
+	case "worktree":
+		return m.openWorktreePicker()
 	case "rescan":
 		return m.rescan()
 	}

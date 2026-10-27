@@ -273,6 +273,9 @@ func (m Model) View() string {
 	if m.repoPicking {
 		return m.viewRepoPicker()
 	}
+	if m.wtPicking {
+		return m.viewWorktreePicker()
+	}
 	if m.picking {
 		return m.viewPicker()
 	}
@@ -340,7 +343,11 @@ func (m Model) viewHeader() string {
 	}
 	if m.workspace != "" && m.repo != nil {
 		// 子仓库模式：显示相对启动目录的路径（只是信息，切换用底部的「⌂ 仓库」或 o 键）
-		right = append(right, sg("⌂ "+gitx.Rel(m.workspace, m.repo.Root)+" ", fg(cSub)))
+		rel := gitx.Rel(m.workspace, m.repo.Root)
+		if strings.HasPrefix(rel, "..") { // 切到了工作区外面的工作树
+			rel = homeShort(filepath.FromSlash(m.repo.Root))
+		}
+		right = append(right, sg("⌂ "+rel+" ", fg(cSub)))
 	} else if m.repo != nil {
 		name := filepath.Base(m.repo.Root)
 		if icons.repo != "" {
@@ -402,6 +409,9 @@ func (m Model) tabRightButtons() []button {
 	var bs []button
 	switch m.tab {
 	case tabChanges:
+		if b, ok := m.worktreeButton(); ok {
+			bs = append(bs, b)
+		}
 		if b, ok := m.foldButton(); ok {
 			bs = append(bs, b)
 		}
@@ -708,6 +718,9 @@ func (m Model) viewStatus() string {
 		return paint(m.w, nil, sg(" "+icon+" ", fg(col).Bold(true)), sg(m.msg, fg(col)))
 	}
 	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"w", i18n.T("自动换行")}, {"Tab", i18n.T("切换")}}
+	if len(m.worktrees) > 1 {
+		keys = append([][2]string{keys[0], {"t", i18n.T("工作树")}}, keys[1:]...)
+	}
 	switch m.tab {
 	case tabGraph:
 		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"J/K", i18n.T("翻详情")}, {"w", i18n.T("自动换行")}, {"Tab", i18n.T("切换")}}
@@ -765,6 +778,7 @@ func (m Model) viewHelp() string {
 			{"a  u", i18n.T("全部暂存 / 全部取消暂存")},
 			{"c", i18n.T("提交（回车确认，Esc 取消）")},
 			{"x", i18n.T("放弃当前文件的改动（按两次确认）")},
+			{"t", i18n.T("切换工作树（git worktree），查看各自未提交的改动")},
 		}},
 		{i18n.T("图谱与分支"), []item{
 			{"b", i18n.T("选择要显示的分支（可多选，都不选 = 全部）")},
@@ -782,6 +796,7 @@ func (m Model) viewHelp() string {
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
 			{i18n.T("点「选择仓库」"), i18n.T("切换仓库（子仓库模式，在底部按钮栏）")},
+			{i18n.T("点「工作树」"), i18n.T("变更页标签栏右侧，有多个工作树时切换")},
 		}},
 	}
 	quit := i18n.T("Ctrl+C 两次")

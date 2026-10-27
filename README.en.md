@@ -122,6 +122,8 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
 - **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
   One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click “⌂ Choose repository” at the bottom to switch at any time.
+- **Worktrees**: when you work on several branches in parallel with `git worktree`, a “⎇ Worktree: branch ▾” button appears at the right of the Changes tab bar (or press `t`).
+  It lists every worktree with its change count; switch to one to view, stage and commit its uncommitted changes. The graph is shared, so its position and filter stay put.
 - Refreshes every 2 seconds, so changes made by other tools (an AI assistant writing code, say) show up right away.
 
 ## Key bindings
@@ -135,6 +137,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `z` | Changes: collapse / expand all folders; Graph: expand / collapse all files in commit details |
 | `b` | Open the branch picker (Space to toggle, `a` show all, `s` check out, Esc to go back) |
 | `o` | Switch between repos found in subfolders (when started outside a repo; `/` to filter, Enter to open) |
+| `t` | Switch worktree (git worktree) to see its uncommitted changes |
 | `c` | Commit (input at the bottom, Enter to confirm, Esc to cancel) |
 | `a` / `u` | Stage all / unstage all |
 | `x` | Discard changes to the current file (press twice) |
@@ -192,12 +195,14 @@ internal/i18n/           i18n: language detection + translation tables (tests ca
 internal/gitx/           git plumbing (status, numstat, diff, commit, remotes, branches)
   graph.go               lane layout for the commit graph (unit tested)
   discover.go            subrepo discovery (unit tested)
+  worktree.go            worktree listing (unit tested)
 internal/ui/
   model.go / update.go   state, async loading, keyboard and mouse handling
   view.go                layout (stacked / side by side) and rendering; the same layout drives hit-testing
   diffview.go            parsing and drawing of diffs, commit details and graph rows
   picker.go              branch picker
   repos.go               repository picker and switching
+  worktree.go            worktree picker and switching
   split.go               dragging and saving the list / detail divider
   tree.go                changed files → folder tree with guide lines
   theme.go               One Monokai / One Light palettes, icons
