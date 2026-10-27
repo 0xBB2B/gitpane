@@ -51,7 +51,7 @@ changelog:
 
 release:
   github:
-    owner: 0xBB2B
+    owner: "0xBB2B"
     name: gitpane
   # 带 -rc / -beta 等后缀的标签自动标成预发布，并且不推送到 brew / scoop
   prerelease: auto
@@ -69,7 +69,7 @@ homebrew_casks:
     description: "Mouse-driven Git TUI: change tree, diffs, lane-based commit graph"
     directory: Casks
     repository:
-      owner: 0xBB2B
+      owner: "0xBB2B"
       name: gitpane
       branch: main
     commit_author:
@@ -98,7 +98,7 @@ scoops:
     # Scoop 发现仓库里有 bucket/ 目录时，只从这里读清单
     directory: bucket
     repository:
-      owner: 0xBB2B
+      owner: "0xBB2B"
       name: gitpane
       branch: main
     commit_author:
