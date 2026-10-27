@@ -1,0 +1,487 @@
+/* Gitpane 官网。配色取自 gitpane 自己的 One Monokai 色板；整页排成一张提交图谱。 */
+
+@font-face {
+  font-family: "Plex";
+  src: url(fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Plex";
+  src: url(fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JBMono";
+  src: url(fonts/jetbrains-mono-latin-400-normal.woff2) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JBMono";
+  src: url(fonts/jetbrains-mono-latin-700-normal.woff2) format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  /* One Monokai */
+  --page: #1e2127;
+  --term: #282c34;
+  --bar: #21252b;
+  --surface: #2f333d;
+  --guide: #3b4048;
+  --text: #d7dae0;
+  --sub: #abb2bf;
+  --muted: #7f848e;
+  --blue: #61afef;
+  --purple: #c678dd;
+  --cyan: #56b6c2;
+  --green: #98c379;
+  --gold: #e5c07b;
+  --red: #e06c75;
+  --shadow: 0 40px 90px -40px rgb(0 0 0 / .75);
+
+  --sans: "Plex", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "JBMono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* 泳道：主干和分支的横坐标，正文左边距 */
+  --lane0: 24px;
+  --lane1: 52px;
+  --pad: 88px;
+  --stroke: 2px;
+  --node: 13px;
+  --h1: clamp(2.3rem, 1.4rem + 3.6vw, 4.1rem);
+  --hero-top: 76px;
+}
+/* 浅色：One Light（gitpane 浅色主题的配色）。没手动选过时跟随系统，选过就以选择为准 */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+  color-scheme: light;
+    --page: #f2f2f3;
+    --term: #fafafa;
+    --bar: #eaeaeb;
+    --surface: #e2e2e4;
+    --guide: #d4d4d6;
+    --text: #1f2126;
+    --sub: #4f525e;
+    --muted: #696c77;
+    --blue: #4078f2;
+    --purple: #a626a4;
+    --cyan: #0184bc;
+    --green: #50a14f;
+    --gold: #c18401;
+    --red: #e45649;
+    --shadow: 0 34px 70px -38px rgb(40 44 52 / .35);
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --page: #f2f2f3;
+  --term: #fafafa;
+  --bar: #eaeaeb;
+  --surface: #e2e2e4;
+  --guide: #d4d4d6;
+  --text: #1f2126;
+  --sub: #4f525e;
+  --muted: #696c77;
+  --blue: #4078f2;
+  --purple: #a626a4;
+  --cyan: #0184bc;
+  --green: #50a14f;
+  --gold: #c18401;
+  --red: #e45649;
+  --shadow: 0 34px 70px -38px rgb(40 44 52 / .35);
+}
+
+:lang(zh-TW) { --sans: "Plex", "PingFang TC", "Noto Sans CJK TC", "Microsoft JhengHei", system-ui, sans-serif; }
+:lang(ja) { --sans: "Plex", "Hiragino Sans", "Noto Sans CJK JP", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; }
+:lang(ko) { --sans: "Plex", "Apple SD Gothic Neo", "Noto Sans CJK KR", "Malgun Gothic", system-ui, sans-serif; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--page); }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--sub);
+  font: 17px/1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--text); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+code { font-family: var(--mono); font-size: .9em; color: var(--text); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -48px; padding: 8px 12px; background: var(--blue); color: var(--term); z-index: 9; }
+.skip:focus { top: 12px; }
+
+/* ---------------------------------------------------------------- 顶栏 */
+
+.top {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 22px 24px 0 calc(var(--lane0) - 14px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 18px; }
+.brand img { display: block; }
+.top-tools { display: flex; align-items: center; gap: 18px; font-size: 15px; }
+.lang select {
+  appearance: none;
+  background: var(--bar) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237f848e' fill='none' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center;
+  color: var(--sub);
+  border: 1px solid var(--guide);
+  border-radius: 6px;
+  padding: 5px 28px 5px 10px;
+  font: inherit;
+}
+.gh { color: var(--sub); text-decoration: none; }
+.theme {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--sub);
+  background: var(--bar);
+  border: 1px solid var(--guide);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.theme:hover { color: var(--text); }
+.theme svg { width: 17px; height: 17px; }
+/* 深色时显示太阳（点了切到浅色），浅色时显示月亮 */
+.theme .moon { display: none; }
+:root[data-theme="light"] .theme .sun { display: none; }
+:root[data-theme="light"] .theme .moon { display: block; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .theme .sun { display: none; }
+  :root:not([data-theme="dark"]) .theme .moon { display: block; }
+}
+.gh:hover { color: var(--text); }
+
+/* ---------------------------------------------------------------- 图谱骨架 */
+
+.graph {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 0 var(--pad);
+}
+/* 主干：从第一个提交一直连到页尾的 HEAD */
+.graph::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--lane0) - var(--stroke) / 2);
+  top: calc(var(--hero-top) + .605 * var(--h1));
+  bottom: var(--root-y, 120px);
+  width: var(--stroke);
+  background: var(--blue);
+}
+/* 提交点：画在主干上，和所在标题的第一行垂直居中 */
+.commit { position: relative; }
+.commit::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--lane0) - var(--pad) - var(--node) / 2);
+  top: calc(.55lh - var(--node) / 2);
+  width: var(--node);
+  height: var(--node);
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 5px var(--page);
+}
+
+/* ---------------------------------------------------------------- 首屏 */
+
+.hero { padding-top: var(--hero-top); }
+.hero h1 { margin: 0; }
+/* 首屏的提交是空心带点的 ◉（gitpane 里 HEAD 的样子） */
+.hero::before {
+  top: calc(var(--hero-top) + .605 * var(--h1) - var(--node) / 2 - 3px);
+  width: calc(var(--node) + 6px);
+  height: calc(var(--node) + 6px);
+  left: calc(var(--lane0) - var(--pad) - var(--node) / 2 - 3px);
+  background: radial-gradient(circle, var(--blue) 0 3.5px, var(--page) 4px 5px, var(--blue) 5.5px);
+}
+h1 {
+  font-size: var(--h1);
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -.022em;
+  color: var(--text);
+  max-width: 17em;
+  text-wrap: balance;
+}
+:lang(zh-CN) h1, :lang(zh-TW) h1, :lang(ja) h1, :lang(ko) h1 { letter-spacing: 0; max-width: 16em; word-break: keep-all; }
+.lede { margin: 18px 0 0; font-size: 1.22rem; color: var(--sub); max-width: 40em; }
+
+.install { margin-top: 34px; max-width: 640px; }
+.os { display: flex; gap: 4px; }
+.os button {
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 6px 6px 0 0;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.os button:hover { color: var(--text); }
+.os button[aria-selected="true"] { color: var(--text); background: var(--term); }
+.cmd {
+  position: relative;
+  background: var(--term);
+  border-radius: 0 8px 8px 8px;
+  border: 1px solid var(--guide);
+  border-width: 0 0 0 0;
+}
+.cmd pre { margin: 0; padding: 16px 92px 16px 18px; overflow-x: auto; }
+.cmd code { font-size: 14.5px; line-height: 1.75; color: var(--text); white-space: pre; }
+.cmd .ln { display: block; }
+.cmd .ln::before { content: "$ "; color: var(--muted); user-select: none; }
+.copy {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--sub);
+  background: var(--surface);
+  border: 0;
+  border-radius: 5px;
+  padding: 4px 11px;
+  cursor: pointer;
+}
+.copy:hover { color: var(--text); }
+.copy.done { color: var(--term); background: var(--green); }
+.rel { margin: 14px 0 0; font-size: 15px; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.rel a { color: var(--muted); }
+.rel a:hover { color: var(--text); }
+#latest { color: var(--green); text-decoration: none; font-family: var(--mono); font-size: 14px; }
+#latest:hover { text-decoration: underline; }
+
+/* ---------------------------------------------------------------- 终端演示 */
+
+.demo {
+  margin: 64px 0 0 calc(-1 * var(--pad) + 8px);
+}
+.win {
+  position: relative;
+  z-index: 1; /* 主干从窗口后面穿过 */
+  background: var(--term);
+  border: 1px solid var(--guide);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.win-bar {
+  background: var(--bar);
+  color: var(--muted);
+  font: 13px/34px var(--sans);
+  text-align: center;
+  border-bottom: 1px solid var(--page);
+}
+.term-wrap { container-type: inline-size; padding: 10px 12px 12px; }
+.demo figcaption {
+  margin: 18px 0 0 calc(var(--pad) - 8px);
+  max-width: 44em;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* 终端：128 列 × 30 行；一格宽 1ch、高 --lh。字号按容器宽度缩放，正好放下 128 列 */
+.term {
+  --lh: 1.36em;
+  --bw: max(1px, .09em);
+  position: relative;
+  font-family: var(--mono);
+  font-size: calc(100cqw / 76.8);
+  color: var(--sub);
+  background: var(--term);
+  line-height: var(--lh);
+  outline-offset: 6px;
+}
+.term .r { height: var(--lh); overflow: hidden; white-space: pre; }
+.term .r span { display: inline-block; height: var(--lh); vertical-align: top; }
+.term .B { font-weight: 700; }
+.term .F { opacity: .62; }
+.term .I { font-style: italic; }
+.term .S { text-decoration: line-through; }
+/* 宽字符固定两格、其他符号固定一格，保证不同字体下仍然逐格对齐 */
+.term .w { width: 2ch; text-align: center; overflow: hidden; } /* 用等宽字体的 ch，字形由系统中日韩字体补 */
+.term .n { width: 1ch; text-align: center; overflow: visible; font-family: var(--mono), "Segoe UI Symbol", "Apple Symbols", sans-serif; }
+
+/* 框线、圆点、半格方块：自己画，上下左右严丝合缝 */
+.term .k {
+  --L: linear-gradient(currentColor, currentColor);
+  position: relative;
+  width: 1ch;
+  background-repeat: no-repeat;
+}
+.term .k.B { --bw: max(2px, .14em); }
+.term .v { background-image: var(--L); background-size: var(--bw) 100%; background-position: center; }
+.term .h { background-image: var(--L); background-size: 100% var(--bw); background-position: center; }
+.term .x { background-image: var(--L), var(--L); background-size: var(--bw) 100%, 100% var(--bw); background-position: center, center; }
+.term .lt { background-image: var(--L), var(--L); background-size: var(--bw) 100%, 50% var(--bw); background-position: center, right center; }
+.term .rt { background-image: var(--L), var(--L); background-size: var(--bw) 100%, 50% var(--bw); background-position: center, left center; }
+.term .tt { background-image: var(--L), var(--L); background-size: 100% var(--bw), var(--bw) 50%; background-position: center, center bottom; }
+.term .bt { background-image: var(--L), var(--L); background-size: 100% var(--bw), var(--bw) 50%; background-position: center, center top; }
+.term .tl { background-image: var(--L), var(--L); background-size: calc(50% + var(--bw) / 2) var(--bw), var(--bw) 50%; background-position: right center, center bottom; }
+.term .tr { background-image: var(--L), var(--L); background-size: calc(50% + var(--bw) / 2) var(--bw), var(--bw) 50%; background-position: left center, center bottom; }
+.term .bl { background-image: var(--L), var(--L); background-size: calc(50% + var(--bw) / 2) var(--bw), var(--bw) 50%; background-position: right center, center top; }
+.term .br { background-image: var(--L), var(--L); background-size: calc(50% + var(--bw) / 2) var(--bw), var(--bw) 50%; background-position: left center, center top; }
+.term .rtl::before, .term .rtr::before, .term .rbl::before, .term .rbr::before {
+  content: "";
+  position: absolute;
+  width: calc(50% + var(--bw) / 2);
+  height: calc(50% + var(--bw) / 2);
+  border: 0 solid currentColor;
+}
+.term .rtl::before { left: calc(50% - var(--bw) / 2); top: calc(50% - var(--bw) / 2); border-width: var(--bw) 0 0 var(--bw); border-top-left-radius: .42em; }
+.term .rtr::before { right: calc(50% - var(--bw) / 2); top: calc(50% - var(--bw) / 2); border-width: var(--bw) var(--bw) 0 0; border-top-right-radius: .42em; }
+.term .rbl::before { left: calc(50% - var(--bw) / 2); bottom: calc(50% - var(--bw) / 2); border-width: 0 0 var(--bw) var(--bw); border-bottom-left-radius: .42em; }
+.term .rbr::before { right: calc(50% - var(--bw) / 2); bottom: calc(50% - var(--bw) / 2); border-width: 0 var(--bw) var(--bw) 0; border-bottom-right-radius: .42em; }
+.term .dot::before, .term .ring::before, .term .head::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: .6em;
+  height: .6em;
+  margin: -.3em 0 0 -.3em;
+  border-radius: 50%;
+}
+.term .dot::before { background: currentColor; }
+.term .ring::before { border: max(1px, .1em) solid currentColor; }
+.term .head::before { border: max(1px, .1em) solid currentColor; background: radial-gradient(circle, currentColor 0 34%, transparent 38%); }
+.term .half { background-image: var(--L); background-size: 50% 100%; background-position: left; }
+.term .bar3 { background-image: var(--L); background-size: 37.5% 100%; background-position: left; }
+
+/* 可点击区域：盖在按钮上的透明按钮 */
+.hot button {
+  position: absolute;
+  left: calc(var(--c) * 1ch);
+  top: calc(var(--r) * var(--lh));
+  width: calc(var(--w) * 1ch);
+  height: var(--lh);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: .2em;
+  cursor: pointer;
+}
+.hot button:hover { box-shadow: 0 0 0 max(1px, .1em) var(--blue); }
+.hot button:focus-visible { outline: max(2px, .14em) solid var(--blue); outline-offset: 0; }
+/* 页面载入后，可点的地方轻轻亮一下，提示这里能点 */
+.term.intro .hot button { animation: ping 1.6s ease-out .6s 2; }
+@keyframes ping {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--blue) 90%, transparent); }
+  100% { box-shadow: 0 0 0 .9em color-mix(in srgb, var(--blue) 0%, transparent); }
+}
+
+/* 窄屏：终端不再缩到看不清，改为固定字号、左右滑动 */
+@container (max-width: 760px) {
+  .term { font-size: 8.6px; }
+}
+.term-wrap { overflow-x: auto; }
+
+/* ---------------------------------------------------------------- 亮点：从主干分出的一条紫色分支 */
+
+.branch { margin-top: 96px; }
+h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+.hl {
+  position: relative;
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 34px 0 34px;
+  display: grid;
+  gap: 26px;
+}
+/* 一个元素画出整条分支：上边是分叉 ╮，右边是紫色泳道，下边是合回 ╯ */
+.hl::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--lane0) - var(--pad));
+  top: 0;
+  bottom: 0;
+  width: calc(var(--lane1) - var(--lane0) + var(--stroke) / 2);
+  border: var(--stroke) solid var(--purple);
+  border-left: 0;
+  border-radius: 0 16px 16px 0;
+}
+.hl li { position: relative; max-width: 42em; }
+.hl li::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--lane1) - var(--pad) - var(--node) / 2 + var(--stroke) / 2);
+  top: calc(.55lh - var(--node) / 2);
+  width: var(--node);
+  height: var(--node);
+  border-radius: 50%;
+  background: var(--purple);
+  box-shadow: 0 0 0 5px var(--page);
+}
+.hl strong { display: block; color: var(--text); font-weight: 600; font-size: 1.06rem; }
+.hl p { margin: 4px 0 0; }
+
+/* ---------------------------------------------------------------- 用法 */
+
+.use { margin-top: 84px; }
+.usage {
+  margin: 22px 0 0;
+  max-width: 900px;
+  padding: 18px 20px;
+  background: var(--term);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+.usage code { font-size: 14px; line-height: 1.8; white-space: pre; }
+.usage .c { color: var(--muted); }
+.usage .f { color: var(--cyan); }
+.use > p { margin: 18px 0 0; max-width: 42em; }
+
+/* ---------------------------------------------------------------- 页尾：最早的那个提交，主干到这里结束 */
+
+.end { margin-top: 84px; padding-bottom: 72px; }
+.links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 26px; font-size: 15px; }
+.links a { color: var(--muted); }
+.links a:hover { color: var(--text); }
+
+/* ---------------------------------------------------------------- 窄屏 */
+
+@media (max-width: 720px) {
+  :root { --lane0: 14px; --lane1: 34px; --pad: 52px; --node: 11px; }
+  body { font-size: 16px; }
+  .top { padding-left: 16px; padding-right: 16px; }
+  .graph { padding-right: 16px; }
+  :root { --hero-top: 52px; }
+  .lede { font-size: 1.08rem; }
+  /* 窄屏：命令自动折行，复制按钮挪到右下角，不盖住命令 */
+  .cmd pre { padding: 14px 14px 50px; }
+  .cmd code { white-space: pre-wrap; word-break: break-all; font-size: 13.5px; }
+  .copy { top: auto; bottom: 10px; }
+  .demo { margin-right: -16px; border-radius: 0; }
+  .win { border-radius: 10px 0 0 10px; }
+  .branch { margin-top: 72px; }
+  h2 { font-size: 1.45rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term.intro .hot button { animation: none; }
+}

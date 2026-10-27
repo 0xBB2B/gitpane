@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gitpane：用鼠标就能操作的 Git 终端界面</title>
+<meta name="description" content="Gitpane 是一个用鼠标就能操作的 Git 终端界面：变更树、带行号的 diff、泳道式提交图谱、多分支筛选。单个二进制，macOS / Linux / Windows 通用。">
+<meta property="og:title" content="Gitpane">
+<meta property="og:description" content="A Git terminal UI you can drive with your mouse.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="screenshots/en/graph.png">
+<meta name="theme-color" content="#1e2127" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f2f3" media="(prefers-color-scheme: light)">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<script>
+  // 尽早套用记住的主题，避免先闪一下另一套颜色
+  try { var t = localStorage.getItem("gitpane-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<link rel="preload" href="fonts/jetbrains-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main" data-t="skip">跳到正文</a>
+
+<header class="top">
+  <a class="brand" href="./" aria-label="Gitpane">
+    <img src="logo.svg" alt="" width="28" height="28">
+    <span>Gitpane</span>
+  </a>
+  <div class="top-tools">
+    <label class="lang">
+      <span class="sr" data-t="lang">界面语言</span>
+      <select id="lang">
+        <option value="zh-CN">简体中文</option>
+        <option value="zh-TW">繁體中文</option>
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+        <option value="ko">한국어</option>
+      </select>
+    </label>
+    <button class="theme" id="theme" type="button" aria-label="切换到浅色主题">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.6A8.2 8.2 0 0 1 9.4 4a8.2 8.2 0 1 0 10.6 10.6Z"/></svg>
+    </button>
+    <a class="gh" href="https://github.com/0xBB2B/gitpane">GitHub</a>
+  </div>
+</header>
+
+<main id="main" class="graph">
+  <!-- 整页是一张提交图谱：左边是主干，最上面的首屏是 HEAD，每个板块的标题是一个提交，页尾是最早的提交 -->
+  <section class="hero commit" aria-labelledby="h1">
+    <h1 id="h1" data-t="h1">用鼠标就能操作的 Git 终端界面</h1>
+    <p class="lede" data-t="lede">单个二进制，开箱即用，macOS / Linux / Windows 通用</p>
+
+    <div class="install">
+      <div class="os" role="tablist" aria-label="OS">
+        <button role="tab" id="tab-mac" aria-controls="cmd" data-os="mac">macOS</button>
+        <button role="tab" id="tab-win" aria-controls="cmd" data-os="win">Windows</button>
+        <button role="tab" id="tab-linux" aria-controls="cmd" data-os="linux" data-t="linux">Linux / 源码</button>
+      </div>
+      <div class="cmd" id="cmd" role="tabpanel">
+        <pre><code id="cmd-text"></code></pre>
+        <button class="copy" id="copy" type="button" data-t="copy">复制</button>
+      </div>
+      <p class="rel">
+        <a id="latest" href="https://github.com/0xBB2B/gitpane/releases/latest" hidden></a>
+        <a href="https://github.com/0xBB2B/gitpane/releases" data-t="archives">也可以直接下载各平台的压缩包</a>
+      </p>
+    </div>
+  </section>
+
+  <figure class="demo">
+    <div class="win">
+      <div class="win-bar" aria-hidden="true">gitpane — shop-api</div>
+      <div class="term-wrap">
+        <div class="term" id="term" tabindex="0" role="group" aria-roledescription="terminal" data-t-label="termLabel" aria-label="gitpane 界面演示">
+          <div class="rows" id="rows"></div>
+          <div class="hot" id="hot"></div>
+        </div>
+      </div>
+    </div>
+    <figcaption data-t="hint">这是 gitpane 真实输出的界面，不是图片。</figcaption>
+  </figure>
+
+  <section class="branch" aria-labelledby="hl">
+    <h2 id="hl" class="commit" data-t="hlTitle">亮点</h2>
+    <ul class="hl" id="hl-list"></ul>
+  </section>
+
+  <section class="use commit-wrap" aria-labelledby="use">
+    <h2 id="use" class="commit" data-t="useTitle">用法</h2>
+    <pre class="usage"><code id="usage"></code></pre>
+    <p data-t="after">在任意 Git 仓库里运行 gitpane，按 ? 查看全部快捷键，按 q 退出。</p>
+  </section>
+
+  <footer class="end commit" id="root">
+    <ul class="links">
+      <li><a href="https://github.com/0xBB2B/gitpane" data-t="source">源代码</a></li>
+      <li><a href="https://github.com/0xBB2B/gitpane/releases">Releases</a></li>
+      <li><a href="https://github.com/0xBB2B/gitpane#readme" data-t="readme">完整说明</a></li>
+      <li><a href="https://github.com/0xBB2B/gitpane/blob/main/LICENSE" data-t="license">MIT 许可证</a></li>
+    </ul>
+  </footer>
+</main>
+
+<noscript><style>.demo{display:none}</style></noscript>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+name: pages
+
+# 官网：site/ 下的静态页面，加上 docs/ 里的 logo 和截图，发布到 GitHub Pages。
+# 版本号由网页自己从 GitHub Releases 读取，所以发新版不需要重新部署。
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "docs/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 组装站点
+        run: |
+          mkdir _site
+          cp -r site/. _site/
+          rm -rf _site/tools
+          cp docs/logo.svg _site/logo.svg
+          cp -r docs/screenshots _site/screenshots
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
