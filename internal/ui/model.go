@@ -107,8 +107,10 @@ type Model struct {
 
 	detail    detailView
 	detailKey string
-	detailOff int  // 详情区滚动位置（按屏幕行算，开启换行时一行代码可能占多行）
-	wrap      bool // 详情区长行自动换行（默认开启）；关闭时截断显示
+	detailOff int        // 详情区滚动位置（按屏幕行算，开启换行时一行代码可能占多行）
+	wrap      bool       // 详情区长行自动换行（默认开启）；关闭时截断显示
+	vcache    *rowsCache // visibleDetail 的缓存（指针，模型复制后仍共享）
+	foldGen   int        // 提交详情里文件折叠状态的版本号，变了就让缓存失效
 
 	busy     string
 	spin     spinner.Model
@@ -141,7 +143,7 @@ func New(dir string, opts Options) Model {
 	sp.Spinner = spinner.MiniDot
 	sp.Style = fg(cAccent)
 
-	m := Model{dir: dir, opts: opts, collapsed: map[string]bool{}, fileFold: map[string]bool{},
+	m := Model{dir: dir, opts: opts, collapsed: map[string]bool{}, fileFold: map[string]bool{}, vcache: &rowsCache{},
 		graphLimit: graphPage, input: ti, spin: sp, lastClickRow: -1}
 	var dp detailPrefs
 	m.split, dp = loadLayout()
@@ -434,14 +436,46 @@ func (m Model) foldedDetail() []dline {
 	return out
 }
 
+// rowsCache 缓存 visibleDetail 的结果。大 diff 开着自动换行时，重新折行一次要几十毫秒，
+// 而滚一下滚轮就要重绘好几次，不缓存的话快速滚动会排起长队、像卡死一样。
+// 内容（行切片换了一份）、宽度、换行开关、文件折叠状态任何一个变了才重新计算。
+type rowsCache struct {
+	ok    bool
+	first *dline // 行切片的第一个元素：每次加载详情都是新的切片，地址不同就说明内容换了
+	n     int
+	width int // 不换行时为 0
+	fold  int
+	rows  []dline
+}
+
 // visibleDetail 返回详情区按屏幕行排好的内容：在 foldedDetail 的基础上，
 // 开启换行时把超宽的行折成多行（后续行 cont = true，src 指回原行）。
+// 返回的切片是共享的缓存，调用方不要修改。
 func (m Model) visibleDetail() []dline {
+	w := 0
+	if m.wrap {
+		w = m.geom().detailW
+	}
+	var first *dline
+	if len(m.detail.lines) > 0 {
+		first = &m.detail.lines[0]
+	}
+	c := m.vcache
+	if c != nil && c.ok && c.first == first && c.n == len(m.detail.lines) && c.width == w && c.fold == m.foldGen {
+		return c.rows
+	}
+	rows := m.buildVisibleDetail(w)
+	if c != nil {
+		*c = rowsCache{ok: true, first: first, n: len(m.detail.lines), width: w, fold: m.foldGen, rows: rows}
+	}
+	return rows
+}
+
+func (m Model) buildVisibleDetail(w int) []dline {
 	lines := m.foldedDetail()
-	if !m.wrap {
+	if w == 0 {
 		return lines
 	}
-	w := m.geom().detailW
 	out := make([]dline, 0, len(lines))
 	for i, l := range lines {
 		l.src = i
@@ -496,6 +530,7 @@ func (m Model) fileFolded(path string) bool {
 
 func (m *Model) toggleFileFold(path string) {
 	m.fileFold[m.detailKey+"\x00"+path] = !m.fileFolded(path)
+	m.foldGen++
 	m.clampOffset()
 }
 
@@ -514,6 +549,7 @@ func (m *Model) toggleAllFiles() {
 	for _, p := range paths {
 		m.fileFold[m.detailKey+"\x00"+p] = anyOpen
 	}
+	m.foldGen++
 	m.clampOffset()
 }
 
