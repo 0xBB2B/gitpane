@@ -265,12 +265,12 @@ func paint(w int, bg lipgloss.TerminalColor, segs ...seg) string {
 			}
 		}
 		txt := sgm.s
-		sw := lipgloss.Width(txt)
+		sw := textWidth(txt)
 		if used+sw > w {
 			txt = ansi.Truncate(txt, w-used, "…")
-			sw = lipgloss.Width(txt)
+			sw = textWidth(txt)
 		}
-		b.WriteString(st.Render(txt))
+		writeStyled(&b, st, txt)
 		used += sw
 	}
 	if used < w {
@@ -278,7 +278,7 @@ func paint(w int, bg lipgloss.TerminalColor, segs ...seg) string {
 		if bg != nil {
 			pad = pad.Background(bg)
 		}
-		b.WriteString(pad.Render(strings.Repeat(" ", w-used)))
+		writeStyled(&b, pad, strings.Repeat(" ", w-used))
 	}
 	return b.String()
 }

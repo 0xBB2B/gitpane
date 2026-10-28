@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 )
 
 // 大 diff（5000 行，三分之一是超长行）。
@@ -85,4 +87,11 @@ func TestVisibleDetailCache(t *testing.T) {
 	if n := len(m.visibleDetail()); n != 4 {
 		t.Fatalf("全部展开后应有 4 行，得到 %d", n)
 	}
+}
+
+// 真彩色终端下的滚动（基准测试默认没有终端，lipgloss 会关掉颜色，测不到着色的开销）。
+func BenchmarkWheelWrappedTrueColor(b *testing.B) {
+	defer lipgloss.SetColorProfile(lipgloss.ColorProfile())
+	lipgloss.SetColorProfile(termenv.TrueColor)
+	BenchmarkWheelWrapped(b)
 }
