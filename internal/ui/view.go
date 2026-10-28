@@ -341,13 +341,11 @@ func (m Model) viewHeader() string {
 			left = append(left, sg(fmt.Sprintf(" %s%d", icons.down, st.Behind), fg(cYellow).Bold(true)))
 		}
 	}
-	if m.workspace != "" && m.repo != nil {
-		// 子仓库模式：显示相对启动目录的路径（只是信息，切换用底部的「⌂ 仓库」或 o 键）
-		rel := gitx.Rel(m.workspace, m.repo.Root)
-		if strings.HasPrefix(rel, "..") { // 切到了工作区外面的工作树
-			rel = homeShort(filepath.FromSlash(m.repo.Root))
-		}
-		right = append(right, sg("⌂ "+rel+" ", fg(cSub)))
+	if b, ok := m.headerRepoButton(); ok {
+		// 子仓库模式：仓库名是按钮，点开切换仓库（头部只有这一处能点）
+		right = append(right, sg(" "+b.label+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cText)), sg(" ", lipgloss.NewStyle()))
+	} else if m.workspace != "" && m.repo != nil {
+		right = append(right, sg("⌂ "+m.repoRel()+" ", fg(cSub))) // 窗口太窄放不下按钮时只显示名字
 	} else if m.repo != nil {
 		name := filepath.Base(m.repo.Root)
 		if icons.repo != "" {
@@ -356,6 +354,26 @@ func (m Model) viewHeader() string {
 		right = append(right, sg(name+" ", fg(cMuted)))
 	}
 	return rightAlign(m.w, cBar, left, right)
+}
+
+// repoRel 是当前仓库相对启动目录的路径（子仓库模式下显示用）。
+func (m Model) repoRel() string {
+	rel := gitx.Rel(m.workspace, m.repo.Root)
+	if strings.HasPrefix(rel, "..") { // 切到了工作区外面的工作树
+		rel = homeShort(filepath.FromSlash(m.repo.Root))
+	}
+	return rel
+}
+
+// headerRepoButton 是子仓库模式下头部右侧的「⌂ 仓库名 ▾」，点开仓库选择面板。
+func (m Model) headerRepoButton() (button, bool) {
+	if m.workspace == "" || m.repo == nil {
+		return button{}, false
+	}
+	label := "⌂ " + m.repoRel() + " ▾"
+	w := lipgloss.Width(label) + 2
+	b := button{id: "repos", label: label, x0: m.w - w - 1, x1: m.w - 1}
+	return b, b.x0 > m.w/2 // 太窄时不显示成按钮，避免压住左边的分支信息
 }
 
 func (m Model) viewTabs() string {
@@ -717,13 +735,13 @@ func (m Model) viewStatus() string {
 		}
 		return paint(m.w, nil, sg(" "+icon+" ", fg(col).Bold(true)), sg(m.msg, fg(col)))
 	}
-	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"w", i18n.T("自动换行")}, {"Tab", i18n.T("切换")}}
+	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"Tab", i18n.T("切换")}}
 	if len(m.worktrees) > 1 {
 		keys = append([][2]string{keys[0], {"t", i18n.T("工作树")}}, keys[1:]...)
 	}
 	switch m.tab {
 	case tabGraph:
-		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"J/K", i18n.T("翻详情")}, {"w", i18n.T("自动换行")}, {"Tab", i18n.T("切换")}}
+		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
 	}
 	tail := [][2]string{{"?", i18n.T("帮助")}}
 	if m.workspace != "" {
@@ -795,7 +813,7 @@ func (m Model) viewHelp() string {
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
-			{i18n.T("点「选择仓库」"), i18n.T("切换仓库（子仓库模式，在底部按钮栏）")},
+			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式，底部的「选择仓库」也可以）")},
 			{i18n.T("点「工作树」"), i18n.T("变更页标签栏右侧，有多个工作树时切换")},
 		}},
 	}

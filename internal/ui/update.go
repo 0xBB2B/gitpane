@@ -423,7 +423,11 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 
 	switch {
 	case ev.Y == g.headerY:
-		return m, nil // 头部只显示信息，不响应点击；分支、仓库的切换都在底部按钮栏
+		// 头部只有子仓库模式下右侧的仓库名能点（打开仓库面板），其余都只是信息
+		if b, ok := m.headerRepoButton(); ok && b.hit(ev.X) {
+			return m, m.openRepoPicker()
+		}
+		return m, nil
 
 	case m.repo == nil:
 		if ev.Y == g.listY+2 {
