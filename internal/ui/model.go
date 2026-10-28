@@ -124,6 +124,8 @@ type Model struct {
 	confirmKey string
 	confirmAt  time.Time
 
+	sel selState // 鼠标拖动选中的文字
+
 	lastClickRow int
 	lastClickAt  time.Time
 	quitArmedAt  time.Time

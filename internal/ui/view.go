@@ -272,6 +272,11 @@ func (m Model) View() string {
 	if m.picking {
 		return m.viewPicker()
 	}
+	return m.viewMain()
+}
+
+// viewMain 是主界面（列表 + 详情），带上鼠标选区的高亮。
+func (m Model) viewMain() string {
 	g := m.geom()
 	lines := make([]string, 0, m.h)
 	lines = append(lines, m.viewHeader(), m.viewTabs())
@@ -297,6 +302,9 @@ func (m Model) View() string {
 		lines = append(lines, right...)
 	}
 	lines = append(lines, renderButtons(m.w, m.bottomButtons()), m.viewStatus())
+	if m.sel.visible() {
+		m.overlaySelection(lines)
+	}
 	return strings.Join(lines, "\n")
 }
 
@@ -806,6 +814,8 @@ func (m Model) viewHelp() string {
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
+			{i18n.T("拖动选中文字"), i18n.T("松开即复制；只选起点所在的那一栏，复制代码时自动去掉行号")},
+			{i18n.T("Shift + 拖动"), i18n.T("用终端自带的选择（iTerm2 按住 Option，macOS 终端按住 Fn）")},
 			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式，也可以按 o）")},
 			{i18n.T("点「工作树」"), i18n.T("变更页标签栏右侧，有多个工作树时切换")},
 		}},

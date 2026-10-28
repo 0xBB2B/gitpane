@@ -210,5 +210,11 @@ func init() {
 		"这个仓库只有一个工作树（可以用 git worktree add 新建）": "This repository has only one worktree (create more with git worktree add)",
 		"点右上角仓库名":            "Click the repo name (top right)",
 		"切换仓库（子仓库模式，也可以按 o）": "Switch repository (subrepo mode; o works too)",
+		"拖动选中文字":             "Drag to select text",
+		"松开即复制；只选起点所在的那一栏，复制代码时自动去掉行号": "Copied on release; stays within the pane you started in, and copied code drops the line numbers",
+		"Shift + 拖动": "Shift + drag",
+		"用终端自带的选择（iTerm2 按住 Option，macOS 终端按住 Fn）": "Use your terminal's own selection (Option in iTerm2, Fn in macOS Terminal)",
+		"复制失败：%s":  "Copy failed: %s",
+		"已复制 %d 行": "Copied %d lines",
 	})
 }

@@ -125,6 +125,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
   One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.
 - **Worktrees**: when you work on several branches in parallel with `git worktree`, a “⎇ Worktree: branch ▾” button appears at the right of the Changes tab bar (or press `t`).
   It lists every worktree with its change count; switch to one to view, stage and commit its uncommitted changes. The graph is shared, so its position and filter stay put.
+- **Select and copy**: drag in any pane to select text; it's copied when you let go. The selection stays within the pane you started in, and code copied from a diff drops the line numbers and `+` / `-`, with wrapped lines joined back together.
 - Refreshes every 2 seconds, so changes made by other tools (an AI assistant writing code, say) show up right away.
 
 ## Key bindings
@@ -160,6 +161,10 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `GITPANE_NERD_FONT` | Set to `1` to show Nerd Font icons for files, folders and branches |
 
 ## FAQ
+
+**How do I copy text from the screen?**
+Drag with the mouse to select; it's copied to the clipboard on release (over SSH it goes through your terminal via OSC 52; inside tmux this needs `set -g set-clipboard on`).
+You can also hold Shift while dragging (Option in iTerm2, Fn in macOS Terminal) to use your terminal's own selection.
 
 **How do I change the UI language?**
 By default Gitpane follows your system language (it checks `LC_ALL`, `LC_MESSAGES` and `LANG`, plus the system settings on macOS and Windows) and falls back to Simplified Chinese when it can't tell.
@@ -201,6 +206,8 @@ internal/ui/
   model.go / update.go   state, async loading, keyboard and mouse handling
   view.go                layout (stacked / side by side) and rendering; the same layout drives hit-testing
   diffview.go            parsing and drawing of diffs, commit details and graph rows
+  render.go              fast styling (bypasses lipgloss.Render for smooth scrolling)
+  selection.go           drag-to-select and copy (clipboard / OSC 52)
   picker.go              branch picker
   repos.go               repository picker and switching
   worktree.go            worktree picker and switching

@@ -57,6 +57,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.applyStatus(msg.st)
 		return m, m.syncDetail()
 
+	case copiedMsg:
+		m.applyCopied(msg)
+		return m, nil
+
 	case wtSumMsg:
 		if msg.gen == m.wtGen {
 			m.wtSums = msg.sums
@@ -160,6 +164,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleMouse(msg)
 
 	case tea.KeyMsg:
+		m.sel = selState{} // 按任意键取消选区高亮
 		if m.showHelp {
 			m.showHelp = false
 			if msg.String() == "ctrl+c" && !m.opts.Embed {
@@ -395,6 +400,9 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 	if m.handleDrag(ev) {
 		return m, nil
 	}
+	if done, cmd := m.handleSelect(ev); done {
+		return m, cmd
+	}
 	g := m.geom()
 	inList := g.inList(ev.X, ev.Y)
 	inDetail := g.inDetail(ev.X, ev.Y)
@@ -418,6 +426,7 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	if m.startDrag(g, ev.X, ev.Y) {
+		m.sel = selState{} // 按在分隔线上是调整比例，不是选文字
 		return m, nil
 	}
 
