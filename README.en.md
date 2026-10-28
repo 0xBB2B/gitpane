@@ -122,7 +122,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Actions**: commit, pull, push (sets `-u origin HEAD` when there's no upstream), fetch, discard changes (confirmed twice), git init.
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
 - **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
-  One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o`, click the repo name at the top right, or click “⌂ Choose repository” at the bottom to switch at any time.
+  One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.
 - **Worktrees**: when you work on several branches in parallel with `git worktree`, a “⎇ Worktree: branch ▾” button appears at the right of the Changes tab bar (or press `t`).
   It lists every worktree with its change count; switch to one to view, stage and commit its uncommitted changes. The graph is shared, so its position and filter stay put.
 - Refreshes every 2 seconds, so changes made by other tools (an AI assistant writing code, say) show up right away.

@@ -183,23 +183,16 @@ func (m Model) bottomButtons() []button {
 		}
 	}
 	var bs []button
-	// 子仓库模式：底部多一个切换仓库的按钮，放在刷新按钮前面
-	repos := func() []button {
-		if m.workspace == "" {
-			return nil
-		}
-		return []button{{id: "repos", label: "⌂ " + i18n.T("选择仓库")}}
-	}
 	switch m.tab {
 	case tabChanges:
 		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
 		if r, ok := m.currentRow(); ok && r.kind == rowFile && r.sec == secChanges {
 			bs = append(bs, button{id: "discard", label: i18n.T("✕ 放弃"), kind: btnDanger})
 		}
-		bs = append(append(bs, repos()...), button{id: "refresh", label: "↻"})
+		bs = append(bs, button{id: "refresh", label: "↻"})
 	case tabGraph:
 		bs = []button{{id: "picker", label: icons.branch + i18n.T(" 分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}}
-		bs = append(append(bs, repos()...), button{id: "refresh", label: "↻"})
+		bs = append(bs, button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
 }
@@ -813,7 +806,7 @@ func (m Model) viewHelp() string {
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
-			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式，底部的「选择仓库」也可以）")},
+			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式，也可以按 o）")},
 			{i18n.T("点「工作树」"), i18n.T("变更页标签栏右侧，有多个工作树时切换")},
 		}},
 	}

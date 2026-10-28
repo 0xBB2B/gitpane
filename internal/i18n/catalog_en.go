@@ -208,7 +208,7 @@ func init() {
 		"点「工作树」":     "Click “Worktree”",
 		"选择工作树":      "Choose a worktree",
 		"这个仓库只有一个工作树（可以用 git worktree add 新建）": "This repository has only one worktree (create more with git worktree add)",
-		"点右上角仓库名": "Click the repo name (top right)",
-		"切换仓库（子仓库模式，底部的「选择仓库」也可以）": "Switch repository (subrepo mode; “Choose repository” at the bottom works too)",
+		"点右上角仓库名":            "Click the repo name (top right)",
+		"切换仓库（子仓库模式，也可以按 o）": "Switch repository (subrepo mode; o works too)",
 	})
 }
