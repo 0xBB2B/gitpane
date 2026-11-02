@@ -4,9 +4,9 @@
 
 <h1>Gitpane</h1>
 
-<p><strong>마우스로 조작하는 Git 터미널 UI</strong></p>
+<p><strong>언제든 터미널에서 Git 확인</strong></p>
 
-<p>변경 트리 · 줄 번호가 있는 diff · 레인 방식의 커밋 그래프 · 여러 브랜치 필터<br>단일 바이너리로 바로 사용, macOS / Linux / Windows 지원</p>
+<p>가볍고 빠르며 마우스로 조작할 수 있습니다<br>단일 바이너리로 바로 사용, macOS / Linux / Windows 지원</p>
 
 [![Release](https://img.shields.io/github/v/release/0xBB2B/gitpane?style=flat-square&color=7aa2f7&label=release)](https://github.com/0xBB2B/gitpane/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/0xBB2B/gitpane/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/0xBB2B/gitpane/actions/workflows/ci.yml)

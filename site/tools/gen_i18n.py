@@ -108,7 +108,7 @@ for lang, fn in FILES.items():
     m = re.search(r"<p><strong>(.*?)</strong></p>\s*<p>(.*?)</p>", t, re.S)
     d["h1"] = m.group(1).strip()
     d["title"] = "Gitpane: " + d["h1"] if lang in ("en", "ko") else "Gitpane：" + d["h1"]
-    d["lede"] = m.group(2).split("<br>")[-1].strip()  # 第一句是功能清单，和亮点重复，只取第二句
+    d["lede"] = "\n".join(x.strip() for x in m.group(2).split("<br>"))  # 两句分两行显示
     d["hlTitle"] = HL[lang]
     items = []
     for line in section(t, HL[lang]).strip().splitlines():

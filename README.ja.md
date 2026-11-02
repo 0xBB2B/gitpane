@@ -4,9 +4,9 @@
 
 <h1>Gitpane</h1>
 
-<p><strong>マウスで操作できる Git のターミナル UI</strong></p>
+<p><strong>いつでもターミナルで Git を確認</strong></p>
 
-<p>変更ツリー · 行番号付き diff · レーン表示のコミットグラフ · 複数ブランチの絞り込み<br>シングルバイナリですぐ使える、macOS / Linux / Windows 対応</p>
+<p>軽量・高速・マウスで操作できる<br>シングルバイナリですぐ使える、macOS / Linux / Windows 対応</p>
 
 [![Release](https://img.shields.io/github/v/release/0xBB2B/gitpane?style=flat-square&color=7aa2f7&label=release)](https://github.com/0xBB2B/gitpane/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/0xBB2B/gitpane/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/0xBB2B/gitpane/actions/workflows/ci.yml)

@@ -4,9 +4,9 @@
 
 <h1>Gitpane</h1>
 
-<p><strong>A Git terminal UI you can drive with your mouse</strong></p>
+<p><strong>Keep an eye on Git, right in your terminal</strong></p>
 
-<p>Change tree · Line-numbered diffs · Lane-based commit graph · Multi-branch filter<br>A single binary that just works on macOS, Linux and Windows</p>
+<p>Lightweight, fast, and mouse-friendly<br>A single binary that just works on macOS, Linux and Windows</p>
 
 [![Release](https://img.shields.io/github/v/release/0xBB2B/gitpane?style=flat-square&color=7aa2f7&label=release)](https://github.com/0xBB2B/gitpane/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/0xBB2B/gitpane/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/0xBB2B/gitpane/actions/workflows/ci.yml)

@@ -4,8 +4,8 @@ window.I18N = {
   "toLight": "切换到浅色主题",
   "toDark": "切换到深色主题",
   "skip": "跳到正文",
-  "title": "Gitpane：用鼠标就能操作的 Git 终端界面",
-  "h1": "用鼠标就能操作的 Git 终端界面",
+  "title": "Gitpane：随时在终端里查看 Git",
+  "h1": "随时在终端里查看 Git",
   "linux": "Linux / 源码",
   "copy": "复制",
   "copied": "已复制",
@@ -24,7 +24,7 @@ window.I18N = {
    "graphf": "完成并返回图谱",
    "picker": "打开分支面板"
   },
-  "lede": "单个二进制，开箱即用，macOS / Linux / Windows 通用",
+  "lede": "轻量、快速、可用鼠标操作\n单个二进制，开箱即用，macOS / Linux / Windows 通用",
   "hlTitle": "亮点",
   "hl": [
    {
@@ -63,8 +63,8 @@ window.I18N = {
   "toLight": "切換到淺色主題",
   "toDark": "切換到深色主題",
   "skip": "跳到正文",
-  "title": "Gitpane：用滑鼠就能操作的 Git 終端機介面",
-  "h1": "用滑鼠就能操作的 Git 終端機介面",
+  "title": "Gitpane：隨時在終端機裡查看 Git",
+  "h1": "隨時在終端機裡查看 Git",
   "linux": "Linux / 原始碼",
   "copy": "複製",
   "copied": "已複製",
@@ -83,7 +83,7 @@ window.I18N = {
    "graphf": "完成並回到圖譜",
    "picker": "開啟分支面板"
   },
-  "lede": "單一執行檔，開箱即用，macOS / Linux / Windows 通用",
+  "lede": "輕量、快速、可用滑鼠操作\n單一執行檔，開箱即用，macOS / Linux / Windows 通用",
   "hlTitle": "亮點",
   "hl": [
    {
@@ -122,8 +122,8 @@ window.I18N = {
   "toLight": "Switch to light theme",
   "toDark": "Switch to dark theme",
   "skip": "Skip to content",
-  "title": "Gitpane: A Git terminal UI you can drive with your mouse",
-  "h1": "A Git terminal UI you can drive with your mouse",
+  "title": "Gitpane: Keep an eye on Git, right in your terminal",
+  "h1": "Keep an eye on Git, right in your terminal",
   "linux": "Linux / source",
   "copy": "Copy",
   "copied": "Copied",
@@ -142,7 +142,7 @@ window.I18N = {
    "graphf": "Done, back to the graph",
    "picker": "Open the branch picker"
   },
-  "lede": "A single binary that just works on macOS, Linux and Windows",
+  "lede": "Lightweight, fast, and mouse-friendly\nA single binary that just works on macOS, Linux and Windows",
   "hlTitle": "Highlights",
   "hl": [
    {
@@ -181,8 +181,8 @@ window.I18N = {
   "toLight": "ライトテーマに切り替え",
   "toDark": "ダークテーマに切り替え",
   "skip": "本文へスキップ",
-  "title": "Gitpane：マウスで操作できる Git のターミナル UI",
-  "h1": "マウスで操作できる Git のターミナル UI",
+  "title": "Gitpane：いつでもターミナルで Git を確認",
+  "h1": "いつでもターミナルで Git を確認",
   "linux": "Linux / ソースから",
   "copy": "コピー",
   "copied": "コピーしました",
@@ -201,7 +201,7 @@ window.I18N = {
    "graphf": "完了してグラフへ戻る",
    "picker": "ブランチ選択パネルを開く"
   },
-  "lede": "シングルバイナリですぐ使える、macOS / Linux / Windows 対応",
+  "lede": "軽量・高速・マウスで操作できる\nシングルバイナリですぐ使える、macOS / Linux / Windows 対応",
   "hlTitle": "特長",
   "hl": [
    {
@@ -240,8 +240,8 @@ window.I18N = {
   "toLight": "라이트 테마로 전환",
   "toDark": "다크 테마로 전환",
   "skip": "본문으로 건너뛰기",
-  "title": "Gitpane: 마우스로 조작하는 Git 터미널 UI",
-  "h1": "마우스로 조작하는 Git 터미널 UI",
+  "title": "Gitpane: 언제든 터미널에서 Git 확인",
+  "h1": "언제든 터미널에서 Git 확인",
   "linux": "Linux / 소스",
   "copy": "복사",
   "copied": "복사됨",
@@ -260,7 +260,7 @@ window.I18N = {
    "graphf": "완료하고 그래프로",
    "picker": "브랜치 선택 패널 열기"
   },
-  "lede": "단일 바이너리로 바로 사용, macOS / Linux / Windows 지원",
+  "lede": "가볍고 빠르며 마우스로 조작할 수 있습니다\n단일 바이너리로 바로 사용, macOS / Linux / Windows 지원",
   "hlTitle": "특징",
   "hl": [
    {

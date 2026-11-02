@@ -221,7 +221,7 @@ h1 {
   text-wrap: balance;
 }
 :lang(zh-CN) h1, :lang(zh-TW) h1, :lang(ja) h1, :lang(ko) h1 { letter-spacing: 0; max-width: 16em; word-break: keep-all; }
-.lede { margin: 18px 0 0; font-size: 1.22rem; color: var(--sub); max-width: 40em; }
+.lede { margin: 18px 0 0; font-size: 1.22rem; color: var(--sub); max-width: 40em; white-space: pre-line; }
 
 .install { margin-top: 34px; max-width: 640px; }
 .os { display: flex; gap: 4px; }

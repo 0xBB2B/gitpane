@@ -4,9 +4,9 @@
 
 <h1>Gitpane</h1>
 
-<p><strong>用鼠标就能操作的 Git 终端界面</strong></p>
+<p><strong>随时在终端里查看 Git</strong></p>
 
-<p>变更树 · 带行号的 diff · 泳道式提交图谱 · 多分支筛选<br>单个二进制，开箱即用，macOS / Linux / Windows 通用</p>
+<p>轻量、快速、可用鼠标操作<br>单个二进制，开箱即用，macOS / Linux / Windows 通用</p>
 
 [![Release](https://img.shields.io/github/v/release/0xBB2B/gitpane?style=flat-square&color=7aa2f7&label=release)](https://github.com/0xBB2B/gitpane/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/0xBB2B/gitpane/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/0xBB2B/gitpane/actions/workflows/ci.yml)
