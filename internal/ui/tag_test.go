@@ -30,6 +30,8 @@ func TestTagFlow(t *testing.T) {
 	}
 	_ = os.MkdirAll(dir, 0o755)
 	git("init", "-q", "-b", "main")
+	git("config", "user.name", "t") // 附注标签要记录打标签的人；CI 机器上没有全局身份
+	git("config", "user.email", "t@t")
 	git("commit", "-q", "--allow-empty", "-m", "one")
 	git("tag", "-a", "v0.6.0", "-m", "v0.6.0")
 

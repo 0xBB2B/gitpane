@@ -47,6 +47,9 @@ func TestTagCreateAndPush(t *testing.T) {
 	git(base, "init", "-q", "--bare", "-b", "main", remote)
 	git(base, "init", "-q", "-b", "main", work)
 	git(work, "remote", "add", "origin", remote)
+	// 附注标签要记录打标签的人；CI 机器上没有全局身份，在仓库里配一个
+	git(work, "config", "user.name", "t")
+	git(work, "config", "user.email", "t@t")
 	git(work, "commit", "-q", "--allow-empty", "-m", "one")
 	git(work, "commit", "-q", "--allow-empty", "-m", "two")
 	git(work, "push", "-q", "-u", "origin", "main")
