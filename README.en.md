@@ -119,7 +119,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
   select any local or remote branches to see just their history, and click “✕ All” to reset. Double-click or press `s` in the picker to check a branch out (a tracking branch is created for remote branches).
 - **Commit details**: the commit message plus one row per file (with `+added -removed`); click a file name to expand or collapse its changes.
   Single-file commits open expanded and multi-file commits start collapsed; `z` or the button in the header toggles them all.
-- **Actions**: commit, pull, push (sets `-u origin HEAD` when there's no upstream), fetch, discard changes (confirmed twice), git init.
+- **Actions**: commit, pull, push (sets `-u origin HEAD` when there's no upstream), fetch, tagging (select a commit in the graph and press `T`; Enter creates and pushes, and push also sends new tags), discard changes (confirmed twice), git init.
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
 - **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
   One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.
@@ -144,6 +144,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `a` / `u` | Stage all / unstage all |
 | `x` | Discard changes to the current file (press twice) |
 | `p` / `P` / `f` | pull / push / fetch |
+| `T` | Tag the selected commit in the graph (suggests the next version, Tab fills it in; Enter creates and pushes) |
 | `J` `K` | Scroll the detail pane |
 | `w` | Wrap / truncate long lines in the detail pane (remembered) |
 | `<` `>` / `=` | Move the divider between list and detail / reset it |

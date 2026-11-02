@@ -119,6 +119,12 @@ type Model struct {
 	msgAt    time.Time
 
 	committing bool
+
+	// 打标签（图谱里选中的提交）
+	tagging    bool
+	tagRev     string
+	tagShort   string
+	tagSuggest string
 	input      textinput.Model
 
 	confirmKey string

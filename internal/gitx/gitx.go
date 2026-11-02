@@ -362,22 +362,18 @@ func (r *Repo) Fetch() error {
 }
 
 // Push 推送当前分支；没有上游时自动设置为 origin/<当前分支>。
+// Push 推送当前分支；--follow-tags 会顺带推送指向这些提交、远程还没有的附注标签
+// （比如在 gitpane 里新打的标签），不会把其他不相干的标签都推上去。
 func (r *Repo) Push(st *Status) error {
 	if st != nil && st.Upstream == "" && !st.Detached {
-		remotes, _ := r.git("remote")
-		remote := firstLine(remotes)
-		if remote == "" {
-			return errors.New(i18n.T("没有配置远程仓库"))
+		remote, err := r.defaultRemote()
+		if err != nil {
+			return err
 		}
-		for _, rm := range strings.Fields(remotes) {
-			if rm == "origin" {
-				remote = "origin"
-			}
-		}
-		_, err := r.gitSlow("push", "-u", remote, "HEAD")
+		_, err = r.gitSlow("push", "--follow-tags", "-u", remote, "HEAD")
 		return err
 	}
-	_, err := r.gitSlow("push")
+	_, err := r.gitSlow("push", "--follow-tags")
 	return err
 }
 

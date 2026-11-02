@@ -175,6 +175,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.committing {
 			return m.handleCommitKey(msg)
 		}
+		if m.tagging {
+			return m.handleTagKey(msg)
+		}
 		if m.repoPicking {
 			return m.handleRepoKey(msg)
 		}
@@ -326,6 +329,8 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case "t":
 		return m, m.openWorktreePicker()
+	case "T":
+		return m, m.beginTag()
 	case "J", "ctrl+d":
 		m.detailOff += max(1, g.detailH/2)
 		m.clampOffset()
@@ -712,6 +717,15 @@ func (m *Model) doAction(id string) tea.Cmd {
 		return m.openRepoPicker()
 	case "worktree":
 		return m.openWorktreePicker()
+	case "tag":
+		return m.beginTag()
+	case "tagPush":
+		return m.doTag(true)
+	case "tagLocal":
+		return m.doTag(false)
+	case "tagCancel":
+		m.endTag()
+		return nil
 	case "rescan":
 		return m.rescan()
 	}

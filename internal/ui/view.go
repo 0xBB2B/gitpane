@@ -6,8 +6,10 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 
 	"github.com/0xBB2B/gitpane/internal/gitx"
 	"github.com/0xBB2B/gitpane/internal/i18n"
@@ -161,6 +163,9 @@ func (m Model) tabButtons() []button {
 }
 
 func (m Model) bottomButtons() []button {
+	if m.tagging {
+		return m.tagButtons()
+	}
 	if m.committing {
 		return place(1, m.w, []button{
 			{id: "commitConfirm", label: fmt.Sprintf(i18n.T("%s 提交 %d 个文件"), icons.check, m.stagedCount()), kind: btnPrimary},
@@ -191,7 +196,7 @@ func (m Model) bottomButtons() []button {
 		}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	case tabGraph:
-		bs = []button{{id: "picker", label: icons.branch + i18n.T(" 分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}}
+		bs = []button{{id: "picker", label: icons.branch + i18n.T(" 分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "tag", label: "◆ " + i18n.T("标签")}}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
@@ -722,8 +727,21 @@ func (m Model) viewDetail(g geom) []string {
 
 func (m Model) viewStatus() string {
 	switch {
-	case m.committing:
-		return paint(m.w, nil, sg(" ✎ ", fg(cAccent).Bold(true)), sgRaw(m.input.View(), lipgloss.NewStyle()))
+	case m.committing, m.tagging:
+		icon := sg(" ✎ ", fg(cAccent).Bold(true))
+		if m.tagging {
+			icon = sg(" ◆ ", fg(cYellow).Bold(true))
+		}
+		left := []seg{icon, sgRaw(m.input.View(), lipgloss.NewStyle())}
+		// 输入框打开时，报错（标签已存在、提交信息为空等）显示在同一行右侧，不然会被输入框挡住
+		if m.msg != "" && m.msgLevel == lvErr && time.Since(m.msgAt) < 6*time.Second {
+			// 去掉输入框末尾填充的空格（包在颜色序列里），多留一格给光标，免得整行被截成「…」
+			v := m.input.View()
+			w := textWidth(strings.TrimRight(ansi.Strip(v), " ")) + 1
+			left[1] = sgRaw(ansi.Truncate(v, w, ""), lipgloss.NewStyle())
+			return rightAlign(m.w, nil, left, []seg{sg(icons.cross+" "+m.msg+" ", fg(cRed))})
+		}
+		return paint(m.w, nil, left...)
 	case m.busy != "":
 		return paint(m.w, nil, sgRaw(" "+m.spin.View()+" ", lipgloss.NewStyle()), sg(m.busy, fg(cAccent)))
 	case m.msg != "":
@@ -742,7 +760,7 @@ func (m Model) viewStatus() string {
 	}
 	switch m.tab {
 	case tabGraph:
-		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
+		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"T", i18n.T("标签")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
 	}
 	tail := [][2]string{{"?", i18n.T("帮助")}}
 	if m.workspace != "" {
@@ -804,6 +822,7 @@ func (m Model) viewHelp() string {
 			{"o", i18n.T("切换子目录里的仓库（启动目录不是仓库时）")},
 			{"z", i18n.T("提交详情里全部展开 / 折叠文件")},
 			{"p  P  f", "pull / push / fetch"},
+			{"T", i18n.T("给选中的提交打标签：回车创建并推送（推送分支时也会带上新标签）")},
 			{i18n.T("s / 双击"), i18n.T("在分支选择面板里切换到该分支")},
 		}},
 		{i18n.T("鼠标"), []item{
