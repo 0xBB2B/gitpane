@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -9,12 +10,16 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/0xBB2B/gitpane/internal/gitx"
 	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
 // 分支选择面板：图谱页里按 b、点标签栏右侧的「⎇ 全部分支 ▾」或点顶部分支名打开。
 // 勾选一个或多个分支后，图谱只显示这些分支；一个都不勾 = 显示全部。
 // 在这里也可以切换当前分支（双击，或选中后按 s / 点「切换到此分支」）。
+//
+// 切换模式（任意页按 B，或点变更页底部的「⎇ 切换分支」）：不显示勾选框，单击就切换；
+// 按 / 输入关键字筛选；已在其他工作树检出的分支，选它就切换到那个工作树。
 
 type pickRow struct {
 	header string // 非空表示分组标题行
@@ -24,7 +29,11 @@ type pickRow struct {
 func (m Model) pickRows() []pickRow {
 	var rows []pickRow
 	lastRemote := -1
+	filter := strings.ToLower(m.pickFilter)
 	for i, b := range m.branches {
+		if m.pickSwitchMode && filter != "" && !strings.Contains(strings.ToLower(b.Name), filter) {
+			continue
+		}
 		r := 0
 		if b.Remote {
 			r = 1
@@ -56,14 +65,50 @@ func (m *Model) openPicker() tea.Cmd {
 		cmd = m.switchTab(tabGraph)
 	}
 	m.picking = true
-	// 光标放在当前分支上
+	m.pickSwitchMode, m.pickFilter, m.pickFiltering = false, "", false
+	m.pickCursorToCurrent()
+	m.pickClamp()
+	return cmd
+}
+
+// openSwitchPicker 打开「切换分支」面板（任意页都能用）。
+func (m *Model) openSwitchPicker() tea.Cmd {
+	if m.repo == nil {
+		return nil
+	}
+	m.picking = true
+	m.pickSwitchMode, m.pickFilter, m.pickFiltering = true, "", false
+	m.pickCursor, m.pickOffset = 0, 0
+	m.pickAtCurrent = true // 分支列表可能还没加载（变更页不加载），到了再定位
+	m.pickCursorToCurrent()
+	m.pickClamp()
+	return branchesCmd(m.repo)
+}
+
+func (m *Model) pickCursorToCurrent() {
 	for i, r := range m.pickRows() {
 		if r.header == "" && r.bi < len(m.branches) && m.branches[r.bi].Current {
 			m.pickCursor = i
 		}
 	}
-	m.pickClamp()
-	return cmd
+}
+
+// branchWorktree 返回检出了这个分支的「其他」工作树的下标；没有时返回 -1。
+// 远程分支按同名的本地分支算（切换远程分支其实是切到同名本地分支）。
+func (m Model) branchWorktree(b gitx.Branch) int {
+	name := b.Name
+	if b.Remote {
+		if i := strings.IndexByte(name, '/'); i >= 0 {
+			name = name[i+1:]
+		}
+	}
+	cur := m.currentWorktree()
+	for i, w := range m.worktrees {
+		if i != cur && w.Branch == name {
+			return i
+		}
+	}
+	return -1
 }
 
 func (m Model) pickListH() int { return max(1, m.h-4) }
@@ -143,11 +188,22 @@ func (m *Model) pickSwitch() tea.Cmd {
 		m.setMsg(lvInfo, i18n.Tf("已经在 %s 上", b.Name))
 		return nil
 	}
+	// 这个分支已经在另一个工作树里检出了（git 不允许同时检出两次）：直接切到那个工作树
+	if wi := m.branchWorktree(b); wi >= 0 {
+		m.picking = false
+		return m.switchWorktree(wi)
+	}
 	repo := m.repo
+	if m.pickSwitchMode {
+		m.picking = false // 切换模式：选完就回到原来的页面
+	}
 	return m.startOp(i18n.T("切换分支…"), func() (string, error) { return i18n.Tf("已切换到 %s", b.Name), repo.Switch(b) })
 }
 
 func (m Model) handlePickKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
+	if m.pickSwitchMode {
+		return m.handleSwitchPickKey(k)
+	}
 	rows := m.pickRows()
 	switch k.String() {
 	case "esc", "enter", "q", "b":
@@ -179,6 +235,74 @@ func (m Model) handlePickKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+// handleSwitchPickKey 是切换模式下的按键：回车切换，/ 筛选。
+func (m Model) handleSwitchPickKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
+	if m.pickFiltering {
+		switch k.Type {
+		case tea.KeyEsc:
+			m.pickFiltering, m.pickFilter = false, ""
+		case tea.KeyEnter:
+			m.pickFiltering = false
+			m.pickFirstBranch()
+			return m, m.pickSwitch()
+		case tea.KeyBackspace:
+			if r := []rune(m.pickFilter); len(r) > 0 {
+				m.pickFilter = string(r[:len(r)-1])
+			}
+		case tea.KeyDown:
+			m.pickMove(1)
+			return m, nil
+		case tea.KeyUp:
+			m.pickMove(-1)
+			return m, nil
+		case tea.KeyRunes, tea.KeySpace:
+			m.pickFilter += string(k.Runes)
+			if k.Type == tea.KeySpace {
+				m.pickFilter += " "
+			}
+		}
+		m.pickFirstBranch()
+		return m, nil
+	}
+	rows := m.pickRows()
+	switch k.String() {
+	case "esc", "q", "B":
+		m.picking = false
+	case "ctrl+c":
+		m.picking = false
+		if !m.opts.Embed {
+			return m, tea.Quit
+		}
+	case "/":
+		m.pickFiltering = true
+	case "j", "down":
+		m.pickMove(1)
+	case "k", "up":
+		m.pickMove(-1)
+	case "g", "home":
+		m.pickCursor = 0
+		m.pickClamp()
+	case "G", "end":
+		m.pickCursor = len(rows) - 1
+		m.pickClamp()
+	case "enter", " ", "s", "l":
+		return m, m.pickSwitch()
+	}
+	return m, nil
+}
+
+// pickFirstBranch 把光标放到筛选结果的第一个分支上（跳过分组标题）。
+func (m *Model) pickFirstBranch() {
+	m.pickCursor, m.pickOffset = 0, 0
+	for i, r := range m.pickRows() {
+		if r.header == "" {
+			m.pickCursor = i
+			break
+		}
+	}
+	m.pickClamp()
+}
+
 func (m Model) handlePickMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 	rows := m.pickRows()
 	switch ev.Button {
@@ -196,7 +320,7 @@ func (m Model) handlePickMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 		for _, b := range m.pickButtons() {
 			if b.hit(ev.X) {
 				switch b.id {
-				case "pickDone":
+				case "pickDone", "pickBack":
 					m.picking = false
 				case "pickAll":
 					return m, m.setGraphRefs(nil)
@@ -214,6 +338,11 @@ func (m Model) handlePickMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 	if i >= len(rows) || rows[i].header != "" {
 		return m, nil
 	}
+	if m.pickSwitchMode { // 切换模式：单击就切换
+		m.pickCursor = i
+		m.pickClamp()
+		return m, m.pickSwitch()
+	}
 	double := i == m.lastClickRow && time.Since(m.lastClickAt) < 400*time.Millisecond
 	m.lastClickRow, m.lastClickAt = i, time.Now()
 	m.pickCursor = i
@@ -226,6 +355,12 @@ func (m Model) handlePickMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) pickButtons() []button {
+	if m.pickSwitchMode {
+		return place(1, m.w, []button{
+			{id: "pickSwitch", label: i18n.T("⇄ 切换到此分支"), kind: btnPrimary},
+			{id: "pickBack", label: i18n.T("返回")},
+		})
+	}
 	return place(1, m.w, []button{
 		{id: "pickDone", label: icons.check + i18n.T(" 完成"), kind: btnPrimary},
 		{id: "pickAll", label: i18n.T("显示全部")},
@@ -248,15 +383,34 @@ func (m Model) viewPicker() string {
 	rows := m.pickRows()
 	lines := make([]string, 0, m.h)
 
-	sel := i18n.T("显示全部分支")
-	if n := len(m.graphRefs); n > 0 {
-		sel = i18n.Tf("已选 %d 个分支", n)
+	if m.pickSwitchMode {
+		cur := ""
+		if m.status != nil {
+			cur = i18n.Tf("当前：%s", m.status.Branch)
+		}
+		hint := sg(i18n.T("  点击或回车切换 · / 筛选 · Esc 返回"), fg(cFaint))
+		if m.pickFiltering || m.pickFilter != "" {
+			hint = sg("  / "+m.pickFilter, fg(cText))
+			if m.pickFiltering {
+				hint = sg("  / "+m.pickFilter+"▏", fg(cAccent))
+			}
+		}
+		lines = append(lines,
+			rightAlign(m.w, cBar,
+				[]seg{sg(" "+icons.branch+" "+i18n.T("切换分支")+" ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
+				[]seg{sg(cur+" ", fg(cGreen))}),
+			paint(m.w, nil, hint))
+	} else {
+		sel := i18n.T("显示全部分支")
+		if n := len(m.graphRefs); n > 0 {
+			sel = i18n.Tf("已选 %d 个分支", n)
+		}
+		lines = append(lines,
+			rightAlign(m.w, cBar,
+				[]seg{sg(" "+icons.branch+i18n.T(" 选择要显示的分支 "), lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
+				[]seg{sg(sel+" ", fg(cYellow))}),
+			paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部 · 双击或 s 切换到该分支"), fg(cFaint))))
 	}
-	lines = append(lines,
-		rightAlign(m.w, cBar,
-			[]seg{sg(" "+icons.branch+i18n.T(" 选择要显示的分支 "), lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
-			[]seg{sg(sel+" ", fg(cYellow))}),
-		paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部 · 双击或 s 切换到该分支"), fg(cFaint))))
 
 	h := m.pickListH()
 	for i := m.pickOffset; i < m.pickOffset+h && i < len(rows); i++ {
@@ -283,6 +437,9 @@ func (m Model) viewPicker() string {
 			nameSt = fg(cPurple)
 		}
 		left := []seg{sg(" ", lipgloss.NewStyle()), sg(box, boxSt), sg(dot, fg(cGreen)), sg(b.Name, nameSt)}
+		if m.pickSwitchMode {
+			left = []seg{sg("  ", lipgloss.NewStyle()), sg(dot, fg(cGreen)), sg(b.Name, nameSt)}
+		}
 		for _, mm := range trackRe.FindAllStringSubmatch(b.Track, -1) {
 			n, _ := strconv.Atoi(mm[2])
 			if mm[1] == "ahead" {
@@ -297,10 +454,19 @@ func (m Model) viewPicker() string {
 		if b.Upstream != "" {
 			left = append(left, sg("  → "+b.Upstream, fg(cFaint)))
 		}
-		lines = append(lines, rightAlign(m.w, bg, left, []seg{sg(b.When+" ", fg(cFaint))}))
+		right := []seg{sg(b.When+" ", fg(cFaint))}
+		if wi := m.branchWorktree(b); wi >= 0 {
+			// 已在其他工作树检出：选它会切到那个工作树
+			right = append([]seg{sg(i18n.Tf("工作树 %s", filepath.Base(filepath.FromSlash(m.worktrees[wi].Path)))+"  ", fg(cCyan))}, right...)
+		}
+		lines = append(lines, rightAlign(m.w, bg, left, right))
 	}
 	if len(rows) == 0 {
-		lines = append(lines, paint(m.w, nil, sg(i18n.T("  （没有分支）"), fg(cMuted))))
+		empty := i18n.T("  （没有分支）")
+		if m.pickFilter != "" {
+			empty = i18n.Tf("  没有包含「%s」的分支", m.pickFilter)
+		}
+		lines = append(lines, paint(m.w, nil, sg(empty, fg(cMuted))))
 	}
 	for len(lines) < m.h-2 {
 		lines = append(lines, strings.Repeat(" ", m.w))
@@ -318,7 +484,11 @@ func (m Model) viewPicker() string {
 		}
 		lines = append(lines, paint(m.w, nil, sg(" "+m.msg, fg(col))))
 	} else {
-		lines = append(lines, paint(m.w, nil, sg(i18n.T("  Esc / 回车 返回图谱 · a 显示全部"), fg(cFaint))))
+		tip := i18n.T("  Esc / 回车 返回图谱 · a 显示全部")
+		if m.pickSwitchMode {
+			tip = i18n.T("  有未提交的改动也可以切换（git 会带过去）；冲突时会提示先提交或暂存")
+		}
+		lines = append(lines, paint(m.w, nil, sg(tip, fg(cFaint))))
 	}
 	return strings.Join(lines, "\n")
 }

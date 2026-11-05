@@ -115,6 +115,8 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Graph**: a custom lane layout with one commit per row; forks and merges are joined on the same row with `╭ ╮ ╰ ╯ ├ ┤ ┴ ┼`, and each branch keeps its color.
   `◉` marks HEAD and `○` a merge commit (with a dimmed subject). HEAD, local branches, remote branches and tags are color-coded.
   Scrolling to the bottom loads more, so the entire history is reachable.
+- **Switch branches**: press `B` on any tab (or click “⎇ Switch branch” at the bottom of Changes) for the switcher; click to switch, `/` to filter.
+  A remote branch gets a local tracking branch of the same name; a branch checked out in another worktree takes you to that worktree; if uncommitted changes conflict, you're told to commit or stash first and nothing is lost.
 - **Branch filter**: all branches are shown by default. Click “⎇ All branches ▾” on the right of the tab bar (or press `b`) to open the picker,
   select any local or remote branches to see just their history, and click “✕ All” to reset. Double-click or press `s` in the picker to check a branch out (a tracking branch is created for remote branches).
 - **Commit details**: the commit message plus one row per file (with `+added -removed`); click a file name to expand or collapse its changes.
@@ -138,6 +140,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `Enter` `←` `→` | Collapse / expand folders (`←` on a file jumps to its folder) |
 | `z` | Changes: collapse / expand all folders; Graph: expand / collapse all files in commit details |
 | `b` | Open the branch picker (Space to toggle, `a` show all, `s` check out, Esc to go back) |
+| `B` | Switch branch (any tab; click or Enter to switch, `/` to filter) |
 | `o` | Switch between repos found in subfolders (when started outside a repo; `/` to filter, Enter to open) |
 | `t` | Switch worktree (git worktree) to see its uncommitted changes |
 | `c` | Commit (input at the bottom, Enter to confirm, Esc to cancel) |

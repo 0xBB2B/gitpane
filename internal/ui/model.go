@@ -89,6 +89,11 @@ type Model struct {
 	picking    bool
 	pickCursor int
 	pickOffset int
+	// 分支面板的「切换模式」（B / 变更页「⎇ 切换分支」）：单击即切换，可用 / 筛选
+	pickSwitchMode bool
+	pickFilter     string
+	pickFiltering  bool
+	pickAtCurrent  bool // 分支列表到了之后把光标放到当前分支上
 
 	// 工作树（git worktree）：随状态一起刷新，多于一个时变更页可以切换
 	worktrees []gitx.Worktree
@@ -189,6 +194,13 @@ type graphMsg struct {
 	refs  string // 发起请求时的筛选，用来丢弃过期结果
 }
 
+func branchesCmd(repo *gitx.Repo) tea.Cmd {
+	return func() tea.Msg {
+		bs, err := repo.Branches()
+		return branchesMsg{bs, err}
+	}
+}
+
 type branchesMsg struct {
 	bs  []gitx.Branch
 	err error
@@ -244,10 +256,10 @@ func (m Model) refreshCmd() tea.Cmd {
 		cmds = append(cmds, func() tea.Msg {
 			lines, err := repo.Graph(limit, refs)
 			return graphMsg{lines: lines, err: err, limit: limit, refs: strings.Join(refs, "\x00")}
-		}, func() tea.Msg {
-			bs, err := repo.Branches()
-			return branchesMsg{bs, err}
 		})
+	}
+	if m.tab == tabGraph || m.picking {
+		cmds = append(cmds, branchesCmd(repo))
 	}
 	if c := m.detailCmd(); c != nil {
 		cmds = append(cmds, c)

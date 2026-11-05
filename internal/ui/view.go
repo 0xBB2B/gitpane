@@ -190,7 +190,7 @@ func (m Model) bottomButtons() []button {
 	var bs []button
 	switch m.tab {
 	case tabChanges:
-		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
+		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}, {id: "switchBranch", label: icons.branch + i18n.T(" 切换分支")}}
 		if r, ok := m.currentRow(); ok && r.kind == rowFile && r.sec == secChanges {
 			bs = append(bs, button{id: "discard", label: i18n.T("✕ 放弃"), kind: btnDanger})
 		}
@@ -754,7 +754,7 @@ func (m Model) viewStatus() string {
 		}
 		return paint(m.w, nil, sg(" "+icon+" ", fg(col).Bold(true)), sg(m.msg, fg(col)))
 	}
-	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"Tab", i18n.T("切换")}}
+	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"B", i18n.T("切换分支")}, {"Tab", i18n.T("切换")}}
 	if len(m.worktrees) > 1 {
 		keys = append([][2]string{keys[0], {"t", i18n.T("工作树")}}, keys[1:]...)
 	}
@@ -816,6 +816,7 @@ func (m Model) viewHelp() string {
 			{"c", i18n.T("提交（回车确认，Esc 取消）")},
 			{"x", i18n.T("放弃当前文件的改动（按两次确认）")},
 			{"t", i18n.T("切换工作树（git worktree），查看各自未提交的改动")},
+			{"B", i18n.T("切换分支（任意页面都能用；已在其他工作树检出的分支会直接切到那个工作树）")},
 		}},
 		{i18n.T("图谱与分支"), []item{
 			{"b", i18n.T("选择要显示的分支（可多选，都不选 = 全部）")},

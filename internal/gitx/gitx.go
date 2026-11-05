@@ -417,7 +417,41 @@ func (r *Repo) Branches() ([]Branch, error) {
 }
 
 // Switch 切换分支；远程分支会自动建立同名的本地跟踪分支。
+// 未提交的改动 git 能带过去就带过去；和目标分支冲突时返回一条说明怎么办的错误。
 func (r *Repo) Switch(b Branch) error {
+	return switchError(r.doSwitch(b))
+}
+
+func switchError(err error) error {
+	if err == nil {
+		return nil
+	}
+	msg := err.Error()
+	switch {
+	case strings.Contains(msg, "would be overwritten by checkout") || strings.Contains(msg, "would be overwritten by switch"):
+		files := conflictFiles(msg)
+		return errors.New(i18n.Tf("未提交的改动和目标分支冲突（%s），先提交或暂存（git stash）后再切换", files))
+	case strings.Contains(msg, "is already used by worktree") || strings.Contains(msg, "is already checked out at"):
+		return errors.New(i18n.T("这个分支已在另一个工作树里检出，按 t 切换到那个工作树"))
+	}
+	return err
+}
+
+// conflictFiles 从 git 的报错里取出冲突的文件名（最多 3 个）。
+func conflictFiles(msg string) string {
+	var files []string
+	for _, l := range strings.Split(msg, "\n") {
+		if strings.HasPrefix(l, "\t") {
+			files = append(files, strings.TrimSpace(l))
+		}
+	}
+	if len(files) > 3 {
+		return strings.Join(files[:3], ", ") + i18n.Tf(" 等 %d 个文件", len(files))
+	}
+	return strings.Join(files, ", ")
+}
+
+func (r *Repo) doSwitch(b Branch) error {
 	if !b.Remote {
 		_, err := r.git("switch", b.Name)
 		return err

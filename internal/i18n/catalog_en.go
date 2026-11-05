@@ -230,5 +230,15 @@ func init() {
 		"创建并推送":  "Create & push",
 		"仅在本地创建": "Create locally only",
 		"给选中的提交打标签：回车创建并推送（推送分支时也会带上新标签）": "Tag the selected commit: Enter creates and pushes (pushing the branch also sends new tags)",
+		"切换分支": "Switch branch",
+		"切换分支（任意页面都能用；已在其他工作树检出的分支会直接切到那个工作树）": "Switch branch (works on any tab; a branch checked out in another worktree takes you to that worktree)",
+		"工作树 %s": "worktree %s",
+		"当前：%s":  "current: %s",
+		"有未提交的改动也可以切换（git 会带过去）；冲突时会提示先提交或暂存":     "Uncommitted changes come along when git can carry them; on a conflict you'll be asked to commit or stash first",
+		"未提交的改动和目标分支冲突（%s），先提交或暂存（git stash）后再切换": "Uncommitted changes conflict with the target branch (%s); commit or stash (git stash) first",
+		"没有包含「%s」的分支":             "No branches matching “%s”",
+		"点击或回车切换 · / 筛选 · Esc 返回": "Click or Enter to switch · / filter · Esc back",
+		"等 %d 个文件":                " and %d files in total",
+		"这个分支已在另一个工作树里检出，按 t 切换到那个工作树": "This branch is checked out in another worktree; press t to switch to it",
 	})
 }

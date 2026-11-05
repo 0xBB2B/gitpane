@@ -115,6 +115,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		if m.picking {
+			if m.pickAtCurrent {
+				m.pickAtCurrent = false
+				m.pickCursorToCurrent()
+			}
 			m.pickClamp()
 		}
 		return m, nil
@@ -331,6 +335,8 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.openWorktreePicker()
 	case "T":
 		return m, m.beginTag()
+	case "B":
+		return m, m.openSwitchPicker()
 	case "J", "ctrl+d":
 		m.detailOff += max(1, g.detailH/2)
 		m.clampOffset()
@@ -719,6 +725,8 @@ func (m *Model) doAction(id string) tea.Cmd {
 		return m.openWorktreePicker()
 	case "tag":
 		return m.beginTag()
+	case "switchBranch":
+		return m.openSwitchPicker()
 	case "tagPush":
 		return m.doTag(true)
 	case "tagLocal":
