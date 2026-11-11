@@ -177,6 +177,7 @@
   const cache = {};
   let data = null;
   let screen = "graph";
+  let from = "graph"; // 打开分支切换面板之前所在的页面，「返回」回到这里
   let loadingLang = null;
 
   function loadScreens() {
@@ -217,7 +218,9 @@
   }
 
   function go(next, keepFocus) {
+    if (next === "back") next = from;
     if (!data || !data.screens[next]) return;
+    if (next === "switch" && screen !== "switch") from = screen;
     screen = next;
     term.classList.remove("intro");
     draw();
@@ -231,9 +234,11 @@
     let next = null;
     if (screen === "picker") {
       if (k === "Escape" || k === "Enter" || k === "q") next = "graphf";
+    } else if (screen === "switch") {
+      if (k === "Escape" || k === "q" || k === "b") next = "back";
     } else if (k === "1") next = "changes";
     else if (k === "2") next = screen === "changes" ? "graph" : screen;
-    else if (k === "b") next = "picker";
+    else if (k === "b") next = "switch";
     if (next) {
       e.preventDefault();
       go(next, true);

@@ -12,7 +12,7 @@ window.I18N = {
   "latest": "最新版本 {v}",
   "archives": "也可以直接下载各平台的压缩包",
   "termLabel": "gitpane 界面演示",
-  "hint": "这是 gitpane 真实输出的界面，不是图片。点标签「变更」「图谱」或底部的「⎇ 分支」切换看看，键盘上的 1、2、b、Esc 也能用。",
+  "hint": "这是 gitpane 真实输出的界面，不是图片。点标签「变更」「图谱」、底部的「⎇ 切换分支」或右上角的「全部分支 ▾」看看，键盘上的 1、2、b、Esc 也能用。",
   "after": "在任意 Git 仓库里运行 gitpane，按 ? 查看全部快捷键，按 q 退出。",
   "license": "MIT 许可证",
   "readme": "完整说明",
@@ -22,14 +22,16 @@ window.I18N = {
    "changes": "切换到变更页",
    "graph": "切换到图谱页",
    "graphf": "完成并返回图谱",
-   "picker": "打开分支面板"
+   "picker": "选择图谱要显示的分支",
+   "switch": "打开分支切换面板",
+   "back": "返回"
   },
   "lede": "轻量、快速、可用鼠标操作\n单个二进制，开箱即用，macOS / Linux / Windows 通用",
   "hlTitle": "亮点",
   "hl": [
    {
     "t": "全程鼠标可点",
-    "d": "点文件看 diff，点 <code>+</code> / <code>-</code> 暂存，点目录折叠，滚轮翻历史，双击切分支，当然键盘也一样快。"
+    "d": "点文件看 diff，点 <code>+</code> / <code>-</code> 暂存，点目录折叠，滚轮翻历史，点按钮切分支，当然键盘也一样快。"
    },
    {
     "t": "真正好看的提交图谱",
@@ -71,7 +73,7 @@ window.I18N = {
   "latest": "最新版本 {v}",
   "archives": "也可以直接下載各平台的壓縮檔",
   "termLabel": "gitpane 介面示範",
-  "hint": "這是 gitpane 實際輸出的介面，不是圖片。點分頁「變更」「圖譜」或底部的「⎇ 分支」切換看看，鍵盤上的 1、2、b、Esc 也能用。",
+  "hint": "這是 gitpane 實際輸出的介面，不是圖片。點分頁「變更」「圖譜」、底部的「⎇ 切換分支」或右上角的「全部分支 ▾」看看，鍵盤上的 1、2、b、Esc 也能用。",
   "after": "在任何 Git 儲存庫裡執行 gitpane，按 ? 查看所有快捷鍵，按 q 退出。",
   "license": "MIT 授權",
   "readme": "完整說明",
@@ -81,14 +83,16 @@ window.I18N = {
    "changes": "切換到變更頁",
    "graph": "切換到圖譜頁",
    "graphf": "完成並回到圖譜",
-   "picker": "開啟分支面板"
+   "picker": "選擇圖譜要顯示的分支",
+   "switch": "開啟分支切換面板",
+   "back": "返回"
   },
   "lede": "輕量、快速、可用滑鼠操作\n單一執行檔，開箱即用，macOS / Linux / Windows 通用",
   "hlTitle": "亮點",
   "hl": [
    {
     "t": "全程滑鼠可點",
-    "d": "點檔案看 diff，點 <code>+</code> / <code>-</code> 暫存，點目錄摺疊，滾輪翻閱歷史，雙擊切換分支，當然鍵盤也一樣快。"
+    "d": "點檔案看 diff，點 <code>+</code> / <code>-</code> 暫存，點目錄摺疊，滾輪翻閱歷史，點按鈕切換分支，當然鍵盤也一樣快。"
    },
    {
     "t": "真正好看的提交圖譜",
@@ -130,7 +134,7 @@ window.I18N = {
   "latest": "Latest release {v}",
   "archives": "or download an archive for your platform",
   "termLabel": "Gitpane interface demo",
-  "hint": "This is real Gitpane output, not an image. Click the Changes and Graph tabs or the ⎇ Branches button at the bottom, or press 1, 2, b and Esc.",
+  "hint": "This is real Gitpane output, not an image. Click the Changes and Graph tabs, “⎇ Switch branch” at the bottom or “All branches ▾” at the top right, or press 1, 2, b and Esc.",
   "after": "Run gitpane inside any Git repository. Press ? for every key binding, q to quit.",
   "license": "MIT License",
   "readme": "Full documentation",
@@ -140,14 +144,16 @@ window.I18N = {
    "changes": "Go to Changes",
    "graph": "Go to Graph",
    "graphf": "Done, back to the graph",
-   "picker": "Open the branch picker"
+   "picker": "Choose which branches the graph shows",
+   "switch": "Open the branch switcher",
+   "back": "Back"
   },
   "lede": "Lightweight, fast, and mouse-friendly\nA single binary that just works on macOS, Linux and Windows",
   "hlTitle": "Highlights",
   "hl": [
    {
     "t": "Point and click everywhere",
-    "d": "Click a file to see its diff, click <code>+</code> / <code>-</code> to stage, click folders to collapse, scroll through history, double-click to switch branches — and the keyboard is just as fast."
+    "d": "Click a file to see its diff, click <code>+</code> / <code>-</code> to stage, click folders to collapse, scroll through history, click a button to switch branches — and the keyboard is just as fast."
    },
    {
     "t": "A commit graph that's actually readable",
@@ -189,7 +195,7 @@ window.I18N = {
   "latest": "最新バージョン {v}",
   "archives": "各プラットフォーム向けのアーカイブも直接ダウンロードできます",
   "termLabel": "gitpane の画面デモ",
-  "hint": "画像ではなく、gitpane が実際に出力した画面です。タブの「変更」「グラフ」や下部の「⎇ ブランチ」をクリックしてみてください。キーボードの 1、2、b、Esc でも操作できます。",
+  "hint": "画像ではなく、gitpane が実際に出力した画面です。タブの「変更」「グラフ」、下部の「⎇ ブランチ切替」、右上の「すべてのブランチ ▾」をクリックしてみてください。キーボードの 1、2、b、Esc でも操作できます。",
   "after": "Git リポジトリの中で gitpane を実行します。? ですべてのキー操作を表示、q で終了します。",
   "license": "MIT ライセンス",
   "readme": "詳しい説明",
@@ -199,14 +205,16 @@ window.I18N = {
    "changes": "変更画面へ",
    "graph": "グラフ画面へ",
    "graphf": "完了してグラフへ戻る",
-   "picker": "ブランチ選択パネルを開く"
+   "picker": "グラフに表示するブランチを選ぶ",
+   "switch": "ブランチ切り替え画面を開く",
+   "back": "戻る"
   },
   "lede": "軽量・高速・マウスで操作できる\nシングルバイナリですぐ使える、macOS / Linux / Windows 対応",
   "hlTitle": "特長",
   "hl": [
    {
     "t": "ほぼすべてマウスで操作",
-    "d": "ファイルをクリックして diff を表示、<code>+</code> / <code>-</code> でステージ、フォルダをクリックして折りたたみ、ホイールで履歴をたどり、ダブルクリックでブランチを切り替え。もちろんキーボードでも同じように速く操作できます。"
+    "d": "ファイルをクリックして diff を表示、<code>+</code> / <code>-</code> でステージ、フォルダをクリックして折りたたみ、ホイールで履歴をたどり、ボタンでブランチを切り替え。もちろんキーボードでも同じように速く操作できます。"
    },
    {
     "t": "本当に読みやすいコミットグラフ",
@@ -248,7 +256,7 @@ window.I18N = {
   "latest": "최신 버전 {v}",
   "archives": "플랫폼별 압축 파일을 직접 내려받을 수도 있습니다",
   "termLabel": "gitpane 화면 데모",
-  "hint": "이미지가 아니라 gitpane이 실제로 출력한 화면입니다. 「변경」「그래프」 탭이나 하단의 「⎇ 브랜치」를 눌러 보세요. 키보드 1, 2, b, Esc로도 조작할 수 있습니다.",
+  "hint": "이미지가 아니라 gitpane이 실제로 출력한 화면입니다. 「변경」「그래프」 탭, 하단의 「⎇ 브랜치 전환」, 오른쪽 위의 「모든 브랜치 ▾」를 눌러 보세요. 키보드 1, 2, b, Esc로도 조작할 수 있습니다.",
   "after": "Git 저장소 안에서 gitpane을 실행하세요. ?로 모든 단축키를 보고, q로 종료합니다.",
   "license": "MIT 라이선스",
   "readme": "전체 문서",
@@ -258,14 +266,16 @@ window.I18N = {
    "changes": "변경 화면으로",
    "graph": "그래프 화면으로",
    "graphf": "완료하고 그래프로",
-   "picker": "브랜치 선택 패널 열기"
+   "picker": "그래프에 표시할 브랜치 고르기",
+   "switch": "브랜치 전환 화면 열기",
+   "back": "돌아가기"
   },
   "lede": "가볍고 빠르며 마우스로 조작할 수 있습니다\n단일 바이너리로 바로 사용, macOS / Linux / Windows 지원",
   "hlTitle": "특징",
   "hl": [
    {
     "t": "어디서나 마우스로 클릭",
-    "d": "파일을 클릭해 diff 보기, <code>+</code> / <code>-</code>로 스테이지, 폴더 클릭으로 접기, 휠로 기록 탐색, 더블클릭으로 브랜치 전환. 물론 키보드로도 똑같이 빠릅니다."
+    "d": "파일을 클릭해 diff 보기, <code>+</code> / <code>-</code>로 스테이지, 폴더 클릭으로 접기, 휠로 기록 탐색, 버튼으로 브랜치 전환. 물론 키보드로도 똑같이 빠릅니다."
    },
    {
     "t": "정말 읽기 쉬운 커밋 그래프",

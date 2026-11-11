@@ -196,7 +196,7 @@ func (m Model) bottomButtons() []button {
 		}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	case tabGraph:
-		bs = []button{{id: "picker", label: icons.branch + i18n.T(" 分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "tag", label: "◆ " + i18n.T("标签")}}
+		bs = []button{{id: "switchBranch", label: icons.branch + i18n.T(" 切换分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "tag", label: "◆ " + i18n.T("标签")}}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
@@ -754,13 +754,13 @@ func (m Model) viewStatus() string {
 		}
 		return paint(m.w, nil, sg(" "+icon+" ", fg(col).Bold(true)), sg(m.msg, fg(col)))
 	}
-	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"B", i18n.T("切换分支")}, {"Tab", i18n.T("切换")}}
+	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"b", i18n.T("切换分支")}, {"Tab", i18n.T("切换")}}
 	if len(m.worktrees) > 1 {
 		keys = append([][2]string{keys[0], {"t", i18n.T("工作树")}}, keys[1:]...)
 	}
 	switch m.tab {
 	case tabGraph:
-		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("选分支")}, {"z", i18n.T("展开文件")}, {"T", i18n.T("标签")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
+		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("切换分支")}, {"z", i18n.T("展开文件")}, {"T", i18n.T("标签")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
 	}
 	tail := [][2]string{{"?", i18n.T("帮助")}}
 	if m.workspace != "" {
@@ -816,10 +816,10 @@ func (m Model) viewHelp() string {
 			{"c", i18n.T("提交（回车确认，Esc 取消）")},
 			{"x", i18n.T("放弃当前文件的改动（按两次确认）")},
 			{"t", i18n.T("切换工作树（git worktree），查看各自未提交的改动")},
-			{"B", i18n.T("切换分支（任意页面都能用；已在其他工作树检出的分支会直接切到那个工作树）")},
+			{"b", i18n.T("切换分支（任意页面都能用；已在其他工作树检出的分支会直接切到那个工作树）")},
 		}},
 		{i18n.T("图谱与分支"), []item{
-			{"b", i18n.T("选择要显示的分支（可多选，都不选 = 全部）")},
+
 			{"o", i18n.T("切换子目录里的仓库（启动目录不是仓库时）")},
 			{"z", i18n.T("提交详情里全部展开 / 折叠文件")},
 			{"p  P  f", "pull / push / fetch"},
@@ -830,7 +830,8 @@ func (m Model) viewHelp() string {
 			{i18n.T("点文件"), i18n.T("查看 diff；点右侧 + / - 暂存或取消")},
 			{i18n.T("点目录 / 分组"), i18n.T("折叠；分组右侧按钮批量操作")},
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
-			{i18n.T("点「分支」按钮"), i18n.T("打开分支选择面板（图谱页底部，或标签栏右侧）")},
+			{i18n.T("点「切换分支」"), i18n.T("打开分支切换面板（变更页、图谱页底部）")},
+			{i18n.T("点右上角「全部分支 ▾」"), i18n.T("选择图谱要显示哪些分支（可多选，只有这里能改）")},
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},

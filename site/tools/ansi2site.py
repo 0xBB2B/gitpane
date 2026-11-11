@@ -21,15 +21,15 @@ COLS, ROWS = 128, 30
 SRC, OUT = sys.argv[1], sys.argv[2]
 SUFFIX = sys.argv[3] if len(sys.argv) > 3 else ""
 LANGS = ["zh-CN", "zh-TW", "en", "ja", "ko"]
-SCREENS = ["changes", "graph", "picker", "graphf"]
+SCREENS = ["changes", "graph", "switch", "picker", "graphf"]
 
 # 按钮文字（各语言），用来找可点击区域
 LABELS = {
-    "zh-CN": {"changes": "变更", "graph": "图谱", "branch": "分支", "done": "完成", "all": "✕"},
-    "zh-TW": {"changes": "變更", "graph": "圖譜", "branch": "分支", "done": "完成", "all": "✕"},
-    "en": {"changes": "Changes", "graph": "Graph", "branch": "Branches", "done": "Done", "all": "✕"},
-    "ja": {"changes": "変更", "graph": "グラフ", "branch": "ブランチ", "done": "完了", "all": "✕"},
-    "ko": {"changes": "변경", "graph": "그래프", "branch": "브랜치", "done": "완료", "all": "✕"},
+    "zh-CN": {"changes": "变更", "graph": "图谱", "switch": "切换分支", "back": "返回", "done": "完成", "all": "✕"},
+    "zh-TW": {"changes": "變更", "graph": "圖譜", "switch": "切換分支", "back": "返回", "done": "完成", "all": "✕"},
+    "en": {"changes": "Changes", "graph": "Graph", "switch": "Switch branch", "back": "Back", "done": "Done", "all": "✕"},
+    "ja": {"changes": "変更", "graph": "グラフ", "switch": "ブランチ切替", "back": "戻る", "done": "完了", "all": "✕"},
+    "ko": {"changes": "변경", "graph": "그래프", "switch": "브랜치 전환", "back": "돌아가기", "done": "완료", "all": "✕"},
 }
 
 SGR = re.compile(r"\x1b\[([0-9;:]*)m")
@@ -300,10 +300,10 @@ for L in LANGS:
     bottom = [ROWS - 2]
     hs = {}
     g = grids["changes"]
-    hs["changes"] = [hot(g, lab, "graph", [1], "graph")]
+    hs["changes"] = [hot(g, lab, "graph", [1], "graph"), hot(g, lab, "switch", bottom, "switch")]
     for sc, back in (("graph", None), ("graphf", "graph")):
         g = grids[sc]
-        lst = [hot(g, lab, "changes", [1], "changes"), hot(g, lab, "branch", bottom, "picker")]
+        lst = [hot(g, lab, "changes", [1], "changes"), hot(g, lab, "switch", bottom, "switch")]
         runs = right_runs(g[1])
         if runs:  # 最右边是分支筛选按钮
             a, e = runs[0]
@@ -312,6 +312,8 @@ for L in LANGS:
             a, e = runs[1]
             lst.append({"r": 1, "c": a, "w": e - a, "to": back})
         hs[sc] = lst
+    g = grids["switch"]  # 分支切换面板：「返回」回到打开它之前的页面
+    hs["switch"] = [hot(g, lab, "back", range(ROWS - 3, ROWS), "back")]
     g = grids["picker"]
     hs["picker"] = [hot(g, lab, "done", range(ROWS - 3, ROWS), "graphf")]
     data["hot"] = {k: [h for h in v if h] for k, v in hs.items()}

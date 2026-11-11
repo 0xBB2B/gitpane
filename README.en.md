@@ -37,7 +37,7 @@
 
 ## Highlights
 
-- **Point and click everywhere**: click a file to see its diff, click `+` / `-` to stage, click folders to collapse, scroll through history, double-click to switch branches — and the keyboard is just as fast.
+- **Point and click everywhere**: click a file to see its diff, click `+` / `-` to stage, click folders to collapse, scroll through history, click a button to switch branches — and the keyboard is just as fast.
 - **A commit graph that's actually readable**: Gitpane lays out the lanes itself — one commit per row, forks and merges joined with rounded lines on the same row, and every branch keeps its color.
 - **History by branch**: pick any mix of local and remote branches and the graph shows only those; it keeps loading as you scroll, all the way to the first commit.
 - **Collapsible commit details**: one row per file with `+added -removed`; open the ones you care about and see the shape of a large commit at a glance.
@@ -86,7 +86,7 @@ Press `?` for every key binding, `q` to quit.
   </tr>
   <tr>
     <td align="center"><sub>Changes: stage / unstage from a folder tree, diff on the right</sub></td>
-    <td align="center"><sub>Branch picker: select several branches, double-click to switch</sub></td>
+    <td align="center"><sub>Branch filter: select several branches to see just their history</sub></td>
   </tr>
 </table>
 
@@ -115,10 +115,10 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Graph**: a custom lane layout with one commit per row; forks and merges are joined on the same row with `╭ ╮ ╰ ╯ ├ ┤ ┴ ┼`, and each branch keeps its color.
   `◉` marks HEAD and `○` a merge commit (with a dimmed subject). HEAD, local branches, remote branches and tags are color-coded.
   Scrolling to the bottom loads more, so the entire history is reachable.
-- **Switch branches**: press `B` on any tab (or click “⎇ Switch branch” at the bottom of Changes) for the switcher; click to switch, `/` to filter.
+- **Switch branches**: press `b` on any tab (or click “⎇ Switch branch” at the bottom of Changes or Graph) for the switcher; click to switch, `/` to filter.
   A remote branch gets a local tracking branch of the same name; a branch checked out in another worktree takes you to that worktree; if uncommitted changes conflict, you're told to commit or stash first and nothing is lost.
-- **Branch filter**: all branches are shown by default. Click “⎇ All branches ▾” on the right of the tab bar (or press `b`) to open the picker,
-  select any local or remote branches to see just their history, and click “✕ All” to reset. Double-click or press `s` in the picker to check a branch out (a tracking branch is created for remote branches).
+- **Branch filter**: all branches are shown by default. Click “⎇ All branches ▾” on the right of the tab bar to open the picker (the only place to change it),
+  select any local or remote branches to see just their history, and click “✕ All” to reset. The picker only chooses what is shown; use `b` to switch branches.
 - **Commit details**: the commit message plus one row per file (with `+added -removed`); click a file name to expand or collapse its changes.
   Single-file commits open expanded and multi-file commits start collapsed; `z` or the button in the header toggles them all.
 - **Actions**: commit, pull, push (sets `-u origin HEAD` when there's no upstream), fetch, tagging (select a commit in the graph and press `T`; Enter creates and pushes, and push also sends new tags), discard changes (confirmed twice), git init.
@@ -139,8 +139,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `Space` | Stage / unstage the current row |
 | `Enter` `←` `→` | Collapse / expand folders (`←` on a file jumps to its folder) |
 | `z` | Changes: collapse / expand all folders; Graph: expand / collapse all files in commit details |
-| `b` | Open the branch picker (Space to toggle, `a` show all, `s` check out, Esc to go back) |
-| `B` | Switch branch (any tab; click or Enter to switch, `/` to filter) |
+| `b` | Switch branch (any tab; click or Enter to switch, `/` to filter) |
 | `o` | Switch between repos found in subfolders (when started outside a repo; `/` to filter, Enter to open) |
 | `t` | Switch worktree (git worktree) to see its uncommitted changes |
 | `c` | Commit (input at the bottom, Enter to confirm, Esc to cancel) |

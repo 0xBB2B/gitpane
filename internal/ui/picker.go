@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,9 +15,9 @@ import (
 
 // 分支选择面板：图谱页里按 b、点标签栏右侧的「⎇ 全部分支 ▾」或点顶部分支名打开。
 // 勾选一个或多个分支后，图谱只显示这些分支；一个都不勾 = 显示全部。
-// 在这里也可以切换当前分支（双击，或选中后按 s / 点「切换到此分支」）。
+// 这个面板只负责筛选，不切换分支。
 //
-// 切换模式（任意页按 B，或点变更页底部的「⎇ 切换分支」）：不显示勾选框，单击就切换；
+// 切换模式（任意页按 b，或点底部的「⎇ 切换分支」）：不显示勾选框，单击就切换；
 // 按 / 输入关键字筛选；已在其他工作树检出的分支，选它就切换到那个工作树。
 
 type pickRow struct {
@@ -206,7 +205,7 @@ func (m Model) handlePickKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 	rows := m.pickRows()
 	switch k.String() {
-	case "esc", "enter", "q", "b":
+	case "esc", "enter", "q":
 		m.picking = false
 	case "ctrl+c":
 		m.picking = false
@@ -229,8 +228,6 @@ func (m Model) handlePickKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case "a":
 		return m, m.setGraphRefs(nil)
-	case "s":
-		return m, m.pickSwitch()
 	}
 	return m, nil
 }
@@ -266,7 +263,7 @@ func (m Model) handleSwitchPickKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 	rows := m.pickRows()
 	switch k.String() {
-	case "esc", "q", "B":
+	case "esc", "q", "b":
 		m.picking = false
 	case "ctrl+c":
 		m.picking = false
@@ -343,14 +340,8 @@ func (m Model) handlePickMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 		m.pickClamp()
 		return m, m.pickSwitch()
 	}
-	double := i == m.lastClickRow && time.Since(m.lastClickAt) < 400*time.Millisecond
-	m.lastClickRow, m.lastClickAt = i, time.Now()
 	m.pickCursor = i
 	m.pickClamp()
-	if double {
-		// 双击：第二下把勾选还原，然后切换分支
-		return m, tea.Batch(m.togglePick(m.branches[rows[i].bi].Name), m.pickSwitch())
-	}
 	return m, m.togglePick(m.branches[rows[i].bi].Name)
 }
 
@@ -364,7 +355,6 @@ func (m Model) pickButtons() []button {
 	return place(1, m.w, []button{
 		{id: "pickDone", label: icons.check + i18n.T(" 完成"), kind: btnPrimary},
 		{id: "pickAll", label: i18n.T("显示全部")},
-		{id: "pickSwitch", label: i18n.T("⇄ 切换到此分支")},
 	})
 }
 
@@ -409,7 +399,7 @@ func (m Model) viewPicker() string {
 			rightAlign(m.w, cBar,
 				[]seg{sg(" "+icons.branch+i18n.T(" 选择要显示的分支 "), lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
 				[]seg{sg(sel+" ", fg(cYellow))}),
-			paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部 · 双击或 s 切换到该分支"), fg(cFaint))))
+			paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部"), fg(cFaint))))
 	}
 
 	h := m.pickListH()

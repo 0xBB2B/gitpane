@@ -309,7 +309,7 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "2":
 		return m, m.switchTab(tabGraph)
 	case "b":
-		return m, m.openPicker()
+		return m, m.openSwitchPicker() // 切换分支；图谱显示哪些分支只能点右上角的「⎇ 全部分支 ▾」修改
 	case "o":
 		if m.workspace == "" {
 			m.setMsg(lvInfo, i18n.T("启动目录本身就是仓库，没有可切换的子仓库"))
@@ -335,8 +335,6 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.openWorktreePicker()
 	case "T":
 		return m, m.beginTag()
-	case "B":
-		return m, m.openSwitchPicker()
 	case "J", "ctrl+d":
 		m.detailOff += max(1, g.detailH/2)
 		m.clampOffset()
@@ -783,7 +781,7 @@ func (m *Model) doAction(id string) tea.Cmd {
 	case "foldAll":
 		m.toggleAllFolders()
 		return m.syncDetail()
-	case "filter", "picker":
+	case "filter":
 		return m.openPicker()
 	case "filterClear":
 		return m.setGraphRefs(nil)
