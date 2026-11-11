@@ -187,10 +187,11 @@ func (m *Model) pickSwitch() tea.Cmd {
 		m.setMsg(lvInfo, i18n.Tf("已经在 %s 上", b.Name))
 		return nil
 	}
-	// 这个分支已经在另一个工作树里检出了（git 不允许同时检出两次）：直接切到那个工作树
+	// 这个分支已经在另一个工作区里检出了（git 不允许同时检出两次）：直接切到那个工作区，不执行 git switch
 	if wi := m.branchWorktree(b); wi >= 0 {
 		m.picking = false
-		return m.switchWorktree(wi)
+		w := m.worktrees[wi]
+		return m.openWorktree(w, i18n.Tf("%s 已在工作区 %s 检出，已切到那个工作区（没有执行 git switch）", b.Name, filepath.Base(w.Path)))
 	}
 	repo := m.repo
 	if m.pickSwitchMode {

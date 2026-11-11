@@ -125,7 +125,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
 - **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
   One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.
-- **Worktrees**: when you work on several branches in parallel with `git worktree`, a “◫ Worktree: branch ▾” button appears at the top right of the Changes tab (or press `t`).
+- **Worktrees**: when you work on several branches in parallel with `git worktree`, a “◫ Worktree: folder ▾” button appears at the top right of the Changes tab (or press `t`).
   It lists every worktree with its change count; switch to one to view, stage and commit its uncommitted changes. The graph is shared, so its position and filter stay put.
 - **Select and copy**: drag in any pane to select text; it's copied when you let go. The selection stays within the pane you started in, and code copied from a diff drops the line numbers and `+` / `-`, with wrapped lines joined back together.
 - Refreshes every 2 seconds, so changes made by other tools (an AI assistant writing code, say) show up right away.

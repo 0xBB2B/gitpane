@@ -188,11 +188,10 @@ func init() {
 		"%d 个工作区":                        "%d worktrees",
 		"↑↓ 选择 · 回车或单击切换 · Esc 返回":       "↑↓ select · Enter or click to switch · Esc back",
 		"切换工作区（git worktree），查看各自未提交的改动": "Switch worktree (git worktree) to see its uncommitted changes",
-		"工作区：%s":             "Worktree: %s",
-		"已切换到工作区 %s":         "Switched to worktree %s",
+		"工作区：%s": "Worktree: %s",
 		"工作区 %s 已被删除，已回到 %s": "Worktree %s was removed; back to %s",
-		"已锁定":                "locked",
-		"游离 %s":              "detached %s",
+		"已锁定":   "locked",
+		"游离 %s": "detached %s",
 		"这个仓库只有一个工作区（可以用 git worktree add 新建）": "This repository has only one worktree (create more with git worktree add)",
 		"点右上角仓库名":            "Click the repo name (top right)",
 		"切换仓库（子仓库模式，也可以按 o）": "Switch repository (subrepo mode; o works too)",
@@ -241,5 +240,7 @@ func init() {
 		"点右上角「◫ 工作区 ▾」":                               "Click “◫ Worktree ▾” (top right)",
 		"变更页，有多个工作区（git worktree）时切换，不会执行 git switch": "On Changes, switch between worktrees when there are several; does not run git switch",
 		"切换工作区": "Switch worktree",
+		"已切换到工作区 %s（分支 %s，没有执行 git switch）":        "Switched to worktree %s (branch %s; no git switch was run)",
+		"%s 已在工作区 %s 检出，已切到那个工作区（没有执行 git switch）": "%s is checked out in worktree %s; switched to that worktree (no git switch was run)",
 	})
 }

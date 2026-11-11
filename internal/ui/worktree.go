@@ -77,13 +77,8 @@ func (m Model) worktreeButton() (button, bool) {
 	if m.tab != tabChanges || len(m.worktrees) < 2 {
 		return button{}, false
 	}
-	label := ""
-	if i := m.currentWorktree(); i >= 0 {
-		label = m.worktrees[i].Label()
-	} else if m.status != nil {
-		label = m.status.Branch
-	}
-	return button{id: "worktree", label: icons.wt + " " + i18n.Tf("工作区：%s", label) + " ▾", kind: btnPrimary}, true
+	// 工作区按目录名显示，不用分支名：切换分支（git switch）时它不会跟着变，只有换了目录才变
+	return button{id: "worktree", label: icons.wt + " " + i18n.Tf("工作区：%s", filepath.Base(m.repo.Root)) + " ▾", kind: btnPrimary}, true
 }
 
 func (m *Model) openWorktreePicker() tea.Cmd {
@@ -106,6 +101,11 @@ func (m *Model) switchWorktree(i int) tea.Cmd {
 		return nil
 	}
 	w := m.worktrees[i]
+	return m.openWorktree(w, i18n.Tf("已切换到工作区 %s（分支 %s，没有执行 git switch）", filepath.Base(w.Path), w.Label()))
+}
+
+// openWorktree 把面板切到工作区 w，成功后显示 msg。
+func (m *Model) openWorktree(w gitx.Worktree, msg string) tea.Cmd {
 	m.wtPicking = false
 	if m.repo != nil && samePath(m.repo.Root, w.Path) {
 		return nil
@@ -118,8 +118,8 @@ func (m *Model) switchWorktree(i int) tea.Cmd {
 		m.setMsg(lvErr, gitx.Describe(err))
 		return nil
 	}
-	m.tab = tabChanges // 切工作树就是为了看它的改动
-	m.setMsg(lvOK, i18n.Tf("已切换到工作区 %s", w.Label()))
+	m.tab = tabChanges // 切工作区就是为了看它的改动
+	m.setMsg(lvOK, msg)
 	return m.refreshCmd()
 }
 
@@ -155,9 +155,6 @@ func (m Model) worktreeGone() bool {
 func (m *Model) leaveGoneWorktree() tea.Cmd {
 	gone := m.repo.Root
 	label := filepath.Base(gone)
-	if i := m.currentWorktree(); i >= 0 {
-		label = m.worktrees[i].Label()
-	}
 	for _, w := range m.worktrees {
 		if samePath(w.Path, gone) {
 			continue
@@ -169,7 +166,7 @@ func (m *Model) leaveGoneWorktree() tea.Cmd {
 			continue
 		}
 		m.worktrees, m.wtPicking = nil, false
-		m.setMsg(lvInfo, i18n.Tf("工作区 %s 已被删除，已回到 %s", label, w.Label()))
+		m.setMsg(lvInfo, i18n.Tf("工作区 %s 已被删除，已回到 %s", label, filepath.Base(w.Path)))
 		return m.refreshCmd()
 	}
 	return nil
@@ -293,11 +290,13 @@ func (m Model) viewWorktreePicker() string {
 		if i == cur {
 			dot, nameSt = " ● ", fg(cGreen).Bold(true)
 		}
-		name := w.Label()
+		// 以目录为主（工作区就是一个目录），后面是它检出的分支
+		branch := w.Label()
 		if w.Detached {
-			name = i18n.Tf("游离 %s", name)
+			branch = i18n.Tf("游离 %s", branch)
 		}
-		left := []seg{sg(dot, fg(cGreen)), sg(icons.branch+" ", fg(cPurple)), sg(name, nameSt), sg("   "+wtPath(base, w.Path), fg(cMuted))}
+		dir := wtPath(base, w.Path)
+		left := []seg{sg(dot, fg(cGreen)), sg(icons.wt+" ", fg(cAccent)), sg(dir, nameSt), sg("   "+icons.branch+" "+branch, fg(cPurple))}
 		var right []seg
 		if w.Locked {
 			right = append(right, sg(i18n.T("已锁定")+"  ", fg(cFaint)))
