@@ -215,9 +215,8 @@ func init() {
 		"创建并推送":  "Create & push",
 		"仅在本地创建": "Create locally only",
 		"给选中的提交打标签：回车创建并推送（推送分支时也会带上新标签）": "Tag the selected commit: Enter creates and pushes (pushing the branch also sends new tags)",
-		"切换分支":   "Switch branch",
-		"工作区 %s": "worktree %s",
-		"当前：%s":  "current: %s",
+		"切换分支":  "Switch branch",
+		"当前：%s": "current: %s",
 		"有未提交的改动也可以切换（git 会带过去）；冲突时会提示先提交或暂存":     "Uncommitted changes come along when git can carry them; on a conflict you'll be asked to commit or stash first",
 		"未提交的改动和目标分支冲突（%s），先提交或暂存（git stash）后再切换": "Uncommitted changes conflict with the target branch (%s); commit or stash (git stash) first",
 		"没有包含「%s」的分支":             "No branches matching “%s”",
@@ -242,6 +241,9 @@ func init() {
 		"切换工作区": "Switch worktree",
 		"已切换到工作区 %s（分支 %s，没有执行 git switch）":        "Switched to worktree %s (branch %s; no git switch was run)",
 		"%s 已在工作区 %s 检出，已切到那个工作区（没有执行 git switch）": "%s is checked out in worktree %s; switched to that worktree (no git switch was run)",
-		"主工作区": "main worktree",
+		"主工作区":     "main worktree",
+		"在工作区 %s":  "in worktree %s",
+		"当前工作区 %s": "this worktree %s",
+		"会在工作区 %s 里执行 git switch，其他工作区不受影响": "Runs git switch in worktree %s; other worktrees are untouched",
 	})
 }

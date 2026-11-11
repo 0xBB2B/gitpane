@@ -389,7 +389,7 @@ func (m Model) viewPicker() string {
 		lines = append(lines,
 			rightAlign(m.w, cBar,
 				[]seg{sg(" "+icons.swap+" "+i18n.T("切换分支")+" ", btnStyle(btnSwitch)),
-					sg("  "+i18n.T("会执行 git switch，工作区会换成所选分支"), fg(cOrange))},
+					sg("  "+m.switchNote(), fg(cOrange))},
 				[]seg{sg(cur+" ", fg(cGreen))}),
 			paint(m.w, nil, hint))
 	} else {
@@ -444,14 +444,16 @@ func (m Model) viewPicker() string {
 		if strings.Contains(b.Track, "gone") {
 			left = append(left, sg(i18n.T(" 上游已删除"), fg(cRed)))
 		}
+		// 有多个工作区时，紧挨着分支名标出它检出在哪个工作区（放在最右边容易看不到）
+		if wi := m.branchWorktree(b); wi >= 0 {
+			left = append(left, sg("  "+icons.wt+" "+i18n.Tf("在工作区 %s", filepath.Base(filepath.FromSlash(m.worktrees[wi].Path))), fg(cCyan)))
+		} else if b.Current && len(m.worktrees) > 1 && m.repo != nil {
+			left = append(left, sg("  "+icons.wt+" "+i18n.Tf("当前工作区 %s", filepath.Base(m.repo.Root)), fg(cGreen)))
+		}
 		if b.Upstream != "" {
 			left = append(left, sg("  → "+b.Upstream, fg(cFaint)))
 		}
 		right := []seg{sg(b.When+" ", fg(cFaint))}
-		if wi := m.branchWorktree(b); wi >= 0 {
-			// 已在其他工作树检出：选它会切到那个工作树
-			right = append([]seg{sg(i18n.Tf("工作区 %s", filepath.Base(filepath.FromSlash(m.worktrees[wi].Path)))+"  ", fg(cCyan))}, right...)
-		}
 		lines = append(lines, rightAlign(m.w, bg, left, right))
 	}
 	if len(rows) == 0 {
@@ -484,4 +486,12 @@ func (m Model) viewPicker() string {
 		lines = append(lines, paint(m.w, nil, sg(tip, fg(cFaint))))
 	}
 	return strings.Join(lines, "\n")
+}
+
+// switchNote 是切换分支面板标题旁的说明；有多个工作区时写明在哪个工作区执行 git switch。
+func (m Model) switchNote() string {
+	if len(m.worktrees) > 1 && m.repo != nil {
+		return i18n.Tf("会在工作区 %s 里执行 git switch，其他工作区不受影响", filepath.Base(m.repo.Root))
+	}
+	return i18n.T("会执行 git switch，工作区会换成所选分支")
 }
