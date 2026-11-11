@@ -129,6 +129,7 @@ const (
 	btnNormal btnKind = iota
 	btnPrimary
 	btnDanger
+	btnSwitch // 会改动工作区的「切换分支」：橙色，和只改显示的蓝色按钮区分开
 )
 
 type button struct {
@@ -190,13 +191,13 @@ func (m Model) bottomButtons() []button {
 	var bs []button
 	switch m.tab {
 	case tabChanges:
-		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}, {id: "switchBranch", label: icons.branch + i18n.T(" 切换分支")}}
+		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
 		if r, ok := m.currentRow(); ok && r.kind == rowFile && r.sec == secChanges {
 			bs = append(bs, button{id: "discard", label: i18n.T("✕ 放弃"), kind: btnDanger})
 		}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	case tabGraph:
-		bs = []button{{id: "switchBranch", label: icons.branch + i18n.T(" 切换分支"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "tag", label: "◆ " + i18n.T("标签")}}
+		bs = []button{{id: "switchBranch", label: icons.swap + i18n.T(" 切换分支"), kind: btnSwitch}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "tag", label: "◆ " + i18n.T("标签")}}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
@@ -208,6 +209,8 @@ func btnStyle(k btnKind) lipgloss.Style {
 		return lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true)
 	case btnDanger:
 		return lipgloss.NewStyle().Background(cSurface).Foreground(cRed)
+	case btnSwitch:
+		return lipgloss.NewStyle().Background(cOrange).Foreground(cOnPill).Bold(true)
 	}
 	return lipgloss.NewStyle().Background(cSurface).Foreground(cText)
 }
@@ -456,7 +459,7 @@ func (m Model) tabRightButtons() []button {
 		x -= w + 1
 	}
 	if len(bs) > 0 && bs[0].x0 < 28 {
-		return nil // 太窄就不显示，用键盘（z / b）
+		return nil // 太窄就不显示
 	}
 	return bs
 }
@@ -754,9 +757,9 @@ func (m Model) viewStatus() string {
 		}
 		return paint(m.w, nil, sg(" "+icon+" ", fg(col).Bold(true)), sg(m.msg, fg(col)))
 	}
-	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"b", i18n.T("切换分支")}, {"Tab", i18n.T("切换")}}
+	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"Tab", i18n.T("切换")}}
 	if len(m.worktrees) > 1 {
-		keys = append([][2]string{keys[0], {"t", i18n.T("工作树")}}, keys[1:]...)
+		keys = append([][2]string{keys[0], {"t", i18n.T("切换工作区")}}, keys[1:]...)
 	}
 	switch m.tab {
 	case tabGraph:
@@ -815,30 +818,28 @@ func (m Model) viewHelp() string {
 			{"a  u", i18n.T("全部暂存 / 全部取消暂存")},
 			{"c", i18n.T("提交（回车确认，Esc 取消）")},
 			{"x", i18n.T("放弃当前文件的改动（按两次确认）")},
-			{"t", i18n.T("切换工作树（git worktree），查看各自未提交的改动")},
-			{"b", i18n.T("切换分支（任意页面都能用；已在其他工作树检出的分支会直接切到那个工作树）")},
+			{"t", i18n.T("切换工作区（git worktree），查看各自未提交的改动")},
 		}},
 		{i18n.T("图谱与分支"), []item{
-
+			{"b", i18n.T("切换分支，会执行 git switch（只在图谱页；已在其他工作区检出的分支会直接切到那个工作区）")},
 			{"o", i18n.T("切换子目录里的仓库（启动目录不是仓库时）")},
 			{"z", i18n.T("提交详情里全部展开 / 折叠文件")},
 			{"p  P  f", "pull / push / fetch"},
 			{"T", i18n.T("给选中的提交打标签：回车创建并推送（推送分支时也会带上新标签）")},
-			{i18n.T("s / 双击"), i18n.T("在分支选择面板里切换到该分支")},
 		}},
 		{i18n.T("鼠标"), []item{
 			{i18n.T("点文件"), i18n.T("查看 diff；点右侧 + / - 暂存或取消")},
 			{i18n.T("点目录 / 分组"), i18n.T("折叠；分组右侧按钮批量操作")},
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
-			{i18n.T("点「切换分支」"), i18n.T("打开分支切换面板（变更页、图谱页底部）")},
-			{i18n.T("点右上角「全部分支 ▾」"), i18n.T("选择图谱要显示哪些分支（可多选，只有这里能改）")},
+			{i18n.T("点「⇄ 切换分支」"), i18n.T("打开分支切换面板，会执行 git switch（图谱页底部）")},
+			{i18n.T("点右上角「⊚ 查看：全部分支 ▾」"), i18n.T("选择图谱要显示哪些分支（只改变显示，不切换分支）")},
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
 			{i18n.T("拖动选中文字"), i18n.T("松开即复制；只选起点所在的那一栏，复制代码时自动去掉行号")},
 			{i18n.T("Shift + 拖动"), i18n.T("用终端自带的选择（iTerm2 按住 Option，macOS 终端按住 Fn）")},
 			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式，也可以按 o）")},
-			{i18n.T("点「工作树」"), i18n.T("变更页标签栏右侧，有多个工作树时切换")},
+			{i18n.T("点右上角「◫ 工作区 ▾」"), i18n.T("变更页，有多个工作区（git worktree）时切换，不会执行 git switch")},
 		}},
 	}
 	quit := i18n.T("Ctrl+C 两次")

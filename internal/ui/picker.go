@@ -13,11 +13,11 @@ import (
 	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
-// 分支选择面板：图谱页里按 b、点标签栏右侧的「⎇ 全部分支 ▾」或点顶部分支名打开。
+// 查看分支面板：只能点图谱页标签栏右侧的「⊚ 查看：全部分支 ▾」打开（蓝色）。
 // 勾选一个或多个分支后，图谱只显示这些分支；一个都不勾 = 显示全部。
 // 这个面板只负责筛选，不切换分支。
 //
-// 切换模式（任意页按 b，或点底部的「⎇ 切换分支」）：不显示勾选框，单击就切换；
+// 切换模式（任意页按 b，或点底部橙色的「⇄ 切换分支」）：不显示勾选框，单击就切换；
 // 按 / 输入关键字筛选；已在其他工作树检出的分支，选它就切换到那个工作树。
 
 type pickRow struct {
@@ -348,7 +348,7 @@ func (m Model) handlePickMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 func (m Model) pickButtons() []button {
 	if m.pickSwitchMode {
 		return place(1, m.w, []button{
-			{id: "pickSwitch", label: i18n.T("⇄ 切换到此分支"), kind: btnPrimary},
+			{id: "pickSwitch", label: icons.swap + " " + i18n.T("切换到此分支"), kind: btnSwitch},
 			{id: "pickBack", label: i18n.T("返回")},
 		})
 	}
@@ -362,11 +362,11 @@ func (m Model) pickButtons() []button {
 func (m Model) filterLabel() string {
 	switch len(m.graphRefs) {
 	case 0:
-		return icons.branch + i18n.T(" 全部分支 ▾")
+		return icons.view + " " + i18n.Tf("查看：%s", i18n.T("全部分支")) + " ▾"
 	case 1:
-		return icons.branch + " " + m.graphRefs[0] + " ▾"
+		return icons.view + " " + i18n.Tf("查看：%s", m.graphRefs[0]) + " ▾"
 	}
-	return fmt.Sprintf("%s %s +%d ▾", icons.branch, m.graphRefs[0], len(m.graphRefs)-1)
+	return icons.view + " " + i18n.Tf("查看：%s", fmt.Sprintf("%s +%d", m.graphRefs[0], len(m.graphRefs)-1)) + " ▾"
 }
 
 func (m Model) viewPicker() string {
@@ -387,7 +387,8 @@ func (m Model) viewPicker() string {
 		}
 		lines = append(lines,
 			rightAlign(m.w, cBar,
-				[]seg{sg(" "+icons.branch+" "+i18n.T("切换分支")+" ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
+				[]seg{sg(" "+icons.swap+" "+i18n.T("切换分支")+" ", btnStyle(btnSwitch)),
+					sg("  "+i18n.T("会执行 git switch，工作区会换成所选分支"), fg(cOrange))},
 				[]seg{sg(cur+" ", fg(cGreen))}),
 			paint(m.w, nil, hint))
 	} else {
@@ -397,7 +398,8 @@ func (m Model) viewPicker() string {
 		}
 		lines = append(lines,
 			rightAlign(m.w, cBar,
-				[]seg{sg(" "+icons.branch+i18n.T(" 选择要显示的分支 "), lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true))},
+				[]seg{sg(" "+icons.view+" "+i18n.T("查看分支")+" ", btnStyle(btnPrimary)),
+					sg("  "+i18n.T("只改变图谱显示哪些分支，不会切换分支"), fg(cAccent))},
 				[]seg{sg(sel+" ", fg(cYellow))}),
 			paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部"), fg(cFaint))))
 	}
@@ -447,7 +449,7 @@ func (m Model) viewPicker() string {
 		right := []seg{sg(b.When+" ", fg(cFaint))}
 		if wi := m.branchWorktree(b); wi >= 0 {
 			// 已在其他工作树检出：选它会切到那个工作树
-			right = append([]seg{sg(i18n.Tf("工作树 %s", filepath.Base(filepath.FromSlash(m.worktrees[wi].Path)))+"  ", fg(cCyan))}, right...)
+			right = append([]seg{sg(i18n.Tf("工作区 %s", filepath.Base(filepath.FromSlash(m.worktrees[wi].Path)))+"  ", fg(cCyan))}, right...)
 		}
 		lines = append(lines, rightAlign(m.w, bg, left, right))
 	}

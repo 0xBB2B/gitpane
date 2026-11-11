@@ -83,7 +83,7 @@ func (m Model) worktreeButton() (button, bool) {
 	} else if m.status != nil {
 		label = m.status.Branch
 	}
-	return button{id: "worktree", label: icons.branch + " " + i18n.Tf("工作树：%s", label) + " ▾", kind: btnPrimary}, true
+	return button{id: "worktree", label: icons.wt + " " + i18n.Tf("工作区：%s", label) + " ▾", kind: btnPrimary}, true
 }
 
 func (m *Model) openWorktreePicker() tea.Cmd {
@@ -91,7 +91,7 @@ func (m *Model) openWorktreePicker() tea.Cmd {
 		return nil
 	}
 	if len(m.worktrees) < 2 {
-		m.setMsg(lvInfo, i18n.T("这个仓库只有一个工作树（可以用 git worktree add 新建）"))
+		m.setMsg(lvInfo, i18n.T("这个仓库只有一个工作区（可以用 git worktree add 新建）"))
 		return nil
 	}
 	m.wtPicking = true
@@ -119,7 +119,7 @@ func (m *Model) switchWorktree(i int) tea.Cmd {
 		return nil
 	}
 	m.tab = tabChanges // 切工作树就是为了看它的改动
-	m.setMsg(lvOK, i18n.Tf("已切换到工作树 %s", w.Label()))
+	m.setMsg(lvOK, i18n.Tf("已切换到工作区 %s", w.Label()))
 	return m.refreshCmd()
 }
 
@@ -169,7 +169,7 @@ func (m *Model) leaveGoneWorktree() tea.Cmd {
 			continue
 		}
 		m.worktrees, m.wtPicking = nil, false
-		m.setMsg(lvInfo, i18n.Tf("工作树 %s 已被删除，已回到 %s", label, w.Label()))
+		m.setMsg(lvInfo, i18n.Tf("工作区 %s 已被删除，已回到 %s", label, w.Label()))
 		return m.refreshCmd()
 	}
 	return nil
@@ -278,8 +278,8 @@ func (m Model) viewWorktreePicker() string {
 	}
 	where := homeShort(base)
 	lines = append(lines, rightAlign(m.w, cBar,
-		[]seg{sg(" "+icons.branch+" "+i18n.T("选择工作树")+" ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true)), sg("  "+where, fg(cMuted))},
-		[]seg{sg(i18n.Tf("%d 个工作树", len(m.worktrees))+" ", fg(cYellow))}))
+		[]seg{sg(" "+icons.wt+" "+i18n.T("切换工作区")+" ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true)), sg("  "+where, fg(cMuted))},
+		[]seg{sg(i18n.Tf("%d 个工作区", len(m.worktrees))+" ", fg(cYellow))}))
 	lines = append(lines, paint(m.w, nil, sg(i18n.T("  ↑↓ 选择 · 回车或单击切换 · Esc 返回"), fg(cFaint))))
 
 	h := m.wtListH()

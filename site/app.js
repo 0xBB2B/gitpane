@@ -238,7 +238,7 @@
       if (k === "Escape" || k === "q" || k === "b") next = "back";
     } else if (k === "1") next = "changes";
     else if (k === "2") next = screen === "changes" ? "graph" : screen;
-    else if (k === "b") next = "switch";
+    else if (k === "b" && screen !== "changes") next = "switch"; // 切换分支只在图谱页
     if (next) {
       e.preventDefault();
       go(next, true);

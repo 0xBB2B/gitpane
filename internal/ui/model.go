@@ -89,7 +89,7 @@ type Model struct {
 	picking    bool
 	pickCursor int
 	pickOffset int
-	// 分支面板的「切换模式」（B / 变更页「⎇ 切换分支」）：单击即切换，可用 / 筛选
+	// 分支面板的「切换模式」（b / 底部「⇄ 切换分支」）：单击即切换，可用 / 筛选
 	pickSwitchMode bool
 	pickFilter     string
 	pickFiltering  bool

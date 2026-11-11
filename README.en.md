@@ -115,9 +115,9 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Graph**: a custom lane layout with one commit per row; forks and merges are joined on the same row with `╭ ╮ ╰ ╯ ├ ┤ ┴ ┼`, and each branch keeps its color.
   `◉` marks HEAD and `○` a merge commit (with a dimmed subject). HEAD, local branches, remote branches and tags are color-coded.
   Scrolling to the bottom loads more, so the entire history is reachable.
-- **Switch branches**: press `b` on any tab (or click “⎇ Switch branch” at the bottom of Changes or Graph) for the switcher; click to switch, `/` to filter.
+- **Switch branches**: on the Graph tab press `b` (or click the orange “⇄ Switch branch” at the bottom) for the switcher; a click runs `git switch`, `/` filters.
   A remote branch gets a local tracking branch of the same name; a branch checked out in another worktree takes you to that worktree; if uncommitted changes conflict, you're told to commit or stash first and nothing is lost.
-- **Branch filter**: all branches are shown by default. Click “⎇ All branches ▾” on the right of the tab bar to open the picker (the only place to change it),
+- **Branch filter**: all branches are shown by default. Click the blue “⊚ View: All branches ▾” at the top right of the Graph tab to open the picker (the only place to change it),
   select any local or remote branches to see just their history, and click “✕ All” to reset. The picker only chooses what is shown; use `b` to switch branches.
 - **Commit details**: the commit message plus one row per file (with `+added -removed`); click a file name to expand or collapse its changes.
   Single-file commits open expanded and multi-file commits start collapsed; `z` or the button in the header toggles them all.
@@ -125,7 +125,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
 - **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
   One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.
-- **Worktrees**: when you work on several branches in parallel with `git worktree`, a “⎇ Worktree: branch ▾” button appears at the right of the Changes tab bar (or press `t`).
+- **Worktrees**: when you work on several branches in parallel with `git worktree`, a “◫ Worktree: branch ▾” button appears at the top right of the Changes tab (or press `t`).
   It lists every worktree with its change count; switch to one to view, stage and commit its uncommitted changes. The graph is shared, so its position and filter stay put.
 - **Select and copy**: drag in any pane to select text; it's copied when you let go. The selection stays within the pane you started in, and code copied from a diff drops the line numbers and `+` / `-`, with wrapped lines joined back together.
 - Refreshes every 2 seconds, so changes made by other tools (an AI assistant writing code, say) show up right away.
@@ -139,7 +139,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `Space` | Stage / unstage the current row |
 | `Enter` `←` `→` | Collapse / expand folders (`←` on a file jumps to its folder) |
 | `z` | Changes: collapse / expand all folders; Graph: expand / collapse all files in commit details |
-| `b` | Switch branch (any tab; click or Enter to switch, `/` to filter) |
+| `b` | Switch branch with `git switch` (Graph tab; click or Enter to switch, `/` to filter) |
 | `o` | Switch between repos found in subfolders (when started outside a repo; `/` to filter, Enter to open) |
 | `t` | Switch worktree (git worktree) to see its uncommitted changes |
 | `c` | Commit (input at the bottom, Enter to confirm, Esc to cancel) |

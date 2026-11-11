@@ -432,7 +432,7 @@ func switchError(err error) error {
 		files := conflictFiles(msg)
 		return errors.New(i18n.Tf("未提交的改动和目标分支冲突（%s），先提交或暂存（git stash）后再切换", files))
 	case strings.Contains(msg, "is already used by worktree") || strings.Contains(msg, "is already checked out at"):
-		return errors.New(i18n.T("这个分支已在另一个工作树里检出，按 t 切换到那个工作树"))
+		return errors.New(i18n.T("这个分支已在另一个工作区里检出，按 t 切换到那个工作区"))
 	}
 	return err
 }

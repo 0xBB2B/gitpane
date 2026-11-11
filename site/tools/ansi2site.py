@@ -300,7 +300,7 @@ for L in LANGS:
     bottom = [ROWS - 2]
     hs = {}
     g = grids["changes"]
-    hs["changes"] = [hot(g, lab, "graph", [1], "graph"), hot(g, lab, "switch", bottom, "switch")]
+    hs["changes"] = [hot(g, lab, "graph", [1], "graph")]  # 变更页没有切换分支，只能在图谱页切
     for sc, back in (("graph", None), ("graphf", "graph")):
         g = grids[sc]
         lst = [hot(g, lab, "changes", [1], "changes"), hot(g, lab, "switch", bottom, "switch")]
