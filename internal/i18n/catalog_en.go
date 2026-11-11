@@ -231,7 +231,7 @@ func init() {
 		"查看：%s":  "View: %s",
 		"会执行 git switch，工作区会换成所选分支": "Runs git switch — your working tree changes to the selected branch",
 		"查看分支": "View branches",
-		"只改变图谱显示哪些分支，不会切换分支":       "Only changes which branches the graph shows; it does not switch branches",
+		"只改变图谱显示哪些分支，不会切换分支":       "Display only; does not switch branches",
 		"点「⇄ 切换分支」":                "Click “⇄ Switch branch”",
 		"点右上角「⊚ 查看：全部分支 ▾」":        "Click “⊚ View: All branches ▾” (top right)",
 		"选择图谱要显示哪些分支（只改变显示，不切换分支）": "Choose which branches the graph shows (display only; does not switch branches)",

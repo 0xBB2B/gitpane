@@ -82,11 +82,11 @@ Press `?` for every key binding, `q` to quit.
 <table>
   <tr>
     <td width="60%"><img src="docs/screenshots/en/changes.png" alt="Changes view: folder tree and diff"></td>
-    <td width="40%"><img src="docs/screenshots/en/picker.png" alt="Branch picker"></td>
+    <td width="40%"><img src="docs/screenshots/en/picker.png" alt="View branches picker"></td>
   </tr>
   <tr>
     <td align="center"><sub>Changes: stage / unstage from a folder tree, diff on the right</sub></td>
-    <td align="center"><sub>Branch filter: select several branches to see just their history</sub></td>
+    <td align="center"><sub>View branches: pick several to see just their history (no checkout)</sub></td>
   </tr>
 </table>
 
@@ -117,7 +117,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
   Scrolling to the bottom loads more, so the entire history is reachable.
 - **Switch branches**: on the Graph tab press `b` (or click the orange “⇄ Switch branch” at the bottom) for the switcher; a click runs `git switch`, `/` filters.
   A remote branch gets a local tracking branch of the same name; a branch checked out in another worktree takes you to that worktree; if uncommitted changes conflict, you're told to commit or stash first and nothing is lost.
-- **Branch filter**: all branches are shown by default. Click the blue “⊚ View: All branches ▾” at the top right of the Graph tab to open the picker (the only place to change it),
+- **View branches**: all branches are shown by default. Click the blue “⊚ View: All branches ▾” at the top right of the Graph tab to open the picker (the only place to change it),
   select any local or remote branches to see just their history, and click “✕ All” to reset. The picker only chooses what is shown; use `b` to switch branches.
 - **Commit details**: the commit message plus one row per file (with `+added -removed`); click a file name to expand or collapse its changes.
   Single-file commits open expanded and multi-file commits start collapsed; `z` or the button in the header toggles them all.

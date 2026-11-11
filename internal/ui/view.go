@@ -191,7 +191,7 @@ func (m Model) bottomButtons() []button {
 	var bs []button
 	switch m.tab {
 	case tabChanges:
-		bs = []button{{id: "commit", label: icons.check + i18n.T(" 提交"), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
+		bs = []button{{id: "commit", label: icons.check + " " + capFirst(i18n.T("提交")), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
 		if r, ok := m.currentRow(); ok && r.kind == rowFile && r.sec == secChanges {
 			bs = append(bs, button{id: "discard", label: i18n.T("✕ 放弃"), kind: btnDanger})
 		}
@@ -201,6 +201,14 @@ func (m Model) bottomButtons() []button {
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
+}
+
+// capFirst 把首字母大写：英文里「提交」和状态栏提示共用小写的 commit，按钮上要和 Pull / Push 一致。
+func capFirst(s string) string {
+	if s != "" && s[0] >= 'a' && s[0] <= 'z' {
+		return string(s[0]-'a'+'A') + s[1:]
+	}
+	return s
 }
 
 func btnStyle(k btnKind) lipgloss.Style {
