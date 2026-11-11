@@ -41,6 +41,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case statusMsg:
+		// 当前工作树的目录没了（在别处删除了工作树和分支）：自动回到主工作树，而不是一直报错
+		if msg.err != nil && m.worktreeGone() {
+			if cmd := m.leaveGoneWorktree(); cmd != nil {
+				return m, cmd
+			}
+		}
 		m.worktrees = msg.wts
 		if m.wtPicking {
 			if len(m.worktrees) < 2 {

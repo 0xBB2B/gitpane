@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"errors"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -111,10 +114,20 @@ func (m *Model) switchWorktree(i int) tea.Cmd {
 		m.setMsg(lvErr, i18n.Tf("上一个操作还在进行：%s", m.busy))
 		return nil
 	}
-	r, err := gitx.Open(w.Path)
-	if err != nil {
+	if err := m.enterWorktree(w.Path); err != nil {
 		m.setMsg(lvErr, gitx.Describe(err))
 		return nil
+	}
+	m.tab = tabChanges // 切工作树就是为了看它的改动
+	m.setMsg(lvOK, i18n.Tf("已切换到工作树 %s", w.Label()))
+	return m.refreshCmd()
+}
+
+// enterWorktree 把面板切到 path 这个工作树。
+func (m *Model) enterWorktree(path string) error {
+	r, err := gitx.Open(path)
+	if err != nil {
+		return err
 	}
 	m.repo = r
 	// 只清空和改动有关的状态；图谱是共享的历史，位置和筛选都保留
@@ -125,9 +138,41 @@ func (m *Model) switchWorktree(i int) tea.Cmd {
 	m.collapsed = map[string]bool{}
 	m.committing, m.confirmKey = false, ""
 	m.input.Blur()
-	m.tab = tabChanges // 切工作树就是为了看它的改动
-	m.setMsg(lvOK, i18n.Tf("已切换到工作树 %s", w.Label()))
-	return m.refreshCmd()
+	return nil
+}
+
+// worktreeGone 在当前工作树的目录已经不存在时返回 true（比如在别处 git worktree remove 了）。
+func (m Model) worktreeGone() bool {
+	if m.repo == nil {
+		return false
+	}
+	_, err := os.Stat(m.repo.Root)
+	return errors.Is(err, fs.ErrNotExist)
+}
+
+// leaveGoneWorktree 在当前工作树被删除后回到主工作树（默认分支）；没有可回的工作树时返回 nil。
+// 主工作树是 git worktree list 的第一项，它不能被删除；万一也不在了，就找下一个还在的。
+func (m *Model) leaveGoneWorktree() tea.Cmd {
+	gone := m.repo.Root
+	label := filepath.Base(gone)
+	if i := m.currentWorktree(); i >= 0 {
+		label = m.worktrees[i].Label()
+	}
+	for _, w := range m.worktrees {
+		if samePath(w.Path, gone) {
+			continue
+		}
+		if _, err := os.Stat(w.Path); err != nil {
+			continue
+		}
+		if m.enterWorktree(w.Path) != nil {
+			continue
+		}
+		m.worktrees, m.wtPicking = nil, false
+		m.setMsg(lvInfo, i18n.Tf("工作树 %s 已被删除，已回到 %s", label, w.Label()))
+		return m.refreshCmd()
+	}
+	return nil
 }
 
 func wtPath(base, p string) string {
