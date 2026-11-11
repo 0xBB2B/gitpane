@@ -335,6 +335,11 @@ func (m Model) viewHeader() string {
 		left = append(left, sg(i18n.T("读取中…"), fg(cMuted)))
 	default:
 		st := m.status
+		if len(m.worktrees) > 1 {
+			// 有多个工作区时先说明「在哪个目录」，分支是这个目录检出的分支；
+			// 否则切换工作区后只看到分支变了，容易以为执行了 git switch
+			left = append(left, sg(" "+icons.wt+" "+filepath.Base(m.repo.Root)+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cAccent).Bold(true)), sg(" ", lipgloss.NewStyle()))
+		}
 		if st.Detached {
 			left = append(left, sg(" "+icons.branch+i18n.T(" HEAD 游离 "), pill.Background(cYellow)))
 		} else {
@@ -363,7 +368,7 @@ func (m Model) viewHeader() string {
 		right = append(right, sg(" "+b.label+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cText)), sg(" ", lipgloss.NewStyle()))
 	} else if m.workspace != "" && m.repo != nil {
 		right = append(right, sg("⌂ "+m.repoRel()+" ", fg(cSub))) // 窗口太窄放不下按钮时只显示名字
-	} else if m.repo != nil {
+	} else if m.repo != nil && len(m.worktrees) < 2 { // 多个工作区时目录名已经在左边了
 		name := filepath.Base(m.repo.Root)
 		if icons.repo != "" {
 			name = icons.repo + " " + name

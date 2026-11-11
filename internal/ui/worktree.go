@@ -298,6 +298,9 @@ func (m Model) viewWorktreePicker() string {
 		dir := wtPath(base, w.Path)
 		left := []seg{sg(dot, fg(cGreen)), sg(icons.wt+" ", fg(cAccent)), sg(dir, nameSt), sg("   "+icons.branch+" "+branch, fg(cPurple))}
 		var right []seg
+		if i == 0 { // git worktree list 的第一项是主工作区（仓库本身的目录）
+			left = append(left, sg("  "+i18n.T("主工作区"), fg(cFaint)))
+		}
 		if w.Locked {
 			right = append(right, sg(i18n.T("已锁定")+"  ", fg(cFaint)))
 		}

@@ -242,5 +242,6 @@ func init() {
 		"切换工作区": "Switch worktree",
 		"已切换到工作区 %s（分支 %s，没有执行 git switch）":        "Switched to worktree %s (branch %s; no git switch was run)",
 		"%s 已在工作区 %s 检出，已切到那个工作区（没有执行 git switch）": "%s is checked out in worktree %s; switched to that worktree (no git switch was run)",
+		"主工作区": "main worktree",
 	})
 }
