@@ -191,7 +191,7 @@ func (m *Model) pickSwitch() tea.Cmd {
 	if wi := m.branchWorktree(b); wi >= 0 {
 		m.picking = false
 		w := m.worktrees[wi]
-		return m.openWorktree(w, i18n.Tf("%s 已在工作区 %s 检出，已切到那个工作区（没有执行 git switch）", b.Name, filepath.Base(w.Path)))
+		return m.openWorktree(w, i18n.Tf("已切换到工作区 %s", filepath.Base(w.Path)))
 	}
 	repo := m.repo
 	if m.pickSwitchMode {
@@ -388,8 +388,7 @@ func (m Model) viewPicker() string {
 		}
 		lines = append(lines,
 			rightAlign(m.w, cBar,
-				[]seg{sg(" "+icons.swap+" "+i18n.T("切换分支")+" ", btnStyle(btnSwitch)),
-					sg("  "+m.switchNote(), fg(cOrange))},
+				[]seg{sg(" "+icons.swap+" "+i18n.T("切换分支")+" ", btnStyle(btnSwitch))},
 				[]seg{sg(cur+" ", fg(cGreen))}),
 			paint(m.w, nil, hint))
 	} else {
@@ -399,8 +398,7 @@ func (m Model) viewPicker() string {
 		}
 		lines = append(lines,
 			rightAlign(m.w, cBar,
-				[]seg{sg(" "+icons.view+" "+i18n.T("查看分支")+" ", btnStyle(btnPrimary)),
-					sg("  "+i18n.T("只改变图谱显示哪些分支，不会切换分支"), fg(cAccent))},
+				[]seg{sg(" "+icons.view+" "+i18n.T("查看分支")+" ", btnStyle(btnPrimary))},
 				[]seg{sg(sel+" ", fg(cYellow))}),
 			paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部"), fg(cFaint))))
 	}
@@ -486,12 +484,4 @@ func (m Model) viewPicker() string {
 		lines = append(lines, paint(m.w, nil, sg(tip, fg(cFaint))))
 	}
 	return strings.Join(lines, "\n")
-}
-
-// switchNote 是切换分支面板标题旁的说明；有多个工作区时写明在哪个工作区执行 git switch。
-func (m Model) switchNote() string {
-	if len(m.worktrees) > 1 && m.repo != nil {
-		return i18n.Tf("会在工作区 %s 里执行 git switch，其他工作区不受影响", filepath.Base(m.repo.Root))
-	}
-	return i18n.T("会执行 git switch，工作区会换成所选分支")
 }

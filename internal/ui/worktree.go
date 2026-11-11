@@ -101,7 +101,7 @@ func (m *Model) switchWorktree(i int) tea.Cmd {
 		return nil
 	}
 	w := m.worktrees[i]
-	return m.openWorktree(w, i18n.Tf("已切换到工作区 %s（分支 %s，没有执行 git switch）", filepath.Base(w.Path), w.Label()))
+	return m.openWorktree(w, i18n.Tf("已切换到工作区 %s", filepath.Base(w.Path)))
 }
 
 // openWorktree 把面板切到工作区 w，成功后显示 msg。
