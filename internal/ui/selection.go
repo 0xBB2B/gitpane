@@ -220,17 +220,25 @@ func (m *Model) handleSelect(ev tea.MouseMsg) (bool, tea.Cmd) {
 
 type copiedMsg struct {
 	lines int
+	what  string // 非空时提示「已复制 what」，否则提示行数
 	err   error
 }
 
 // copyCmd 把文字放进剪贴板：本机用系统剪贴板；通过 SSH 连接时（或系统剪贴板不可用时）
 // 用 OSC 52 让终端写到它所在电脑的剪贴板。
-func copyCmd(text string) tea.Cmd {
-	return func() tea.Msg {
+func copyCmd(text string) tea.Cmd { return copyAs(text, "") }
+
+// copyAs 复制 text，成功后提示「已复制 what」。
+func copyAs(text, what string) tea.Cmd {
+	return func() tea.Msg { return writeClipboard(text, what) }
+}
+
+func writeClipboard(text, what string) tea.Msg {
+	{
 		n := strings.Count(text, "\n") + 1
 		if os.Getenv("SSH_TTY") == "" && os.Getenv("SSH_CONNECTION") == "" {
 			if err := clipboard.WriteAll(text); err == nil {
-				return copiedMsg{lines: n}
+				return copiedMsg{lines: n, what: what}
 			}
 		}
 		seq := "\x1b]52;c;" + base64.StdEncoding.EncodeToString([]byte(text)) + "\a"
@@ -239,13 +247,17 @@ func copyCmd(text string) tea.Cmd {
 			seq = "\x1bPtmux;" + strings.ReplaceAll(seq, "\x1b", "\x1b\x1b") + "\x1b\\"
 		}
 		_, err := os.Stdout.WriteString(seq)
-		return copiedMsg{lines: n, err: err}
+		return copiedMsg{lines: n, what: what, err: err}
 	}
 }
 
 func (m *Model) applyCopied(msg copiedMsg) {
 	if msg.err != nil {
 		m.setMsg(lvErr, i18n.Tf("复制失败：%s", msg.err.Error()))
+		return
+	}
+	if msg.what != "" {
+		m.setMsg(lvOK, i18n.Tf("已复制 %s", msg.what))
 		return
 	}
 	m.setMsg(lvOK, i18n.Tf("已复制 %d 行", msg.lines))

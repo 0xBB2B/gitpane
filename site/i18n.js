@@ -31,7 +31,7 @@ window.I18N = {
   "hl": [
    {
     "t": "全程鼠标可点",
-    "d": "点文件看 diff，点 <code>+</code> / <code>-</code> 暂存，点目录折叠，滚轮翻历史，点按钮切分支，当然键盘也一样快。"
+    "d": "点文件看 diff，点 <code>+</code> / <code>-</code> 暂存，点目录折叠，滚轮翻历史，点按钮切分支，右键弹出操作菜单，当然键盘也一样快。"
    },
    {
     "t": "真正好看的提交图谱",
@@ -92,7 +92,7 @@ window.I18N = {
   "hl": [
    {
     "t": "全程滑鼠可點",
-    "d": "點檔案看 diff，點 <code>+</code> / <code>-</code> 暫存，點目錄摺疊，滾輪翻閱歷史，點按鈕切換分支，當然鍵盤也一樣快。"
+    "d": "點檔案看 diff，點 <code>+</code> / <code>-</code> 暫存，點目錄摺疊，滾輪翻閱歷史，點按鈕切換分支，右鍵彈出操作選單，當然鍵盤也一樣快。"
    },
    {
     "t": "真正好看的提交圖譜",
@@ -153,7 +153,7 @@ window.I18N = {
   "hl": [
    {
     "t": "Point and click everywhere",
-    "d": "Click a file to see its diff, click <code>+</code> / <code>-</code> to stage, click folders to collapse, scroll through history, click a button to switch branches — and the keyboard is just as fast."
+    "d": "Click a file to see its diff, click <code>+</code> / <code>-</code> to stage, click folders to collapse, scroll through history, click a button to switch branches, right-click for an action menu — and the keyboard is just as fast."
    },
    {
     "t": "A commit graph that's actually readable",
@@ -214,7 +214,7 @@ window.I18N = {
   "hl": [
    {
     "t": "ほぼすべてマウスで操作",
-    "d": "ファイルをクリックして diff を表示、<code>+</code> / <code>-</code> でステージ、フォルダをクリックして折りたたみ、ホイールで履歴をたどり、ボタンでブランチを切り替え。もちろんキーボードでも同じように速く操作できます。"
+    "d": "ファイルをクリックして diff を表示、<code>+</code> / <code>-</code> でステージ、フォルダをクリックして折りたたみ、ホイールで履歴をたどり、ボタンでブランチを切り替え、右クリックで操作メニュー。もちろんキーボードでも同じように速く操作できます。"
    },
    {
     "t": "本当に読みやすいコミットグラフ",
@@ -275,7 +275,7 @@ window.I18N = {
   "hl": [
    {
     "t": "어디서나 마우스로 클릭",
-    "d": "파일을 클릭해 diff 보기, <code>+</code> / <code>-</code>로 스테이지, 폴더 클릭으로 접기, 휠로 기록 탐색, 버튼으로 브랜치 전환. 물론 키보드로도 똑같이 빠릅니다."
+    "d": "파일을 클릭해 diff 보기, <code>+</code> / <code>-</code>로 스테이지, 폴더 클릭으로 접기, 휠로 기록 탐색, 버튼으로 브랜치 전환, 오른쪽 클릭으로 작업 메뉴. 물론 키보드로도 똑같이 빠릅니다."
    },
    {
     "t": "정말 읽기 쉬운 커밋 그래프",

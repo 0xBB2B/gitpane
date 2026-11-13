@@ -183,6 +183,15 @@ func (m *Model) pickSwitch() tea.Cmd {
 		return nil
 	}
 	b := m.branches[rows[m.pickCursor].bi]
+	if !b.Current && m.pickSwitchMode {
+		m.picking = false // 切换模式：选完就回到原来的页面
+	}
+	return m.switchBranch(b)
+}
+
+// switchBranch 切换到分支 b（切换面板和右键菜单共用）。
+// 已在其他工作区检出的分支不执行 git switch，而是切到那个工作区。
+func (m *Model) switchBranch(b gitx.Branch) tea.Cmd {
 	if b.Current {
 		m.setMsg(lvInfo, i18n.Tf("已经在 %s 上", b.Name))
 		return nil
@@ -194,9 +203,6 @@ func (m *Model) pickSwitch() tea.Cmd {
 		return m.openWorktree(w, i18n.Tf("已切换到工作区 %s", filepath.Base(w.Path)))
 	}
 	repo := m.repo
-	if m.pickSwitchMode {
-		m.picking = false // 切换模式：选完就回到原来的页面
-	}
 	return m.startOp(i18n.T("切换分支…"), func() (string, error) { return i18n.Tf("已切换到 %s", b.Name), repo.Switch(b) })
 }
 

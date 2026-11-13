@@ -197,7 +197,7 @@ func (m Model) bottomButtons() []button {
 		}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	case tabGraph:
-		bs = []button{{id: "switchBranch", label: icons.swap + i18n.T(" 切换分支"), kind: btnSwitch}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "tag", label: "◆ " + i18n.T("标签")}}
+		bs = []button{{id: "switchBranch", label: icons.swap + i18n.T(" 切换分支"), kind: btnSwitch}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
@@ -320,6 +320,9 @@ func (m Model) viewMain() string {
 	lines = append(lines, renderButtons(m.w, m.bottomButtons()), m.viewStatus())
 	if m.sel.visible() {
 		m.overlaySelection(lines)
+	}
+	if m.menu.open {
+		m.overlayMenu(lines)
 	}
 	return strings.Join(lines, "\n")
 }
@@ -770,13 +773,10 @@ func (m Model) viewStatus() string {
 		}
 		return paint(m.w, nil, sg(" "+icon+" ", fg(col).Bold(true)), sg(m.msg, fg(col)))
 	}
-	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"←→", i18n.T("折叠")}, {"c", i18n.T("提交")}, {"a", i18n.T("全暂存")}, {"x", i18n.T("放弃")}, {"Tab", i18n.T("切换")}}
-	if len(m.worktrees) > 1 {
-		keys = append([][2]string{keys[0], {"t", i18n.T("切换工作区")}}, keys[1:]...)
-	}
-	switch m.tab {
-	case tabGraph:
-		keys = [][2]string{{"↑↓", i18n.T("选择")}, {"b", i18n.T("切换分支")}, {"z", i18n.T("展开文件")}, {"T", i18n.T("标签")}, {"J/K", i18n.T("翻详情")}, {"Tab", i18n.T("切换")}}
+	// 只留最基本的几个，其余在 ? 帮助里
+	keys := [][2]string{{i18n.T("空格"), i18n.T("暂存")}, {"c", i18n.T("提交")}, {i18n.T("右键"), i18n.T("更多操作")}}
+	if m.tab == tabGraph {
+		keys = [][2]string{{"b", i18n.T("切换分支")}, {i18n.T("右键"), i18n.T("更多操作")}}
 	}
 	tail := [][2]string{{"?", i18n.T("帮助")}}
 	if m.workspace != "" {
@@ -839,9 +839,12 @@ func (m Model) viewHelp() string {
 			{"z", i18n.T("提交详情里全部展开 / 折叠文件")},
 			{"p  P  f", "pull / push / fetch"},
 			{"T", i18n.T("给选中的提交打标签：回车创建并推送（推送分支时也会带上新标签）")},
+			{"m", i18n.T("打开当前行的操作菜单（和右键一样）")},
 		}},
 		{i18n.T("鼠标"), []item{
 			{i18n.T("点文件"), i18n.T("查看 diff；点右侧 + / - 暂存或取消")},
+			{i18n.T("右键文件"), i18n.T("暂存 / 取消暂存、放弃改动、复制路径")},
+			{i18n.T("右键提交"), i18n.T("切换到分支或这个提交、打标签、复制哈希 / 提交信息")},
 			{i18n.T("点目录 / 分组"), i18n.T("折叠；分组右侧按钮批量操作")},
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
 			{i18n.T("点「⇄ 切换分支」"), i18n.T("打开分支切换面板，会执行 git switch（图谱页底部）")},

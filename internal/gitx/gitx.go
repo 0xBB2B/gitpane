@@ -500,3 +500,16 @@ func Describe(err error) string {
 	}
 	return fmt.Sprint(firstLine(err.Error()))
 }
+
+// SwitchDetach 把 HEAD 切到某个提交上（游离 HEAD，git switch --detach）。
+// 未提交的改动和 Switch 一样，能带过去就带过去，冲突时返回说明。
+func (r *Repo) SwitchDetach(rev string) error {
+	_, err := r.git("switch", "--detach", rev)
+	return switchError(err)
+}
+
+// CommitMessage 返回提交的完整信息（标题 + 正文），去掉末尾空行。
+func (r *Repo) CommitMessage(rev string) (string, error) {
+	out, err := r.git("log", "-1", "--format=%B", rev)
+	return strings.TrimRight(out, "\n"), err
+}

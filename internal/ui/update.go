@@ -162,6 +162,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
+		if m.menu.open {
+			return m.handleMenuMouse(msg)
+		}
 		if m.repoPicking {
 			return m.handleRepoMouse(msg)
 		}
@@ -181,6 +184,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 			return m, nil
+		}
+		if m.menu.open {
+			return m.handleMenuKey(msg)
 		}
 		if m.committing {
 			return m.handleCommitKey(msg)
@@ -347,6 +353,8 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.openWorktreePicker()
 	case "T":
 		return m, m.beginTag()
+	case "m":
+		return m, m.openMenuAtCursor()
 	case "J", "ctrl+d":
 		m.detailOff += max(1, g.detailH/2)
 		m.clampOffset()
@@ -441,6 +449,16 @@ func (m Model) handleMouse(ev tea.MouseMsg) (tea.Model, tea.Cmd) {
 		}
 		m.detailOff += d
 		m.clampOffset()
+		return m, nil
+	}
+	if ev.Action == tea.MouseActionPress && ev.Button == tea.MouseButtonRight && inList && !m.committing && !m.tagging {
+		// 右键：选中这一行并弹出操作菜单
+		idx := m.offset[m.tab] + ev.Y - g.listY
+		if idx < m.itemCount() {
+			cmd := m.moveCursor(idx)
+			m.openMenu(idx, ev.X, ev.Y)
+			return m, cmd
+		}
 		return m, nil
 	}
 	if ev.Action != tea.MouseActionPress || ev.Button != tea.MouseButtonLeft {
@@ -814,8 +832,13 @@ func (m *Model) doAction(id string) tea.Cmd {
 			return nil
 		}
 		m.confirmKey = ""
-		f := r.file
-		return m.startOp(i18n.T("放弃改动…"), func() (string, error) { return i18n.Tf("已放弃 %s", f.Path), repo.Discard(f) })
+		return m.discardFile(r.file)
 	}
 	return nil
+}
+
+// discardFile 放弃一个文件的改动（未跟踪的新文件会被删除）。调用前要先确认过。
+func (m *Model) discardFile(f gitx.File) tea.Cmd {
+	repo := m.repo
+	return m.startOp(i18n.T("放弃改动…"), func() (string, error) { return i18n.Tf("已放弃 %s", f.Path), repo.Discard(f) })
 }

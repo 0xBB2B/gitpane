@@ -135,6 +135,8 @@ type Model struct {
 	confirmKey string
 	confirmAt  time.Time
 
+	menu menuState // 右键菜单
+
 	sel selState // 鼠标拖动选中的文字
 
 	lastClickRow int

@@ -37,7 +37,7 @@
 
 ## Highlights
 
-- **Point and click everywhere**: click a file to see its diff, click `+` / `-` to stage, click folders to collapse, scroll through history, click a button to switch branches — and the keyboard is just as fast.
+- **Point and click everywhere**: click a file to see its diff, click `+` / `-` to stage, click folders to collapse, scroll through history, click a button to switch branches, right-click for an action menu — and the keyboard is just as fast.
 - **A commit graph that's actually readable**: Gitpane lays out the lanes itself — one commit per row, forks and merges joined with rounded lines on the same row, and every branch keeps its color.
 - **History by branch**: pick any mix of local and remote branches and the graph shows only those; it keeps loading as you scroll, all the way to the first commit.
 - **Collapsible commit details**: one row per file with `+added -removed`; open the ones you care about and see the shape of a large commit at a glance.
@@ -122,6 +122,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Commit details**: the commit message plus one row per file (with `+added -removed`); click a file name to expand or collapse its changes.
   Single-file commits open expanded and multi-file commits start collapsed; `z` or the button in the header toggles them all.
 - **Actions**: commit, pull, push (sets `-u origin HEAD` when there's no upstream), fetch, tagging (select a commit in the graph and press `T`; Enter creates and pushes, and push also sends new tags), discard changes (confirmed twice), git init.
+- **Right-click menu**: right-click a file to stage / unstage, discard changes (click again in the menu to confirm), or copy its relative / absolute path; right-click a commit to switch to a branch on it or to the commit itself (detached HEAD), add a tag, or copy its hash or message. Press `m` to open it from the keyboard.
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
 - **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
   One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.
@@ -147,6 +148,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 | `x` | Discard changes to the current file (press twice) |
 | `p` / `P` / `f` | pull / push / fetch |
 | `T` | Tag the selected commit in the graph (suggests the next version, Tab fills it in; Enter creates and pushes) |
+| `m` | Open the action menu for the selected row (same as right-click) |
 | `J` `K` | Scroll the detail pane |
 | `w` | Wrap / truncate long lines in the detail pane (remembered) |
 | `<` `>` / `=` | Move the divider between list and detail / reset it |
