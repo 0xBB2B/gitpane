@@ -122,7 +122,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Commit details**: the commit message plus one row per file (with `+added -removed`); click a file name to expand or collapse its changes.
   Single-file commits open expanded and multi-file commits start collapsed; `z` or the button in the header toggles them all.
 - **Actions**: commit, pull, push (sets `-u origin HEAD` when there's no upstream), fetch, tagging (select a commit in the graph and press `T`; Enter creates and pushes, and push also sends new tags), discard changes (confirmed twice), git init.
-- **Right-click menu**: right-click a file to stage / unstage, discard changes (click again in the menu to confirm), or copy its relative / absolute path; right-click a commit to switch to a branch on it or to the commit itself (detached HEAD), add a tag, or copy its hash or message. Press `m` to open it from the keyboard.
+- **Right-click menu**: right-click a file to stage / unstage, discard changes (click again in the menu to confirm), or copy its relative / absolute path; right-click a commit to switch to a branch on it or to the commit itself (detached HEAD), add a tag, or copy its hash or message. If your terminal doesn't pass right-clicks through, click “⋯ More” at the bottom or press `m`.
 - **Languages**: the UI is available in 简体中文, 繁體中文, English, 日本語 and 한국어.
 - **Subrepos**: start Gitpane in a folder that isn't a repository (a workspace full of projects, say) and it finds the repositories a few levels down.
   One repo opens straight away; several bring up a picker showing each repo's branch and change count (`/` to filter). Press `o` or click the repo name at the top right to switch at any time.

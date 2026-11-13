@@ -256,5 +256,9 @@ func init() {
 		"暂存 / 取消暂存、放弃改动、复制路径": "Stage / unstage, discard changes, copy path",
 		"右键提交": "Right-click a commit",
 		"切换到分支或这个提交、打标签、复制哈希 / 提交信息": "Switch to a branch or this commit, add a tag, copy hash / message",
+		"更多":      "More",
+		"点「⋯ 更多」": "Click “⋯ More”",
+		"和右键一样，打开选中那一行的操作菜单（终端不传右键时用）": "Same as right-click: opens the action menu for the selected row (for terminals that don't pass right-clicks through)",
+		"先选中一个文件或提交": "Select a file or commit first",
 	})
 }

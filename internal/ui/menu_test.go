@@ -86,3 +86,22 @@ func TestMenuConfirmAndClose(t *testing.T) {
 		t.Fatal("点菜单外面应关闭菜单")
 	}
 }
+
+// 菜单 / 选区叠在中英文混排的行上：无论边界切在哪一格（包括宽字中间），整行宽度都不能变。
+func TestSpliceCellsWideChars(t *testing.T) {
+	const total = 40
+	line := "\x1b[33mab\x1b[0m中文提交说明x \x1b[1m重叠拒绝（#529）\x1b[0m时间"
+	line += strings.Repeat(" ", total-textWidth(ansi.Strip(line)))
+	for x := 0; x < total; x++ {
+		for w := 1; x+w <= total; w++ {
+			got := spliceCells(line, x, w, total, strings.Repeat("@", w))
+			plain := ansi.Strip(got)
+			if gw := textWidth(plain); gw != total {
+				t.Fatalf("x=%d w=%d：行宽 %d，应为 %d：%q", x, w, gw, total, plain)
+			}
+			if idx := strings.Index(plain, strings.Repeat("@", w)); textWidth(plain[:idx]) != x {
+				t.Fatalf("x=%d w=%d：菜单没有从第 %d 格开始：%q", x, w, x, plain)
+			}
+		}
+	}
+}

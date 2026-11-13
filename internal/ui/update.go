@@ -813,6 +813,8 @@ func (m *Model) doAction(id string) tea.Cmd {
 		return m.syncDetail()
 	case "filter":
 		return m.openPicker()
+	case "menu": // 底部「⋯ 更多」：和右键一样，给不传右键的终端用
+		return m.openMenuAtCursor()
 	case "filterClear":
 		return m.setGraphRefs(nil)
 	case "discard":

@@ -168,7 +168,11 @@ func (m Model) overlaySelection(lines []string) {
 		}
 		line := lines[r.y]
 		mid := ansi.Strip(ansi.Cut(line, r.a, r.b))
-		lines[r.y] = ansi.Cut(line, 0, r.a) + sgrReset + open + mid + sgrReset + ansi.Cut(line, r.b, m.w)
+		if mw := textWidth(mid); mw != r.b-r.a { // 选区边界切在宽字中间：用空格补成正好的宽度
+			mid = ansi.Truncate(mid, r.b-r.a, "")
+			mid += strings.Repeat(" ", max(0, r.b-r.a-textWidth(mid)))
+		}
+		lines[r.y] = spliceCells(line, r.a, r.b-r.a, m.w, open+mid)
 	}
 }
 

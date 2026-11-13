@@ -88,10 +88,11 @@ func (m *Model) openMenu(idx, x, y int) tea.Cmd {
 	return nil
 }
 
-// openMenuAtCursor 用键盘（m）在当前行旁边打开菜单。
+// openMenuAtCursor 在当前选中的行旁边打开菜单（按 m 或点底部「⋯ 更多」）。
 func (m *Model) openMenuAtCursor() tea.Cmd {
 	idx := m.cursor[m.tab]
-	if idx < 0 || idx >= m.itemCount() {
+	if idx < 0 || idx >= m.itemCount() || len(m.menuItems(idx)) == 0 {
+		m.setMsg(lvInfo, i18n.T("先选中一个文件或提交"))
 		return nil
 	}
 	g := m.geom()
@@ -351,16 +352,7 @@ func (m Model) overlayMenu(lines []string) {
 		if y < 0 || y >= len(lines) {
 			return
 		}
-		line := lines[y]
-		left := ansi.Cut(line, 0, s.x)
-		if lw := textWidth(ansi.Strip(left)); lw < s.x {
-			left += strings.Repeat(" ", s.x-lw) // 切在两格宽的字中间时补齐
-		}
-		right := ansi.Cut(line, s.x+w, m.w)
-		if rw := textWidth(ansi.Strip(right)); rw < m.w-s.x-w {
-			right = strings.Repeat(" ", m.w-s.x-w-rw) + right
-		}
-		lines[y] = left + sgrReset + content + sgrReset + right
+		lines[y] = spliceCells(lines[y], s.x, w, m.w, content)
 	}
 	inner := w - 2
 	put(s.y, edge+"╭"+strings.Repeat("─", inner)+"╮")
@@ -389,4 +381,23 @@ func (m Model) overlayMenu(lines []string) {
 		put(s.y+1+i, edge+"│"+styleOpen(st)+" "+label+strings.Repeat(" ", max(0, pad))+" "+sgrReset+edge+"│")
 	}
 	put(s.y+s.height()-1, edge+"╰"+strings.Repeat("─", inner)+"╯")
+}
+
+// spliceCells 把一行里第 [x, x+w) 格换成 content（content 正好 w 格宽），整行保持 total 格宽。
+// 边界切在两格宽的字（中文等）中间时，被切开的字换成空格，不能让整行变宽，否则后面的内容会错位。
+func spliceCells(line string, x, w, total int, content string) string {
+	left := ansi.Truncate(line, x, "") // Truncate 放不下的宽字会整个丢掉，不会超出 x 格
+	if lw := textWidth(ansi.Strip(left)); lw < x {
+		left += sgrReset + strings.Repeat(" ", x-lw)
+	}
+	want := max(0, total-x-w)
+	right := ansi.TruncateLeft(line, x+w, "")
+	if textWidth(ansi.Strip(right)) > want {
+		// 切在宽字中间时 TruncateLeft 会把整个字留下：从下一格开始取，把这个字去掉，后面补空格
+		right = ansi.TruncateLeft(line, x+w+1, "")
+	}
+	if rw := textWidth(ansi.Strip(right)); rw < want {
+		right = strings.Repeat(" ", want-rw) + right
+	}
+	return left + sgrReset + content + sgrReset + right
 }

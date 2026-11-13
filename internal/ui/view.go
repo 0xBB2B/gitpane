@@ -191,13 +191,13 @@ func (m Model) bottomButtons() []button {
 	var bs []button
 	switch m.tab {
 	case tabChanges:
-		bs = []button{{id: "commit", label: icons.check + " " + capFirst(i18n.T("提交")), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}}
+		bs = []button{{id: "commit", label: icons.check + " " + capFirst(i18n.T("提交")), kind: btnPrimary}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "stageAll", label: i18n.T("+ 全部暂存")}, {id: "menu", label: "⋯ " + i18n.T("更多")}}
 		if r, ok := m.currentRow(); ok && r.kind == rowFile && r.sec == secChanges {
 			bs = append(bs, button{id: "discard", label: i18n.T("✕ 放弃"), kind: btnDanger})
 		}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	case tabGraph:
-		bs = []button{{id: "switchBranch", label: icons.swap + i18n.T(" 切换分支"), kind: btnSwitch}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}}
+		bs = []button{{id: "switchBranch", label: icons.swap + i18n.T(" 切换分支"), kind: btnSwitch}, {id: "pull", label: pull}, {id: "push", label: push}, {id: "fetch", label: i18n.T("⇣ 抓取")}, {id: "menu", label: "⋯ " + i18n.T("更多")}}
 		bs = append(bs, button{id: "refresh", label: "↻"})
 	}
 	return place(1, m.w, bs)
@@ -845,6 +845,7 @@ func (m Model) viewHelp() string {
 			{i18n.T("点文件"), i18n.T("查看 diff；点右侧 + / - 暂存或取消")},
 			{i18n.T("右键文件"), i18n.T("暂存 / 取消暂存、放弃改动、复制路径")},
 			{i18n.T("右键提交"), i18n.T("切换到分支或这个提交、打标签、复制哈希 / 提交信息")},
+			{i18n.T("点「⋯ 更多」"), i18n.T("和右键一样，打开选中那一行的操作菜单（终端不传右键时用）")},
 			{i18n.T("点目录 / 分组"), i18n.T("折叠；分组右侧按钮批量操作")},
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
 			{i18n.T("点「⇄ 切换分支」"), i18n.T("打开分支切换面板，会执行 git switch（图谱页底部）")},
