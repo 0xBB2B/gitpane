@@ -142,7 +142,7 @@ func (m Model) menuItems(idx int) []menuItem {
 			if wi := m.branchWorktree(b); wi >= 0 {
 				// 已在其他工作区检出：git 不允许检出两次，选它会切到那个工作区（不执行 git switch）
 				items = append(items, menuItem{id: "branch", arg: b.Name, style: menuView,
-					label: icons.wt + " " + i18n.Tf("切换到工作区 %s（%s）", filepath.Base(m.worktrees[wi].Path), b.Name)})
+					label: i18n.Tf("切换到工作区 %s（%s）", filepath.Base(m.worktrees[wi].Path), b.Name)})
 				continue
 			}
 			items = append(items, menuItem{id: "branch", arg: b.Name, style: menuSwitch,

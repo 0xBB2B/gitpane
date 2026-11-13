@@ -341,7 +341,7 @@ func (m Model) viewHeader() string {
 		if len(m.worktrees) > 1 {
 			// 有多个工作区时先说明「在哪个目录」，分支是这个目录检出的分支；
 			// 否则切换工作区后只看到分支变了，容易以为执行了 git switch
-			left = append(left, sg(" "+icons.wt+" "+filepath.Base(m.repo.Root)+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cAccent).Bold(true)), sg(" ", lipgloss.NewStyle()))
+			left = append(left, sg(" "+filepath.Base(m.repo.Root)+" ", lipgloss.NewStyle().Background(cSurface).Foreground(cAccent).Bold(true)), sg(" ", lipgloss.NewStyle()))
 		}
 		if st.Detached {
 			left = append(left, sg(" "+icons.branch+i18n.T(" HEAD 游离 "), pill.Background(cYellow)))
@@ -845,18 +845,18 @@ func (m Model) viewHelp() string {
 			{i18n.T("点文件"), i18n.T("查看 diff；点右侧 + / - 暂存或取消")},
 			{i18n.T("右键文件"), i18n.T("暂存 / 取消暂存、放弃改动、复制路径")},
 			{i18n.T("右键提交"), i18n.T("切换到分支或这个提交、打标签、复制哈希 / 提交信息")},
-			{i18n.T("点「⋯ 更多」"), i18n.T("和右键一样，打开选中那一行的操作菜单（终端不传右键时用）")},
+			{i18n.T("点「更多」"), i18n.T("和右键一样，打开选中那一行的操作菜单（终端不传右键时用）")},
 			{i18n.T("点目录 / 分组"), i18n.T("折叠；分组右侧按钮批量操作")},
 			{i18n.T("点「全部折叠」"), i18n.T("标签栏右侧，一键折叠 / 展开所有目录")},
-			{i18n.T("点「⇄ 切换分支」"), i18n.T("打开分支切换面板，会执行 git switch（图谱页底部）")},
-			{i18n.T("点右上角「⊚ 查看：全部分支 ▾」"), i18n.T("选择图谱要显示哪些分支（只改变显示，不切换分支）")},
+			{i18n.T("点「切换分支」"), i18n.T("打开分支切换面板，会执行 git switch（图谱页底部）")},
+			{i18n.T("点右上角「全部分支 ▾」"), i18n.T("选择图谱要显示哪些分支（只改变显示，不切换分支）")},
 			{i18n.T("点提交详情里的文件名"), i18n.T("展开 / 折叠该文件的改动")},
 			{i18n.T("滚轮"), i18n.T("列表上滚列表，详情上滚详情")},
 			{i18n.T("拖动分隔线"), i18n.T("调整左右 / 上下比例（每个标签页单独记住）")},
 			{i18n.T("拖动选中文字"), i18n.T("松开即复制；只选起点所在的那一栏，复制代码时自动去掉行号")},
 			{i18n.T("Shift + 拖动"), i18n.T("用终端自带的选择（iTerm2 按住 Option，macOS 终端按住 Fn）")},
 			{i18n.T("点右上角仓库名"), i18n.T("切换仓库（子仓库模式，也可以按 o）")},
-			{i18n.T("点右上角「◫ 工作区 ▾」"), i18n.T("变更页，有多个工作区（git worktree）时切换，不会执行 git switch")},
+			{i18n.T("点右上角「工作区 ▾」"), i18n.T("变更页，有多个工作区（git worktree）时切换，不会执行 git switch")},
 		}},
 	}
 	quit := i18n.T("Ctrl+C 两次")

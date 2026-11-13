@@ -90,9 +90,8 @@ var nerd = func() bool {
 
 type iconSet struct {
 	branch, dirOpen, dirClosed, commit, check, cross, busy, up, down, clean, repo string
-	// swap 是「切换分支」（真的执行 git switch），view 是「查看分支」（只改图谱显示），两者刻意用不同的图标和颜色；
-	// wt 是变更页右上角的「工作区」（git worktree）
-	swap, view, wt string
+	// swap 是「切换分支」（真的执行 git switch），view 是「查看分支」（只改图谱显示），两者刻意用不同的图标和颜色
+	swap, view string
 }
 
 var icons = func() iconSet {
@@ -101,14 +100,14 @@ var icons = func() iconSet {
 			branch: "", dirOpen: "", dirClosed: "", commit: "",
 			check: "", cross: "", busy: "", up: "", down: "",
 			clean: "", repo: "",
-			swap: "\uf0ec", view: "\uf06e", wt: "\uf24d",
+			swap: "\uf0ec", view: "\uf06e",
 		}
 	}
 	return iconSet{
 		branch: "⎇", dirOpen: "▾", dirClosed: "▸", commit: "●",
 		check: "✓", cross: "✗", busy: "", up: "↑", down: "↓",
 		clean: "✓", repo: "",
-		swap: "⇄", view: "⊚", wt: "◫",
+		swap: "⇄", view: "⊚",
 	}
 }()
 

@@ -369,11 +369,11 @@ func (m Model) pickButtons() []button {
 func (m Model) filterLabel() string {
 	switch len(m.graphRefs) {
 	case 0:
-		return icons.view + " " + i18n.Tf("查看：%s", i18n.T("全部分支")) + " ▾"
+		return icons.view + " " + i18n.T("全部分支") + " ▾"
 	case 1:
-		return icons.view + " " + i18n.Tf("查看：%s", m.graphRefs[0]) + " ▾"
+		return icons.view + " " + m.graphRefs[0] + " ▾"
 	}
-	return icons.view + " " + i18n.Tf("查看：%s", fmt.Sprintf("%s +%d", m.graphRefs[0], len(m.graphRefs)-1)) + " ▾"
+	return fmt.Sprintf("%s %s +%d ▾", icons.view, m.graphRefs[0], len(m.graphRefs)-1)
 }
 
 func (m Model) viewPicker() string {
@@ -450,9 +450,9 @@ func (m Model) viewPicker() string {
 		}
 		// 有多个工作区时，紧挨着分支名标出它检出在哪个工作区（放在最右边容易看不到）
 		if wi := m.branchWorktree(b); wi >= 0 {
-			left = append(left, sg("  "+icons.wt+" "+i18n.Tf("在工作区 %s", filepath.Base(filepath.FromSlash(m.worktrees[wi].Path))), fg(cCyan)))
+			left = append(left, sg("  "+i18n.Tf("在工作区 %s", filepath.Base(filepath.FromSlash(m.worktrees[wi].Path))), fg(cCyan)))
 		} else if b.Current && len(m.worktrees) > 1 && m.repo != nil {
-			left = append(left, sg("  "+icons.wt+" "+i18n.Tf("当前工作区 %s", filepath.Base(m.repo.Root)), fg(cGreen)))
+			left = append(left, sg("  "+i18n.Tf("当前工作区 %s", filepath.Base(m.repo.Root)), fg(cGreen)))
 		}
 		if b.Upstream != "" {
 			left = append(left, sg("  → "+b.Upstream, fg(cFaint)))

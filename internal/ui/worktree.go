@@ -78,7 +78,7 @@ func (m Model) worktreeButton() (button, bool) {
 		return button{}, false
 	}
 	// 工作区按目录名显示，不用分支名：切换分支（git switch）时它不会跟着变，只有换了目录才变
-	return button{id: "worktree", label: icons.wt + " " + i18n.Tf("工作区：%s", filepath.Base(m.repo.Root)) + " ▾", kind: btnPrimary}, true
+	return button{id: "worktree", label: i18n.Tf("工作区：%s", filepath.Base(m.repo.Root)) + " ▾", kind: btnPrimary}, true
 }
 
 func (m *Model) openWorktreePicker() tea.Cmd {
@@ -275,7 +275,7 @@ func (m Model) viewWorktreePicker() string {
 	}
 	where := homeShort(base)
 	lines = append(lines, rightAlign(m.w, cBar,
-		[]seg{sg(" "+icons.wt+" "+i18n.T("切换工作区")+" ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true)), sg("  "+where, fg(cMuted))},
+		[]seg{sg(" "+i18n.T("切换工作区")+" ", lipgloss.NewStyle().Background(cAccent).Foreground(cOnPill).Bold(true)), sg("  "+where, fg(cMuted))},
 		[]seg{sg(i18n.Tf("%d 个工作区", len(m.worktrees))+" ", fg(cYellow))}))
 	lines = append(lines, paint(m.w, nil, sg(i18n.T("  ↑↓ 选择 · 回车或单击切换 · Esc 返回"), fg(cFaint))))
 
@@ -296,7 +296,7 @@ func (m Model) viewWorktreePicker() string {
 			branch = i18n.Tf("游离 %s", branch)
 		}
 		dir := wtPath(base, w.Path)
-		left := []seg{sg(dot, fg(cGreen)), sg(icons.wt+" ", fg(cAccent)), sg(dir, nameSt), sg("   "+icons.branch+" "+branch, fg(cPurple))}
+		left := []seg{sg(dot, fg(cGreen)), sg(dir, nameSt), sg("   "+icons.branch+" "+branch, fg(cPurple))}
 		var right []seg
 		if i == 0 { // git worktree list 的第一项是主工作区（仓库本身的目录）
 			left = append(left, sg("  "+i18n.T("主工作区"), fg(cFaint)))
