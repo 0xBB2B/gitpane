@@ -13,7 +13,7 @@ import (
 	"github.com/0xBB2B/gitpane/internal/i18n"
 )
 
-// 查看分支面板：只能点图谱页标签栏右侧的「⊚ 查看：全部分支 ▾」打开（蓝色）。
+// 查看分支面板：只能点图谱页标签栏右侧的「全部分支 ▾」打开（蓝色）。
 // 勾选一个或多个分支后，图谱只显示这些分支；一个都不勾 = 显示全部。
 // 这个面板只负责筛选，不切换分支。
 //
@@ -369,11 +369,11 @@ func (m Model) pickButtons() []button {
 func (m Model) filterLabel() string {
 	switch len(m.graphRefs) {
 	case 0:
-		return icons.view + " " + i18n.T("全部分支") + " ▾"
+		return i18n.T("全部分支") + " ▾"
 	case 1:
-		return icons.view + " " + m.graphRefs[0] + " ▾"
+		return m.graphRefs[0] + " ▾"
 	}
-	return fmt.Sprintf("%s %s +%d ▾", icons.view, m.graphRefs[0], len(m.graphRefs)-1)
+	return fmt.Sprintf("%s +%d ▾", m.graphRefs[0], len(m.graphRefs)-1)
 }
 
 func (m Model) viewPicker() string {
@@ -404,7 +404,7 @@ func (m Model) viewPicker() string {
 		}
 		lines = append(lines,
 			rightAlign(m.w, cBar,
-				[]seg{sg(" "+icons.view+" "+i18n.T("查看分支")+" ", btnStyle(btnPrimary))},
+				[]seg{sg(" "+i18n.T("查看分支")+" ", btnStyle(btnPrimary))},
 				[]seg{sg(sel+" ", fg(cYellow))}),
 			paint(m.w, nil, sg(i18n.T("  点击或空格勾选，可多选；都不勾 = 全部"), fg(cFaint))))
 	}

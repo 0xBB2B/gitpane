@@ -322,7 +322,7 @@ func (m Model) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.switchTab(tabGraph)
 	case "b":
 		// 切换分支只在图谱页；变更页右上角是「工作区」切换（git worktree），两者分开避免误操作。
-		// 图谱显示哪些分支只能点右上角的「⊚ 查看：全部分支 ▾」修改
+		// 图谱显示哪些分支只能点右上角的「全部分支 ▾」修改
 		if m.tab != tabGraph {
 			m.setMsg(lvInfo, i18n.T("切换分支请到图谱页（按 2）"))
 			return m, nil
