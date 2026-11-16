@@ -506,8 +506,11 @@ func renderGraphLine(g gitx.GraphLine, w int, sel bool, headBranch string) strin
 			continue
 		}
 		st := fg(graphColors[c.Color%len(graphColors)])
-		if c.Glyph == "●" || c.Glyph == "◉" || c.Glyph == "○" {
+		if c.Glyph == "●" || c.Glyph == "○" {
 			st = st.Bold(true)
+			if g.Head { // HEAD 只换颜色，不换字，保证和其它提交一样大、对得齐
+				st = fg(cText).Bold(true)
+			}
 		}
 		segs = append(segs, sg(c.Glyph, st))
 	}

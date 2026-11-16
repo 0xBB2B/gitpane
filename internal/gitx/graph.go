@@ -212,11 +212,9 @@ func layout(cs []rawCommit) []GraphLine {
 			cells[i] = Cell{Glyph: boxGlyph[bits[i]], Color: color[i]}
 		}
 		head := strings.HasPrefix(c.refs, "HEAD") || strings.Contains(c.refs, "HEAD ->")
+		// HEAD 和普通提交用同一个 ●（界面上换成白色）：◉ 在不少字体 / 终端里比 ● 大一圈，会对不齐
 		dot := "●"
-		switch {
-		case head:
-			dot = "◉"
-		case len(c.parents) > 1:
+		if len(c.parents) > 1 {
 			dot = "○"
 		}
 		cells[2*col] = Cell{Glyph: dot, Color: myColor}

@@ -113,7 +113,7 @@ Drag the divider between them (in the stacked layout, drag the detail pane's tit
 - **Diffs**: drawn by Gitpane itself with old and new line numbers, tinted added / removed lines and hunk positions; only the visible part is rendered, so large files stay smooth.
   Long lines wrap by default so nothing is cut off; press `w` to truncate them instead (remembered).
 - **Graph**: a custom lane layout with one commit per row; forks and merges are joined on the same row with `╭ ╮ ╰ ╯ ├ ┤ ┴ ┼`, and each branch keeps its color.
-  `◉` marks HEAD and `○` a merge commit (with a dimmed subject). HEAD, local branches, remote branches and tags are color-coded.
+  The white dot marks HEAD and `○` a merge commit (with a dimmed subject). HEAD, local branches, remote branches and tags are color-coded.
   Scrolling to the bottom loads more, so the entire history is reachable.
 - **Switch branches**: on the Graph tab press `b` (or click the orange “⇄ Switch branch” at the bottom) for the switcher; a click runs `git switch`, `/` filters.
   A remote branch gets a local tracking branch of the same name; a branch checked out in another worktree takes you to that worktree; if uncommitted changes conflict, you're told to commit or stash first and nothing is lost.
