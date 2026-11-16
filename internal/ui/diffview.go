@@ -561,7 +561,10 @@ func refPill(ref string) seg {
 	case ref == "HEAD":
 		st = st.Foreground(cCyan)
 	case strings.HasPrefix(ref, "tag: "):
-		label = "◆ " + strings.TrimPrefix(ref, "tag: ")
+		label = strings.TrimPrefix(ref, "tag: ")
+		if icons.tag != "" {
+			label = icons.tag + " " + label
+		}
 		st = st.Foreground(cYellow)
 	case strings.Contains(ref, "/"):
 		st = st.Foreground(cPurple)

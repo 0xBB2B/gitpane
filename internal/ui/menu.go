@@ -153,7 +153,7 @@ func (m Model) menuItems(idx int) []menuItem {
 				label: icons.swap + " " + i18n.Tf("切换到此提交 %s（游离 HEAD）", c.Hash)})
 		}
 		return append(items, sep,
-			menuItem{id: "tag", label: "◆ " + i18n.T("打标签…")},
+			menuItem{id: "tag", label: i18n.T("打标签…")},
 			sep,
 			menuItem{id: "copy", label: i18n.T("复制哈希"), arg: c.Full},
 			menuItem{id: "copyMsg", label: i18n.T("复制提交信息"), arg: c.Full})

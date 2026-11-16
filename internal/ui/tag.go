@@ -90,7 +90,7 @@ func (m *Model) doTag(push bool) tea.Cmd {
 
 func (m Model) tagButtons() []button {
 	return place(1, m.w, []button{
-		{id: "tagPush", label: "◆ " + i18n.T("创建并推送"), kind: btnPrimary},
+		{id: "tagPush", label: i18n.T("创建并推送"), kind: btnPrimary},
 		{id: "tagLocal", label: i18n.T("仅在本地创建")},
 		{id: "tagCancel", label: i18n.T("取消")},
 	})

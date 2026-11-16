@@ -259,5 +259,6 @@ func init() {
 		"点「更多」": "Click “More”",
 		"和右键一样，打开选中那一行的操作菜单（终端不传右键时用）": "Same as right-click: opens the action menu for the selected row (for terminals that don't pass right-clicks through)",
 		"先选中一个文件或提交": "Select a file or commit first",
+		"标签":         "Tag",
 	})
 }

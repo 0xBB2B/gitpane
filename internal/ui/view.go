@@ -749,7 +749,7 @@ func (m Model) viewStatus() string {
 	case m.committing, m.tagging:
 		icon := sg(" ✎ ", fg(cAccent).Bold(true))
 		if m.tagging {
-			icon = sg(" ◆ ", fg(cYellow).Bold(true))
+			icon = sg(" "+i18n.T("标签")+" ", fg(cYellow).Bold(true))
 		}
 		left := []seg{icon, sgRaw(m.input.View(), lipgloss.NewStyle())}
 		// 输入框打开时，报错（标签已存在、提交信息为空等）显示在同一行右侧，不然会被输入框挡住

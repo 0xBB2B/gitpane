@@ -92,6 +92,8 @@ type iconSet struct {
 	branch, dirOpen, dirClosed, commit, check, cross, busy, up, down, clean, repo string
 	// swap 是「切换分支」（真的执行 git switch）的图标，和橙色一起把它与只改显示的操作区分开
 	swap string
+	// tag 只用在图谱里的标签上：Nerd Font 下是标签图标；普通字体没有合适的字，就不加，只靠黄色区分
+	tag string
 }
 
 var icons = func() iconSet {
@@ -100,7 +102,7 @@ var icons = func() iconSet {
 			branch: "", dirOpen: "", dirClosed: "", commit: "",
 			check: "", cross: "", busy: "", up: "", down: "",
 			clean: "", repo: "",
-			swap: "\uf0ec",
+			swap: "\uf0ec", tag: "\uf02b",
 		}
 	}
 	return iconSet{
